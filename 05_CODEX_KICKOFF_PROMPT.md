@@ -11,6 +11,7 @@ Du bist leitender SwiftUI-Entwickler und iOS-Architekt des neuen Projekts **Pace
 - `docs/ROADMAP.md`
 - `docs/INTEGRATION_CONTRACT.md`
 - `docs/TEST_AND_RELEASE.md`
+- `docs/VIDEO_REFERENCE.md`
 
 **Datenschutz:** Dieses GitHub-Repository ist derzeit öffentlich. Private Referenzbilder sind absichtlich nicht enthalten. Verwende die schriftliche Designspezifikation; fordere bei Bedarf ausschließlich bereinigte Bilder an. Keine Suche nach Pace Social.
 
@@ -18,7 +19,7 @@ Du bist leitender SwiftUI-Entwickler und iOS-Architekt des neuen Projekts **Pace
 
 **Pace Social ist TABU.** Du bekommst **keinen Zugriff** auf dessen GitHub-Repository oder Quellcode. Du darfst es nicht klonen, öffnen, herunterladen, verändern oder über einen anderen Weg als Codequelle verwenden. Ausschließlich Claude bearbeitet Pace Social. Arbeite nur in dem neuen, separaten Pace-Life-Repository. Verändere keinerlei produktive Supabase-Daten, Migrationen oder fremde Projekte.
 
-Die beigefügten Dokumente und Bilder sind die freigegebenen Referenzen. Erfinde keine weiteren Annahmen über den Code, Datenbanken oder APIs von Pace Social.
+Die Repository-Dokumentation und die vom Nutzer **separat im aktiven Codex-Chat angehängten** Videos bzw. Frames sind die freigegebenen Referenzen. Erfinde keine weiteren Annahmen über den Code, Datenbanken oder APIs von Pace Social.
 
 ## Zielprodukt
 
@@ -30,7 +31,7 @@ Die sieben Module **Life Modes, Life Paths, Pace Adaptive, Life Chapters, Life E
 
 **0. Bestand prüfen.** Falls bereits Dateien für Pace Life vorliegen, inventarisiere sie und bewahre existierende Funktionen. Falls das Repo leer ist, initialisiere es als neues Pace-Life-Projekt. Greife niemals auf Pace Social zu.
 
-**1. Produkt und Design festigen.** Überführe die beigefügten Anforderungen in dauerhafte `docs/`-Dateien. Lege die in `docs/DESIGN_SYSTEM.md` enthaltenen Light-/Dark-Tokenwerte und Komponentenspezifikationen als verbindliche Grundlage fest. Verwende die schriftlich dokumentierten Pace-Designregeln für Header, Home, Statistik, Karten, Tab-Bar, Gruppen und Einstellungen. Private PNGs sind noch nicht freigegeben. Keine generischen Neon-/Glas-Designs.
+**1. Produkt und Design festigen.** Überführe die beigefügten Anforderungen in dauerhafte `docs/`-Dateien. Lege die in `docs/DESIGN_SYSTEM.md` enthaltenen Light-/Dark-Tokenwerte und Komponentenspezifikationen als verbindliche Grundlage fest. Verwende die schriftlich dokumentierten Pace-Designregeln für Header, Home, Statistik, Karten, Tab-Bar, Gruppen und Einstellungen. Originalvideos und Frames kommen direkt über die Codex-Chat-Anhänge und dürfen nicht in GitHub kopiert werden. Keine generischen Neon-/Glas-Designs.
 
 **2. App aufbauen.** Erzeuge ein eigenes Xcode-Projekt mit klarer modularer Struktur (z. B. lokales Swift Package / Feature-Ziele). Implementiere zentrale Dependency Injection, SwiftUI-Navigation, Theme, Sprachbasis DE/EN/RU, semantische Design-Tokens und wiederverwendbare Pace-Life-Komponenten (`PaceCard`, `PaceTile`, Header, Buttons, Progress, Status). Verwende einen explizit als Ersatz gekennzeichneten Logo-Platzhalter, bis das originale `PaceWordmark`-Asset freigegeben wurde.
 
@@ -74,4 +75,4 @@ Liefere nach der Umsetzung:
 **Beginne mit dem vorhandenen Pace-Life-Verzeichnis bzw. lege die neue App an, wenn es leer ist. Starte danach die Implementierung des ersten nutzbaren iOS-Projektstands, nicht nur eine abstrakte Analyse.**
 
 ## Verbindliche Originalvideo-Referenzen
-Vor finaler visueller Implementierung **docs/VIDEO_REFERENCE.md** und [GitHub Issue #1](https://github.com/Boketta-ki-Dashboards/pace-life/issues/1) beachten. Sobald beide Originalvideos dort hochgeladen wurden, analysiere sie zwingend für Bottom-HUD/Tab-Bar, Wischen, Scrollen, Animationen, Header und Safe Areas. Keine Videoanalyse vortäuschen, falls noch keine Anhänge verfügbar sind.
+Die Originalvideos werden **nur als Anhänge in diesem Codex-Chat bereitgestellt**, nicht über GitHub. Lies `docs/VIDEO_REFERENCE.md` und prüfe die tatsächliche Verfügbarkeit der Videos im aktuellen Chat. Nutze sie, wenn technisch auswertbar, zwingend zur Feinabstimmung von Bottom-HUD/Tab-Bar, Wischen, Scrollen, Animationen, Header und Safe Areas. Sind Videos nicht direkt lesbar, arbeite mit vom Nutzer im Chat bereitgestellten Frames/Beschreibungen; kennzeichne den Videoabgleich als ausstehend. Kein Verweis auf GitHub-Issue-Uploads.
