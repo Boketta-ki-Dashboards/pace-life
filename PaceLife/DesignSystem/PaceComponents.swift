@@ -172,7 +172,7 @@ struct PaceStatus: View {
                 .foregroundStyle(PaceColor.accent)
                 .accessibilityHidden(true)
             Text(title)
-                .font(.title3.semibold())
+                .font(.title3.weight(.semibold))
                 .foregroundStyle(PaceColor.textPrimary)
                 .accessibilityAddTraits(.isHeader)
             Text(message)
