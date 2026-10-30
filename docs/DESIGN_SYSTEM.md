@@ -52,3 +52,9 @@ PaceWordmark ist ein **separates originales Markenasset**. Ohne ausdrücklich ü
 
 ## Video-Referenzen
 Zwei Originalvideos (Dark und Light) werden **direkt in der aktiven Codex-Chat-Konversation als Anhänge** bereitgestellt, nicht über GitHub. Die komplette Interaktionsreferenz steht in `docs/VIDEO_REFERENCE.md`. Astra soll die Videos für Bottom-HUD/Tab-Bar, Paging-Gesten, Scrollen und Header auswerten, **sofern die Chat-Umgebung das unterstützt**. Falls nicht, soll Astra die im Chat bereitgestellten Frames und Bewegungsbeschreibungen nutzen und den ausstehenden Originalvideo-Abgleich offen dokumentieren.
+
+## Implementierungsstand Phase 1
+
+Alle 23 Light-/Dark-Farbpaare sind unverändert in `PaceLife/DesignSystem/PaceColors.swift` umgesetzt. `PaceCard` (20 pt), `PaceTile` (14 pt), Buttons (mindestens 52 pt), Fortschrittsring (12 pt), Header und Statuskomponente liegen in `PaceComponents.swift`. Systemschrift, Dynamic Type, Reduce Motion und semantische VoiceOver-Texte bilden die Basis. Der Text „Pace Life“ ist ausdrücklich als Logo-Platzhalter beschriftet.
+
+Die vier Tabs erhalten einen mintfarbenen Auswahlzustand. Safe Areas werden über native SwiftUI-Container berücksichtigt. Die Originalvideos vom 30.10.2026 waren als Chat-Anhänge vorhanden, überschritten aber beide das 32-MiB-Übertragungslimit des Executors. Es wurden keine Frames oder Bewegungen daraus angesehen. **Visueller Videoabgleich ausstehend**; keine Behauptung einer exakten visuellen oder gestischen Übereinstimmung. Dafür fehlen weiterhin ein echter iOS-Lauf und das freigegebene Original-Wordmark.

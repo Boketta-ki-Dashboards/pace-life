@@ -16,3 +16,10 @@
 
 ## Verbindliche Originalvideo-Referenzen
 Die beiden originalen Pace-Social-Videos werden **ausschließlich im aktiven Codex-Chat als Anhänge bereitgestellt** und **nicht nach GitHub hochgeladen**. Lies `docs/VIDEO_REFERENCE.md`. Nutze die Videos für Bottom-HUD, Scrollen, Paging, Animationen und Header, wenn du sie tatsächlich auswerten kannst. Bei fehlender Video-Unterstützung Standbilder und Chat-Beschreibungen verwenden; eine offene visuelle Prüfung transparent dokumentieren. Niemals die Originalvideos in GitHub oder ein anderes Repository kopieren.
+
+## Implementierter Projektaufbau und Prüfbefehle
+- App: `PaceLife/`, Xcode-Projekt: `PaceLife.xcodeproj`, Swift-6-Domäne und atomarer JSON-Store: `Packages/PaceLifeCore`.
+- `swift test --package-path Packages/PaceLifeCore`; iOS-Prüfung auf macOS mit Xcode 16+: `scripts/test-ios.sh`.
+- Nach Änderung der Swift-Dateiliste: `python3 scripts/generate_project.py`; generiertes Projekt mit einchecken. Keine externen Laufzeitabhängigkeiten.
+- Keine Speicherfehler verschlucken, kein automatisches Zurücksetzen beschädigter Daten. Ziel-Snapshots und Tageshistorie bei Änderungen bewahren.
+- Cloud-Tests des Core sind kein Nachweis eines SwiftUI-/Xcode-Builds. Aktuelle Ergebnisse und offene Punkte in `docs/IMPLEMENTATION_STATUS.md` pflegen.

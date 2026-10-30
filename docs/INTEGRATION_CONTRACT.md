@@ -8,3 +8,7 @@ Anonyme Pace-Social-MVP-Logins sind in iOS-Keychain gespeichert; andere Apps hab
 Geplante Adapter-Interfaces: `PaceIdentityService`, `PaceFriendsService`, `PaceGroupsService`, `PaceActivityReadService`. Im ersten Inkrement nur eindeutige `Unavailable`-Adapter (oder bewusst lokale Demos) verwenden; keine Fake-„echten“ Kontakte.
 
 Nach Freigabe: Auth-Flows, zugelassene Profile-Felder, Gruppenmitgliedschaft, Zugriffsregeln, Rate Limits, RLS-Tests, Datenminimierung und Trennung privater Life-Daten. `competitionSteps` in Pace Social niemals durch Pace-Life-Eingaben erhöhen.
+
+## Technischer Stand Phase 1
+
+`PaceLifeCore/Integration.swift` enthält `PaceIdentityService`, `PaceFriendsService`, `PaceGroupsService`, `PaceActivityReadService` und `UnavailablePaceServices`. Diese Protokolle geben vorerst ausschließlich einen nicht verfügbaren Capability-Status zurück. Datenoperationen werden erst aus dem freigegebenen Vertrag abgeleitet. Keine HTTP-Aufrufe, Supabase-Abhängigkeiten, Identitätsannahmen oder Fake-Nutzer. Alle persönlichen Eingaben bleiben lokal.

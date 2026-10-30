@@ -28,3 +28,9 @@ App startet in Xcode; Tabs `Heute / Entwicklung / Kreise / Profil`; Designsystem
 - Private Chapters können nicht von Gruppenteilnehmern gelesen werden ohne explizite Freigabe.
 - Ein Gruppenziel zeigt ausschließlich ausdrücklich geteilten Fortschritt, nicht automatisch alle Lebensdaten.
 - Vor einer echten Social-Anbindung niemals Fake-Freunde oder Fake-Sessions als produktiv ausgeben.
+
+## Auslieferungsumfang des ersten Entwicklungsabschnitts
+
+Lokales Habit-Anlegen/Bearbeiten/Archivieren mit Wochentagen und Ja/Nein-, Zähler- oder Minutenziel; heutige Erfüllung erfassen/ändern; Fortschritt anhand gespeicherter Ziel-Snapshots; Life Modes mit Habit-Auswahl anlegen/bearbeiten/löschen/aktivieren; dauerhaft sortier- und ausblendbare Home-Widgets; Darstellung Auto/Hell/Dunkel und Sprache DE/EN/RU. Keine vorbefüllten Beispielkontakte oder angeblichen Backenddaten.
+
+Paths, Adaptive, Chapters und Experiments werden als geplante Module benannt. Circles und Connect haben explizite Unavailable-Adapter. Wiederkehrende Mode-Pläne, eigenständige Routinen, Benachrichtigungen, Export/Import und sichere Synchronisierung bleiben spätere Arbeit; die sieben Modulziele oben bleiben vollständig bestehen.
