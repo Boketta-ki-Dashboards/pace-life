@@ -42,6 +42,9 @@ def configs(name, settings):
     ids = []
     for kind in ['Debug','Release']:
         options = dict(settings)
+        # Match Xcode's normal Debug/Release policy and Swift package targets.
+        # Do not force or exclude any architecture: the destination selects it.
+        options['ONLY_ACTIVE_ARCH'] = 'YES' if kind == 'Debug' else 'NO'
         options['SWIFT_OPTIMIZATION_LEVEL'] = '-Onone' if kind == 'Debug' else '-O'
         options['DEBUG_INFORMATION_FORMAT'] = 'dwarf' if kind == 'Debug' else 'dwarf-with-dsym'
         if kind == 'Debug':

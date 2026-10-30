@@ -36,3 +36,9 @@ Stand: 30. Oktober 2026. Native iPhone-App für iOS 17+, Swift 6, Xcode 16+. **D
 Phase 2: Life Paths mit Zielen/Meilensteinen und Habit-Verknüpfungen; Pace Adaptive mit nachvollziehbaren, ausdrücklich bestätigten Tagesanpassungen. Ursprüngliche Ziele bleiben erhalten, reduzierte Ziele gelten nicht automatisch als voller Abschluss.
 
 Weitere offene Funktionen: wiederkehrende Mode-Pläne, eigenständige Routinen, Benachrichtigungen, Export/Import, vollständige Streak-/Kalenderoberfläche, Chapters, Experiments und freigegebene Backendintegration. Kein App-Store-Release oder Anspruch einer vollständigen Implementierung aller sieben Module.
+
+## Offline-Beta-Sprint – Abschnitt A
+
+Ausgangsstand: `c2299e5`, remote Phase-1-Branch am Sprintstart unverändert. Der gemeldete Actions-Lauf 41043535208 ist öffentlich als fehlgeschlagen bestätigt (Exit 65). Seine vollständigen Logs erfordern einen GitHub-Login; die vom Nutzer gelieferte Fehlermeldung nennt einen x86_64-App-Compile gegen ein nur arm64 gebautes Simulator-Package.
+
+Der Projektgenerator ließ `ONLY_ACTIVE_ARCH` offen. Die App kann dadurch in Debug beide Simulatorarchitekturen anfordern, während Xcodes Swift-Package-Target nur die aktive Destination baut. Die Korrektur setzt konsistent Xcodes normale Policy: Debug `YES`, Release `NO`. Keine Architektur wird ausgeschlossen oder fest auf arm64 gesetzt. CI prüft native Simulator-Builds/UI-Tests auf Apple Silicon und Intel sowie einen generischen Release-Simulator-Build. Der Erfolg dieser Korrektur wird erst nach dem neuen CI-Lauf bestätigt.
