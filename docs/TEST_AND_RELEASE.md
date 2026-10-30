@@ -7,3 +7,6 @@
 - Xcode/Simulator-Build wirklich ausführen, wenn macOS/Xcode verfügbar. In Cloud ohne Xcode niemals Erfolg behaupten. Mac-Build-Anleitung dokumentieren.
 - Dokumentation der Bundle-ID, Team-Signing, Assetfreigaben, Datenschutzerklärung, Berechtigungen, App Store Review.
 - Kein Release, bevor ein echter iPhone-Test möglich war.
+
+## Verbindliche Abnahme anhand der Codex-Chat-Referenzen
+Vor Abschluss der UI-Feinabstimmung Originalaufnahmen aus dem aktiven Codex-Chat prüfen, insbesondere Bottom-HUD, Root-Swipes, Scrollbewegungen und Header. Sie werden **nicht auf GitHub hochgeladen**. Fehlt Unterstützung für Videoanhänge, werden Frames und textuelle Ablaufbeschreibungen im Chat verwendet; die noch nicht durchgeführte 1:1-Video-Prüfung im Testbericht als offen markieren. Siehe `docs/VIDEO_REFERENCE.md`.
