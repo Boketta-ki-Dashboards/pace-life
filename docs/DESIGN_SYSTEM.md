@@ -51,4 +51,4 @@ Farben zentral als dynamische Assets/semantische SwiftUI-Tokens bereitstellen. K
 PaceWordmark ist ein **separates originales Markenasset**. Ohne ausdrücklich übergebenes Asset klar als Platzhalter kennzeichnen, nie als echtes Logo vortäuschen. Auto/Hell/Dunkel und DE/EN/RU, sofortige Lokalisierung von Zahlen und Datum, persistente Einstellungen.
 
 ## Video-Referenzen
-Es gibt zwei nutzereigene Videos (Dark / Light). **Bilder absichtlich nicht im öffentlichen Repo**; anhand dieser genauen schriftlichen Tokens entwickeln. Wenn freigegebene, bereinigte Frames bereitgestellt werden, damit visuell vergleichen.
+Zwei Originalvideos (Dark und Light) werden **direkt in der aktiven Codex-Chat-Konversation als Anhänge** bereitgestellt, nicht über GitHub. Die komplette Interaktionsreferenz steht in `docs/VIDEO_REFERENCE.md`. Astra soll die Videos für Bottom-HUD/Tab-Bar, Paging-Gesten, Scrollen und Header auswerten, **sofern die Chat-Umgebung das unterstützt**. Falls nicht, soll Astra die im Chat bereitgestellten Frames und Bewegungsbeschreibungen nutzen und den ausstehenden Originalvideo-Abgleich offen dokumentieren.
