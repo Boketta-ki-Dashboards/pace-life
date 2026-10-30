@@ -15,4 +15,4 @@
 
 
 ## Verbindliche Originalvideo-Referenzen
-Vor finaler visueller Implementierung **docs/VIDEO_REFERENCE.md** und [GitHub Issue #1](https://github.com/Boketta-ki-Dashboards/pace-life/issues/1) beachten. Sobald beide Originalvideos dort hochgeladen wurden, analysiere sie zwingend für Bottom-HUD/Tab-Bar, Wischen, Scrollen, Animationen, Header und Safe Areas. Keine Videoanalyse vortäuschen, falls noch keine Anhänge verfügbar sind.
+Die beiden originalen Pace-Social-Videos werden **ausschließlich im aktiven Codex-Chat als Anhänge bereitgestellt** und **nicht nach GitHub hochgeladen**. Lies `docs/VIDEO_REFERENCE.md`. Nutze die Videos für Bottom-HUD, Scrollen, Paging, Animationen und Header, wenn du sie tatsächlich auswerten kannst. Bei fehlender Video-Unterstützung Standbilder und Chat-Beschreibungen verwenden; eine offene visuelle Prüfung transparent dokumentieren. Niemals die Originalvideos in GitHub oder ein anderes Repository kopieren.
