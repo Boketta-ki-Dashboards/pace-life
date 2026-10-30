@@ -1,28 +1,43 @@
-# VERBINDLICHE VIDEOREFERENZEN – PACE SOCIAL ZU PACE LIFE
+# VERBINDLICHE VIDEOREFERENZEN – PACE SOCIAL → PACE LIFE
 
-**Status:** Originalvideos sind **noch nicht als Anhänge hochgeladen**. GitHub-Issue [#1](https://github.com/Boketta-ki-Dashboards/pace-life/issues/1) enthält die Upload-Anleitung und soll beide Videos verlinken. Niemals behaupten, sie bereits gesehen zu haben, ohne sie tatsächlich zu öffnen.
+## Übergabeweg: ausschließlich Codex-Chat
+Die Originalaufnahmen werden **NICHT auf GitHub hochgeladen**, auch nicht als GitHub-Issue-Anhang. Der Nutzer stellt die Videos bzw. daraus extrahierte Frames **direkt als Anhänge in der aktiven Codex-/Astra-Konversation** bereit. Die Dateien sind nicht Bestandteil dieses Repositories. Du darfst weder Pace Social klonen noch dessen Quellcode abrufen.
 
-## Originalaufnahmen
-- `ScreenRecording_10-30-2026 10-00-44_1(1).mp4` (ca. 79 Sekunden, Dark Mode)
-- `ScreenRecording_10-30-2026 10-04-55_1.mp4` (ca. 99 Sekunden, Light Mode)
+- `ScreenRecording_10-30-2026 10-00-44_1(1).mp4` – ca. 1:19, überwiegend Dark Mode
+- `ScreenRecording_10-30-2026 10-04-55_1.mp4` – ca. 1:39, überwiegend Light Mode
 
-### Visuell dokumentierte Merkmale aus extrahierten Kontaktbögen
-- Light: Fast weißer Hintergrund, weiße Karten, tiefgrüne Headlines, Mint-Füllungen/Selektionsindikatoren.
-- Dark: Dunkelgrüne / dunkelpetrolfarbene Fläche und Karten, leuchtende Mintakzente, gleiche Hierarchie und Navigation.
-- **Bottom-HUD/Tab-Bar:** Fester Bottom-Bereich mit `Home`, `Rankings`, `Social`, `Profil` (Pace Social). Jedes Element Symbol+Label; aktiver Tab hat vollflächige mintfarbene abgerundete Pillenfläche, dunkles Icon und Text. Inaktive Elemente bleiben zurückhaltend. Pace Life darf eigene fachlich passende Tabs besitzen, nicht aber die visuelle Form- und Bewegungslogik grundlos ändern.
-- Vertikales Scrollen: langer Karteninhalt scrollt innerhalb der Root-Seite; unten bleibt die Tab-Bar erhalten. Card-Abstände, Header-Safe-Area und Scroll-Enden müssen stabil sein.
-- Die Aufnahmen zeigen Profile, Ranking-Listen, Home-Widgets, Statistik/Kalender, Gruppen, Einstellungen und Bottom-Bar im Kontext. Referenzwerte aus `docs/DESIGN_SYSTEM.md` haben Vorrang vor geschätzten Bildfarben.
-- Eingabekontexte dürfen nicht durch Root-Tabswipes gestört werden. Unterseiten haben native Zurücknavigation einschließlich Edge-Geste.
-- Horizontales Root-Paging: Inhalt und Tab-Hervorhebung folgen einer Geste synchron; abbrechbare Bewegung; links zum nächsten, rechts zum vorherigen Tab. Keine Sprünge bei Root-Header/HUD.
+**Wichtig für Codex:** Chat-Anhänge stehen nicht zwangsläufig als Repository-Dateien oder in einer anderen Codex-Session zur Verfügung. Prüfe, ob du die Anhänge im aktiven Chat tatsächlich öffnen und die Bewegung analysieren kannst. Falls Videoeingaben nicht unterstützt werden, kann der Nutzer in demselben Chat Standbilder/Frames und kurze Beschreibungen der Bewegungsabläufe bereitstellen. Behaupte niemals, Videos gesehen oder ein 1:1-Verhalten geprüft zu haben, wenn sie nicht tatsächlich auswertbar sind. Erstelle keine GitHub-Uploadaufforderung.
 
-## Abnahmetests für Codex
-1. Zeige in iPhone-Simulator/auf iPhone die Bottom-Navigation und halte diese mit Video und ggf. Frames neben die Originale.
-2. Probiere schnelle und langsame horizontale Gesten sowie abbrechbare Swipes; Highlight und Inhalt müssen konsistent bleiben.
-3. Scrolle die Hauptseite komplett herunter und wieder hoch: keine Statusleistenüberschneidung, untere Leiste bleibt sichtbar, Ende nicht abgeschnitten.
-4. Öffne Unterseite, scroll, Edge-Swipe zurück; keine mehrfach gestapelten NavigationStacks.
-5. Teste Drag-and-Drop von Home-Widgets, Textbearbeitung bei sichtbarer Tastatur sowie Dark/Light.
-6. Prüfe DE/EN/RU, lange Labels, Dynamic Type, Safe Areas.
+## Verbindliche Design- und Interaktionsziele
+Die folgenden Vorgaben stammen aus der schriftlichen technischen Pace-Übergabe sowie der bereits durchgeführten Auswertung der Referenzaufnahmen. **Die originalen Chat-Videos sind für die visuelle Feinabstimmung verbindlich**, sobald sie verfügbar und technisch lesbar sind.
 
-**Strikte Regel:** Niemals den Pace-Social-Code oder das Pace-Social-Repository lesen/klonen. Nur vom Nutzer freigegebene Videodateien, Beschreibungen und Design-Tokens aus diesem Repository nutzen.
+### Bottom-HUD / Tab-Bar
+- Der Bottom-Bereich bleibt beim vertikalen Scrollen fest sichtbar und berücksichtigt die Home-Indicator-Safe-Area.
+- Pace Social zeigt `Home`, `Rankings`, `Social`, `Profil`; Pace Life bekommt funktional passende Tabs, übernimmt aber die sichtbare Form- und Interaktionssprache.
+- Icon ca. 20pt und Label ca. 13pt; inaktive Elemente dezent; aktives Element als mintfarbene, abgerundete Fläche mit dunklem Icon und Text; Tab-Inhalte mindestens 48pt.
+- Hervorhebung und Seiteninhalt sind bei interaktiven horizontalen Gesten synchronisiert; keine plötzlich springenden Zustände oder unlogischen Transitionen.
 
-**Hinweis für öffentliche Repositorys:** In den Originalvideos können personenbezogene Angaben sichtbar sein. Erstes sicheres Vorgehen ist, Repo privat zu machen, bevor die Originale als Issue-Anhänge geteilt werden.
+### Paging, Scrollen und Header
+- Links wischen → nächste Seite rechts; rechts wischen → vorherige Seite links. Eine begonnene Bewegung kann abgebrochen werden, ohne unbeabsichtigten Tabwechsel.
+- Unterseiten haben native iOS-Zurücknavigation inklusive Edge-Swipe; keine doppelten oder unbegrenzt wachsenden NavigationStacks.
+- Horizontales Root-Paging in Editier-, Widget-Drag- und Texteingabemodi begrenzen, damit Gesten nicht kollidieren.
+- Beim Scrollen dürfen Header oder Text nicht hinter die Statusleiste wandern. Der Header bleibt visuell stabil, ohne vertikale Sprünge beim horizontalen Seitenwechsel.
+- Inhalt bleibt bis zum Ende scrollbar, ohne hinter der Bottom-Bar abgeschnitten zu werden; Tastatur blendet Eingaben nicht aus.
+
+### Sichtbares Design
+- Light: sehr heller Hintergrund, weiße Karten, tiefgrüne Headlines, mintgrüne Auswahlzustände.
+- Dark: sehr dunkle grünliche/petrolfarbene Flächen und mintfarbene Akzente; die Informationshierarchie bleibt konsistent.
+- `docs/DESIGN_SYSTEM.md` liefert die **exakten** semantischen Tokens. Aus Video oder Frames geschätzte Farben dürfen die Tokenwerte nicht ersetzen.
+- Referenzthemen: Home-Widgets, Profile, Statistiken/Kalender, Gruppen, Einstellungen, Kartenabstände und Navigation.
+
+## Pflicht: Testen und Nachweisen
+1. Im iPhone-Simulator bzw. auf einem echten iPhone Bottom-HUD und Haupttabs öffnen und – soweit Chat-Video verfügbar – visuell vergleichen.
+2. Langsamen, schnellen und abgebrochenen horizontalen Swipe testen: aktives Highlight und Inhalt synchron.
+3. Vertikal ganz nach unten und oben scrollen: Bottom-HUD sichtbar, Header und Safe Areas korrekt, kein abgeschnittener Inhalt.
+4. Unterseiten öffnen, scrollen, Edge-Swipe zurück: kein Navigationsstack-Duplikat.
+5. Widget-Drag und Textbearbeitung mit offener Tastatur auf Gestenkonflikte prüfen.
+6. Dark/Light, Dynamic Type und DE/EN/RU prüfen.
+7. Wenn die Videoauswertung mangels Chat-Unterstützung nicht möglich ist: im Abschlussbericht ausdrücklich **„visueller Videoabgleich ausstehend“** notieren, kein fiktives 1:1-Testergebnis.
+
+## Datenschutz und Scope
+Videoaufnahmen dürfen ausschließlich zur App-Analyse verwendet werden, nicht als Produktassets. Keine Nutzerprofile, Chattexte oder personenbezogenen Details in Code, Mock-Daten, GitHub oder Screenshots veröffentlichen. **Pace Social ist ausschließlich Claude vorbehalten.**
