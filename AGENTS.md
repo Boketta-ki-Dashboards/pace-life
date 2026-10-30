@@ -12,3 +12,7 @@
 - Keine Secrets, Service-Role-Keys, echten Nutzerdaten oder Chat-Screenshots in öffentlichen Git-Repositories.
 - Bestehende Pace-Life-Funktionen vor Änderung prüfen. Jede Komponente muss wirklich funktionieren; Ergebnisse und nicht ausgeführte Tests ehrlich dokumentieren.
 - **Hinweis:** Das Repository ist derzeit öffentlich. Vom Nutzer gelieferte unverpixelte Screenshots und Videos dürfen nicht ohne zusätzliche Datenschutzprüfung hochgeladen werden.
+
+
+## Verbindliche Originalvideo-Referenzen
+Vor finaler visueller Implementierung **docs/VIDEO_REFERENCE.md** und [GitHub Issue #1](https://github.com/Boketta-ki-Dashboards/pace-life/issues/1) beachten. Sobald beide Originalvideos dort hochgeladen wurden, analysiere sie zwingend für Bottom-HUD/Tab-Bar, Wischen, Scrollen, Animationen, Header und Safe Areas. Keine Videoanalyse vortäuschen, falls noch keine Anhänge verfügbar sind.
