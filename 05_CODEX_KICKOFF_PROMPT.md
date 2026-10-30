@@ -72,3 +72,6 @@ Liefere nach der Umsetzung:
 6. Welche Aufgaben in Phase 2 (Life Paths + Pace Adaptive) folgen.
 
 **Beginne mit dem vorhandenen Pace-Life-Verzeichnis bzw. lege die neue App an, wenn es leer ist. Starte danach die Implementierung des ersten nutzbaren iOS-Projektstands, nicht nur eine abstrakte Analyse.**
+
+## Verbindliche Originalvideo-Referenzen
+Vor finaler visueller Implementierung **docs/VIDEO_REFERENCE.md** und [GitHub Issue #1](https://github.com/Boketta-ki-Dashboards/pace-life/issues/1) beachten. Sobald beide Originalvideos dort hochgeladen wurden, analysiere sie zwingend für Bottom-HUD/Tab-Bar, Wischen, Scrollen, Animationen, Header und Safe Areas. Keine Videoanalyse vortäuschen, falls noch keine Anhänge verfügbar sind.
