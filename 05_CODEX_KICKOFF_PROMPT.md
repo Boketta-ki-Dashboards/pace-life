@@ -5,11 +5,14 @@ Du bist leitender SwiftUI-Entwickler und iOS-Architekt des neuen Projekts **Pace
 **Lies zuerst und beachte durchgehend die mitgelieferten Dateien:**
 - `AGENTS.md`
 - `README.md`
-- `01_DESIGN_SYSTEM.md`
-- `02_PRODUCT_SPEC.md`
-- `03_ARCHITECTURE_AND_INTEGRATION.md`
-- `04_TEST_AND_RELEASE.md`
-- `references/*.png` (echte Screens aus Pace Social, Dark und Light Mode)
+- `docs/DESIGN_SYSTEM.md`
+- `docs/PRODUCT_SPEC.md`
+- `docs/ARCHITECTURE.md`
+- `docs/ROADMAP.md`
+- `docs/INTEGRATION_CONTRACT.md`
+- `docs/TEST_AND_RELEASE.md`
+
+**Datenschutz:** Dieses GitHub-Repository ist derzeit öffentlich. Private Referenzbilder sind absichtlich nicht enthalten. Verwende die schriftliche Designspezifikation; fordere bei Bedarf ausschließlich bereinigte Bilder an. Keine Suche nach Pace Social.
 
 ## Wichtigste Projektgrenze
 
@@ -27,7 +30,7 @@ Die sieben Module **Life Modes, Life Paths, Pace Adaptive, Life Chapters, Life E
 
 **0. Bestand prüfen.** Falls bereits Dateien für Pace Life vorliegen, inventarisiere sie und bewahre existierende Funktionen. Falls das Repo leer ist, initialisiere es als neues Pace-Life-Projekt. Greife niemals auf Pace Social zu.
 
-**1. Produkt und Design festigen.** Überführe die beigefügten Anforderungen in dauerhafte `docs/`-Dateien. Lege die in `01_DESIGN_SYSTEM.md` enthaltenen Light-/Dark-Tokenwerte und Komponentenspezifikationen als verbindliche Grundlage fest. Verwende die PNGs gezielt für Header, Home, Statistik, Karten, Tab-Bar, Gruppen und Einstellungen. Keine generischen Neon-/Glas-Designs.
+**1. Produkt und Design festigen.** Überführe die beigefügten Anforderungen in dauerhafte `docs/`-Dateien. Lege die in `docs/DESIGN_SYSTEM.md` enthaltenen Light-/Dark-Tokenwerte und Komponentenspezifikationen als verbindliche Grundlage fest. Verwende die schriftlich dokumentierten Pace-Designregeln für Header, Home, Statistik, Karten, Tab-Bar, Gruppen und Einstellungen. Private PNGs sind noch nicht freigegeben. Keine generischen Neon-/Glas-Designs.
 
 **2. App aufbauen.** Erzeuge ein eigenes Xcode-Projekt mit klarer modularer Struktur (z. B. lokales Swift Package / Feature-Ziele). Implementiere zentrale Dependency Injection, SwiftUI-Navigation, Theme, Sprachbasis DE/EN/RU, semantische Design-Tokens und wiederverwendbare Pace-Life-Komponenten (`PaceCard`, `PaceTile`, Header, Buttons, Progress, Status). Verwende einen explizit als Ersatz gekennzeichneten Logo-Platzhalter, bis das originale `PaceWordmark`-Asset freigegeben wurde.
 
