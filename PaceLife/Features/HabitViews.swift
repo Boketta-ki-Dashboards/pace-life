@@ -192,8 +192,8 @@ struct RecordEditor: View {
     @State private var initialized = false
     private var value: Double? { model.parseNumber(valueText) }
     private var validValue: Bool { guard let value else { return false }; return value >= 0 && (kind != .count || value.rounded() == value) }
-    private var kind: GoalType { model.completion(habit)?.goalTypeSnapshot ?? habit.goalType }
-    private var target: Double { model.completion(habit)?.targetSnapshot ?? habit.target }
+    private var kind: GoalType { model.dayGoalType(habit) }
+    private var target: Double { model.dayTarget(habit) }
 
     var body: some View {
         NavigationStack {

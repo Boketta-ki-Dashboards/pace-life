@@ -75,7 +75,7 @@ final class AppModel {
         switch kind { case .binary: text(.binary); case .count: text(.count); case .duration: text(.duration) }
     }
     func widgetName(_ kind: HomeWidgetKind) -> String {
-        switch kind { case .progress: text(.progress); case .mode: text(.activeMode); case .habits: text(.habits); case .routines: text(.routines); case .paths: "Life Paths" }
+        switch kind { case .progress: text(.progress); case .mode: text(.activeMode); case .habits: text(.habits); case .routines: text(.routines); case .paths: "Life Paths"; case .adaptive: "Pace Adaptive" }
     }
     @discardableResult func perform(_ action: (LifeStore) throws -> Void) -> Bool {
         guard let store else { return false }
@@ -121,4 +121,19 @@ extension AppModel {
     func savePath(_ path: LifePath) -> Bool { perform { try $0.savePath(path) } }
     func setPathStatus(_ id: UUID, _ status: PathStatus) { perform { try $0.setPathStatus(id: id, status: status) } }
     func recordPathEntry(_ id: UUID, value: Double) -> Bool { perform { try $0.recordPathEntry(milestoneID: id, value: value) } }
+}
+
+
+extension AppModel {
+    var adaptivePlan: DailyAdaptivePlan? { state.adaptivePlans.first { $0.day == DayKey(date: today) } }
+    func adaptiveEntry(_ habit: Habit) -> AdaptiveEntry? { state.adaptiveEntry(habitID: habit.id, day: DayKey(date: today)) }
+    func dayGoalType(_ habit: Habit) -> GoalType { completion(habit)?.goalTypeSnapshot ?? (adaptiveEntry(habit) == nil ? habit.goalType : .duration) }
+    func dayTarget(_ habit: Habit) -> Double { completion(habit)?.targetSnapshot ?? adaptiveEntry(habit)?.originalTarget ?? habit.target }
+    func proposeAdaptive(available: Int, energy: Int, load: Int, protectedIDs: Set<UUID>) {
+        refreshDay()
+        perform { try $0.createAdaptivePlan(availableMinutes: available, energy: energy, load: load, protectedIDs: protectedIDs, on: today) }
+    }
+    @discardableResult func decideAdaptive(_ day: DayKey, habitID: UUID, decision: AdaptiveDecision, target: Double? = nil) -> Bool {
+        perform { try $0.decideAdaptive(day: day, habitID: habitID, decision: decision, target: target) }
+    }
 }

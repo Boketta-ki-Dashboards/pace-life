@@ -23,7 +23,13 @@ final class PaceLifeUITests: XCTestCase {
                         file: StaticString = #filePath, line: UInt = #line) {
         for _ in 0..<6 {
             if element.exists && element.isHittable { return }
-            app.swipeUp()
+            if element.exists && element.frame.midY < app.frame.midY { app.swipeDown() }
+            else { app.swipeUp() }
+        }
+        // Lazy lists may not expose a control above the viewport until scrolled back.
+        for _ in 0..<10 {
+            if element.exists && element.isHittable { return }
+            app.swipeDown()
         }
         XCTAssertTrue(element.isHittable, "Expected control to be reachable by scrolling", file: file, line: line)
     }
@@ -115,7 +121,8 @@ final class PaceLifeUITests: XCTestCase {
         XCTAssertEqual(progress.value as? String, "0", "Visibility must change before saving")
         app.buttons["saveWidgets"].tap()
         XCTAssertTrue(app.buttons["customizeWidgets"].waitForExistence(timeout: 5))
-        XCTAssertFalse(app.otherElements["home.progress"].exists)
+        let hidden = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: app.otherElements["home.progress"])
+        XCTAssertEqual(XCTWaiter.wait(for: [hidden], timeout: 5), .completed)
 
         app.terminate()
         app.launch()
@@ -232,6 +239,39 @@ final class PaceLifeUITests: XCTestCase {
         app.buttons["tab.development"].tap(); app.buttons["managePaths"].tap()
         XCTAssertTrue(open.waitForExistence(timeout: 5)); open.tap()
         XCTAssertEqual(app.staticTexts["milestone.value.Take exam"].label, "1 / 1")
+    }
+
+    @MainActor
+    func testAdaptiveAcceptedTargetDoesNotCompleteOriginalGoal() {
+        let app = launchFreshApp()
+        reveal(app.buttons["addHabit"], in: app); app.buttons["addHabit"].tap()
+        let name = app.textFields["habitTitle"]
+        XCTAssertTrue(name.waitForExistence(timeout: 5)); name.tap(); name.typeText("Study")
+        app.buttons["habitGoal"].tap(); app.buttons["Dauer"].tap()
+        let target = app.textFields["habitTarget"]
+        XCTAssertTrue(target.waitForExistence(timeout: 5)); target.tap()
+        target.typeText(XCUIKeyboardKey.delete.rawValue + "60")
+        app.buttons["saveHabit"].tap()
+        reveal(app.buttons["manageAdaptive"], in: app); app.buttons["manageAdaptive"].tap()
+        let propose = app.buttons["proposeAdaptive"]
+        reveal(propose, in: app); propose.tap()
+        let accept = app.buttons["adaptive.accept.Study"]
+        reveal(accept, in: app); accept.tap()
+        let record = app.buttons["adaptive.record.Study"]
+        reveal(record, in: app); record.tap()
+        let actual = app.textFields["actualValue"]
+        XCTAssertTrue(actual.waitForExistence(timeout: 5)); actual.tap()
+        actual.typeText(XCUIKeyboardKey.delete.rawValue + "30")
+        app.buttons["saveProgress"].tap()
+        XCTAssertEqual(app.staticTexts["adaptive.progress.Study"].label, "30 / 30")
+        app.buttons["closeAdaptive"].tap()
+        let completed = app.buttons["habit.complete.Study"]
+        // The home may retain its previous scroll position; relaunch returns to the top.
+        app.terminate(); app.launch()
+        reveal(completed, in: app)
+        XCTAssertEqual(completed.value as? String, "0", "30 adaptive minutes must not complete the original 60-minute goal")
+        reveal(app.buttons["manageAdaptive"], in: app); app.buttons["manageAdaptive"].tap()
+        XCTAssertEqual(app.staticTexts["adaptive.progress.Study"].label, "30 / 30")
     }
 
 }

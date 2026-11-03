@@ -92,10 +92,11 @@ import Foundation
 
     public func record(habitID: UUID, value: Double, on date: Date = Date(), calendar: Calendar = .current) throws {
         guard let habit = state.habits.first(where: { $0.id == habitID }), !habit.isArchived else { throw LifeError.missingHabit }
-        guard habit.isDue(on: date, calendar: calendar) else { throw LifeError.invalidSchedule }
         let day = DayKey(date: date, calendar: calendar)
         let existing = state.completions.first { $0.habitID == habitID && $0.day == day }
-        let type = existing?.goalTypeSnapshot ?? habit.goalType
+        let adaptive = state.adaptiveEntry(habitID: habitID, day: day)
+        guard existing != nil || adaptive != nil || habit.isDue(on: date, calendar: calendar) else { throw LifeError.invalidSchedule }
+        let type = existing?.goalTypeSnapshot ?? (adaptive == nil ? habit.goalType : .duration)
         guard value.isFinite, value >= 0,
               type != .binary || value == 0 || value == 1,
               type != .count || value.rounded() == value else { throw LifeError.invalidValue }
@@ -105,7 +106,7 @@ import Foundation
             } else {
                 state.completions.append(HabitCompletion(habitID: habitID, day: day,
                     timeZoneID: calendar.timeZone.identifier, actualValue: value,
-                    targetSnapshot: habit.target, goalTypeSnapshot: habit.goalType))
+                    targetSnapshot: adaptive?.originalTarget ?? habit.target, goalTypeSnapshot: type))
             }
         }
     }

@@ -94,3 +94,20 @@ exklusiv. Es werden keine Minuten mit Zählwerten vermischt.
 
 Der Writer verwendet Schema 3; explizite Schema-1-/Schema-2-DTOs erhalten alte
 Felder einschließlich Routine-Sessions. Aktuelle Pflichtarrays sind strikt.
+
+### Schema 4: Pace Adaptive
+
+`AdaptiveEngine` ist eine reine Funktion. Es reduziert ausschließlich bekannte
+Minuten-Ziele. Routinezeiten und explizit geschützte Habits bilden feste Kosten;
+fehlende Dauern werden separat gezählt. Niedrige Energie/hohe Belastung reduzieren
+das Budget transparent; aktive Path-Verknüpfungen erhalten doppeltes Gewicht.
+`DailyAdaptivePlan` friert Originale, Vorschläge und Eingaben pro zivilem Tag ein.
+`AdaptiveEntry` speichert Zustimmung und akzeptiertes Ziel getrennt. Historische
+Entscheidungen sind nicht veränderbar. Wiederholtes Erstellen ist idempotent.
+
+HabitCompletion verwendet das Original des Tagesplans, falls noch kein
+Completion-Snapshot vorliegt. Der Istwert fließt unverändert in Paths; weder
+akzeptierte Kürzung noch Null-Ziel erzeugen eine fiktive volle Erfüllung. Der
+aktuelle Plan kann nach Ablehnung über Budget bleiben und zeigt dies explizit.
+Der Schema-4-Writer verlangt `adaptivePlans`; explizite DTOs für 1/2/3 ergänzen
+leere Pläne und ein verborgenes Adaptive-Widget unter Erhalt aller bisherigen Daten.

@@ -40,3 +40,7 @@ Schema 3 ergänzt `paths` und `pathEntries` sowie das bei Migration verborgene
 Paths-Widget. Auch Schema 2 wird explizit gelesen, einschließlich aller
 Routine-Snapshots. Ein Roundtrip-Test mit teilweise erledigter Routine und
 abweichender Widget-Reihenfolge prüft den Erhalt. 28 Core-Tests bestanden.
+
+Schema 4 ergänzt `adaptivePlans` und das verborgene Adaptive-Widget. Separate
+Schema-3-DTOs erhalten Paths und manuelle Beiträge. Fehlende aktuelle Pflichtfelder
+werden weiterhin abgewiesen. 33 Core-Tests einschließlich aller Migrationen bestanden.

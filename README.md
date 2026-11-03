@@ -49,3 +49,10 @@ anlegen. Einen Minuten-Meilenstein mit einer Dauer-Gewohnheit verknüpfen (100
 Lernstunden = 6000 Minuten). Heute 45 Minuten bei dieser Gewohnheit erfassen: Der
 Path zeigt 45 tatsächliche Minuten. Korrekturen ändern diesen Beitrag ohne
 Doppelzählung; weitere Meilensteine bleiben unabhängig.
+
+Pace Adaptive testen: Einen Dauer-Habit mit 60 Minuten anlegen, **Heute → Pace
+Adaptive** öffnen und 30 Minuten Budget wählen. Vorschlag bestätigen, 30 Minuten
+erfassen: angepasstes Tagesziel erreicht, ursprüngliches Ziel erst zur Hälfte.
+Der echte Wert fließt in verknüpfte Paths. Neustart erhält beide Ziele und den
+Istwert. Bereits erstellte Tagespläne bleiben eingefroren; einzelne Ziele können
+bearbeitet oder ihre Anpassung zurückgenommen werden.

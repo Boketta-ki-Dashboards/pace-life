@@ -9,6 +9,7 @@ struct HomeView: View {
     @State private var modes = false
     @State private var routines = false
     @State private var paths = false
+    @State private var adaptive = false
     @State private var allHabits = false
     @State private var selectedHabit: Habit?
 
@@ -39,14 +40,18 @@ struct HomeView: View {
                 case .habits: habitsCard
                 case .routines: routinesCard
                 case .paths: pathsCard
+                case .adaptive: adaptiveCard
                 }
             }
             Button { newHabit = true } label: { Label(model.text(.newHabit), systemImage: "plus") }
                 .buttonStyle(PaceButtonStyle()).accessibilityIdentifier("addHabit")
             Button(model.text(.manageHabits)) { allHabits = true }.buttonStyle(PaceButtonStyle(kind: .secondary))
+            Button("Pace Adaptive") { adaptive = true }
+                .buttonStyle(PaceButtonStyle(kind: .secondary)).accessibilityIdentifier("manageAdaptive")
             Button(model.text(.routines)) { routines = true }
                 .buttonStyle(PaceButtonStyle(kind: .secondary)).accessibilityIdentifier("manageRoutines")
         }
+        .sheet(isPresented: $adaptive) { AdaptiveView() }
         .sheet(isPresented: $paths) { PathsView() }
         .sheet(isPresented: $routines) { RoutinesView() }
         .sheet(isPresented: $newHabit) { HabitEditor() }
@@ -54,6 +59,19 @@ struct HomeView: View {
         .sheet(isPresented: $modes) { ModesView() }
         .sheet(isPresented: $allHabits) { HabitsView() }
         .sheet(item: $selectedHabit) { HabitDetail(habitID: $0.id) }
+    }
+
+    private var adaptiveCard: some View {
+        PaceCard {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Pace Adaptive").font(.title3.bold())
+                if let plan = model.adaptivePlan {
+                    Text(model.adaptiveText(.current) + ": " + model.number(plan.effectiveMinutes))
+                    if plan.exceedsBudget { Text(model.adaptiveText(.overBudget)).font(.footnote).foregroundStyle(PaceColor.warning) }
+                } else { Text(model.adaptiveText(.frozen)).font(.footnote) }
+                Button("Pace Adaptive") { adaptive = true }
+            }
+        }
     }
 
     private var pathsCard: some View {
@@ -152,7 +170,7 @@ struct HabitRow: View {
 
     var body: some View {
         let completion = model.completion(habit)
-        let kind = completion?.goalTypeSnapshot ?? habit.goalType
+        let kind = model.dayGoalType(habit)
         HStack(spacing: 12) {
             Button {
                 if kind == .binary { _ = model.record(habit, value: completion?.isComplete == true ? 0 : 1) }
@@ -169,8 +187,12 @@ struct HabitRow: View {
             Button(action: open) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(habit.title).font(.headline).foregroundStyle(PaceColor.textPrimary)
+                    if let entry = model.adaptiveEntry(habit), let adjusted = entry.acceptedTarget {
+                        Text(adjusted == 0 ? model.adaptiveText(.deferred) : model.adaptiveText(.adjusted) + ": " + model.number(completion?.actualValue ?? 0) + " / " + model.number(adjusted))
+                            .font(.footnote).foregroundStyle(PaceColor.accentStrong)
+                    }
                     if kind != .binary {
-                        Text(model.number(completion?.actualValue ?? 0) + " / " + model.number(completion?.targetSnapshot ?? habit.target) + (kind == .duration ? " " + model.text(.minutes) : ""))
+                        Text(model.number(completion?.actualValue ?? 0) + " / " + model.number(model.dayTarget(habit)) + (kind == .duration ? " " + model.text(.minutes) : ""))
                             .font(.footnote).foregroundStyle(PaceColor.textSecondary)
                     }
                 }.frame(maxWidth: .infinity, alignment: .leading)

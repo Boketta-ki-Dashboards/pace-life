@@ -120,3 +120,31 @@ Mac-Runnern erfolgreich; UI-Tests laufen noch.
 - Noch offen: Routine-Beiträge zu Paths, Titelbilder, Änderung einer bestehenden
   Beitragsregel mit eigener historischer Gültigkeit und reichhaltige Diagramme.
   Das Modul ist ein nutzbarer erster Ausbau, nicht die vollständige Sprintabnahme.
+
+## Pace Adaptive – 3. November 2026
+
+- Reine deterministische Engine mit Zeitbudget, Energie, Belastung, geschützten
+  Minuten-Habits, festen Routine-Dauern und höherem Gewicht für aktive Life Paths.
+  Aktivitäten ohne Zeitangabe werden ausdrücklich außerhalb der Zeitschätzung
+  ausgewiesen. Feste Aufgaben über Budget erzeugen keine falsche Budgetgarantie.
+- Vorschläge benötigen Einzelzustimmung; annehmen, ablehnen, Ziel manuell ändern
+  und zurücknehmen sind gespeichert. Ein eingefrorener Tagesplan ersetzt sich
+  nicht durch Doppeltippen oder spätere Mode-/Vorlagenänderungen. Entscheidungen
+  für vergangene Tage werden abgewiesen. Null bedeutet zurückgestellt, nicht erledigt.
+- Originalziel, angenommenes Tagesziel und tatsächlicher Wert bleiben getrennt
+  sichtbar. Home zeigt angepasste Ziele zusätzlich, sein ursprünglicher
+  Erfüllungsstatus bleibt ehrlich. Path-Beiträge verwenden weiterhin nur Istwerte.
+- Native Adaptive-Oberfläche über Heute/Entwicklung, Tageshistorie und Home-Widget;
+  sämtliche neuen Texte DE/EN/RU. Bestehende Schema-1/2/3-Daten werden auf Schema 4
+  migriert, das neue Widget bleibt für bestehende Nutzer zunächst verborgen.
+- **33 Core-Tests bestanden, 0 Fehler**. Getestet: Budgetgrenzen, deterministische
+  Vorschläge, unbekannte Dauer, geschützte Aufgaben, Path-Gewichtung, Ablehnung,
+  Annahme/individuelles Ziel, Original-Snapshots, Neustart, Rückgängig, frühere
+  Tage, ungültige Werte, Schreibfehler und Null-Ziel. Der integrierte Ablauf
+  Mode → Habit → Adaptive → tatsächlicher Fortschritt → Path ist geprüft.
+- Acht XCUITests sind jetzt vorhanden. Der neue Adaptive-Test prüft, dass ein
+  erfülltes reduziertes Tagesziel nicht das ursprüngliche Ziel als erfüllt ausgibt.
+  Aktuelle CI-Builds/UI-Tests werden getrennt nachverfolgt; lokal nur Syntaxcheck.
+- Offen: Neuberechnung eines bereits eingefrorenen Tagesplans, Reduktion einzelner
+  Routine-Schritte und freie Prioritäten/Zeitfenster. Routinen werden aktuell
+  bewusst als feste Aufgaben berücksichtigt. Keine KI-API oder Online-Verbindung.

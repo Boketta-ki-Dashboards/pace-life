@@ -130,7 +130,7 @@ final class LifeStoreTests: XCTestCase {
             let mode = LifeMode(title: "Weekend", habitIDs: [habit.id])
             try store.saveMode(mode); try store.activateMode(id: mode.id)
             try store.record(habitID: habit.id, value: 8, on: now)
-            let widgets = [HomeWidgetPreference(kind: .habits), HomeWidgetPreference(kind: .progress, isVisible: false), HomeWidgetPreference(kind: .mode), HomeWidgetPreference(kind: .routines), HomeWidgetPreference(kind: .paths)]
+            let widgets = [HomeWidgetPreference(kind: .habits), HomeWidgetPreference(kind: .progress, isVisible: false), HomeWidgetPreference(kind: .mode), HomeWidgetPreference(kind: .routines), HomeWidgetPreference(kind: .paths), HomeWidgetPreference(kind: .adaptive)]
             try store.setWidgets(widgets)
             try store.setSettings(AppSettings(theme: .dark, language: .ru))
             let restored = try LifeStore(repository: JSONStateRepository(url: url))
