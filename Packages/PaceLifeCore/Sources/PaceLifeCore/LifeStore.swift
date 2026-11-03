@@ -16,9 +16,10 @@ import Foundation
         var candidate = state
         try change(&candidate)
         // Correcting actual work or raising a milestone target can reopen a completed path.
-        for index in candidate.paths.indices where candidate.paths[index].status == .completed {
+        for index in candidate.paths.indices where candidate.paths[index].completedDay != nil {
             if candidate.pathProgress(candidate.paths[index], through: candidate.paths[index].completedDay) < 1 {
-                candidate.paths[index].status = .active
+                // An invalidated historical completion must not unarchive a path.
+                if candidate.paths[index].status == .completed { candidate.paths[index].status = .active }
                 candidate.paths[index].completedDay = nil
             }
         }

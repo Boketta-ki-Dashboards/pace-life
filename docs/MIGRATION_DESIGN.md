@@ -1,6 +1,6 @@
 # Versionierte Datenmigration und Dateninvarianten
 
-Status: Schema 4 ist aktiviert. Explizite Schema-1/2/3-DTOs erhalten die bisherigen Daten; 36 Core-Tests bestanden. Die Simulator-Buildgrundlage ist auf Apple Silicon und Intel nachgewiesen. Die eingefrorene Datei `Packages/PaceLifeCore/Tests/PaceLifeCoreTests/Fixtures/schema-one.json` wurde mit dem originalen Schema-1-Serializer aus `c2299e5` erstellt. Ihre Originalfelder werden vor Änderungen an Domain und Repository geprüft.
+Status: Schema 4 ist aktiviert. Explizite Schema-1/2/3-DTOs erhalten die bisherigen Daten; 37 Core-Tests bestanden. Die Simulator-Buildgrundlage ist auf Apple Silicon und Intel nachgewiesen. Die eingefrorene Datei `Packages/PaceLifeCore/Tests/PaceLifeCoreTests/Fixtures/schema-one.json` wurde mit dem originalen Schema-1-Serializer aus `c2299e5` erstellt. Ihre Originalfelder werden vor Änderungen an Domain und Repository geprüft.
 
 ## Übergang
 

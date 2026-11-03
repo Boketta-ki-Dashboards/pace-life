@@ -93,7 +93,9 @@ manuellen PathEntry-Tageswerten, niemals aus wiederholtem Inkrementieren. Quelle
 Einheit und Path-Start sind nach Erstellung fest; Titel/Ziel und Reihenfolge sind
 editierbar. Habit-Vorlagenänderungen bleiben von Completion-Snapshots getrennt.
 Archivierte Quellen zählen weiter. Korrigierte Arbeit unterhalb eines abgeschlossenen
-Path-Ziels öffnet den Path wieder. Manuelle und Habit-Beiträge sind pro Meilenstein
+Path-Ziels öffnet den Path wieder. Archivierung erhält ein gültiges Abschlussdatum.
+Wird dieser Abschluss später durch eine Korrektur ungültig, entfällt das Datum,
+der Archivstatus bleibt erhalten. Manuelle und Habit-Beiträge sind pro Meilenstein
 exklusiv. Es werden keine Minuten mit Zählwerten vermischt.
 
 Schema 3 führte Paths ein; der heutige Schema-4-Writer übernimmt sie mit einem

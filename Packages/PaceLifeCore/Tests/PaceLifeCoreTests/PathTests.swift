@@ -119,4 +119,33 @@ final class PathTests: XCTestCase {
         }
     }
 
+    func testArchivedPathKeepsCompletionDateAfterRestartAndCorrectionsKeepItArchived() async throws {
+        try await MainActor.run {
+            let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+            defer { try? FileManager.default.removeItem(at: folder) }
+            let url = folder.appendingPathComponent("life.json")
+            let store = try LifeStore(repository: JSONStateRepository(url: url))
+            let habit = Habit(title: "Learn", goalType: .duration, target: 10, createdAt: Self.now)
+            try store.saveHabit(habit)
+            let milestone = PathMilestone(title: "Practice", goalType: .duration, target: 10, habitID: habit.id)
+            let path = LifePath(title: "Learn", startDay: DayKey(date: Self.now), milestones: [milestone])
+            try store.savePath(path)
+            try store.record(habitID: habit.id, value: 10, on: Self.now)
+            try store.setPathStatus(id: path.id, status: .completed, on: Self.now)
+            try store.setPathStatus(id: path.id, status: .archived)
+
+            let restored = try LifeStore(repository: JSONStateRepository(url: url))
+            XCTAssertEqual(restored.state.paths[0].status, .archived)
+            XCTAssertEqual(restored.state.paths[0].completedDay, DayKey(date: Self.now))
+            XCTAssertEqual(restored.state.pathProgress(restored.state.paths[0]), 1)
+            // Correcting the work invalidates its old completion, but preserves the archive choice.
+            try restored.record(habitID: habit.id, value: 5, on: Self.now)
+            XCTAssertEqual(restored.state.paths[0].status, .archived)
+            XCTAssertNil(restored.state.paths[0].completedDay)
+            XCTAssertEqual(restored.state.pathProgress(restored.state.paths[0]), 0.5)
+            let corrected = try LifeStore(repository: JSONStateRepository(url: url))
+            XCTAssertEqual(corrected.state, restored.state)
+        }
+    }
+
 }

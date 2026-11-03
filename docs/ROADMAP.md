@@ -3,9 +3,9 @@ Status pro Modul: `Not started` / `In progress` / `Implemented` / `Verified`. St
 
 | Modul | Aktueller Status | Implementiert | Verifiziert / offen |
 |---|---|---|---|
-| Life Modes | In progress | CRUD, manuelle Aktivierung, Habit-Tagesvorlagen, eigenständige Routinen mit Tages-Snapshots und Home-Widget | 36 Core-Tests bestanden; aktuelle iOS-Abnahme, automatische Mode-Pläne und historische Habit-Pläne offen |
+| Life Modes | In progress | CRUD, manuelle Aktivierung, Habit-Tagesvorlagen, eigenständige Routinen mit Tages-Snapshots und Home-Widget | 37 Core-Tests bestanden; aktuelle iOS-Abnahme, automatische Mode-Pläne und historische Habit-Pläne offen |
 | Life Paths | In progress | Gespeicherte Paths, Meilensteine, manuelle und Habit-Beiträge, Status/Archiv, Home-Widget | Core inklusive Verknüpfungen geprüft; aktuelle iOS-Abnahme und Routine-Beiträge offen |
-| Pace Adaptive | In progress | Deterministische Vorschläge, Bestätigung/Ablehnung/Änderung/Rückgängig, Tageshistorie und Home-Widget; Habits/Paths/Routinen verbunden | 36 Core-Tests bestanden; aktuelle UI-Abnahme, Neuplanung und flexible Routine-Schritte offen |
+| Pace Adaptive | In progress | Deterministische Vorschläge, Bestätigung/Ablehnung/Änderung/Rückgängig, Tageshistorie und Home-Widget; Habits/Paths/Routinen verbunden | 37 Core-Tests bestanden; aktuelle UI-Abnahme, Neuplanung und flexible Routine-Schritte offen |
 | Life Chapters | Not started | Als geplantes Modul ausgewiesen | Phase 3: private Chronik und Erinnerungen |
 | Life Experiments | Not started | Als geplantes Modul ausgewiesen | Phase 3: Experimente und Auswertungen |
 | Pace Circles | In progress | Unavailable-Capability-Protokoll und ehrlicher UI-Zustand | Keine Gruppenfunktionen implementiert; Vertrag und Serverfreigaben offen |
@@ -22,4 +22,4 @@ Codex muss am Ende jeder Phase dokumentieren: Implementiert, tatsächlich getest
 
 
 ## Phase-1-Nachweis
-Habits, Life-Mode-Tagesvorlagen, persistente Home-Widgets und Einstellungen sind implementiert. Kein Modul wird wegen eines UI-Platzhalters als `Implemented` oder `Verified` geführt. Die lokale Domäne hat 36 bestandene XCTest-Tests. Der Routinen-/Widget-Zwischenstand besteht auf beiden Mac-Architekturen; der Kalenderstand besteht mit acht UI-Tests auf Apple Silicon. Die jüngste Testnavigation benötigt noch ihre CI-Abnahme, echte Gerätetests bleiben offen. Commitgenaue Ergebnisse und Grenzen: [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md).
+Habits, Life-Mode-Tagesvorlagen, persistente Home-Widgets und Einstellungen sind implementiert. Kein Modul wird wegen eines UI-Platzhalters als `Implemented` oder `Verified` geführt. Die lokale Domäne hat 37 bestandene XCTest-Tests. Der Routinen-/Widget-Zwischenstand besteht auf beiden Mac-Architekturen; der Kalenderstand besteht mit acht UI-Tests auf Apple Silicon. Die jüngste Testnavigation benötigt noch ihre CI-Abnahme, echte Gerätetests bleiben offen. Commitgenaue Ergebnisse und Grenzen: [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md).

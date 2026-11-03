@@ -50,18 +50,22 @@ extern ersetzte Dateien werden nicht stillschweigend überschrieben.
 
 Gespeicherte Routine-Schritte und Adaptive-Originalziele bleiben von späteren
 Vorlagen getrennt. Path-Abschlüsse verlangen echte Beiträge bis zum Abschlussdatum;
-eine Korrektur kann den Abschluss wieder öffnen. Einzelner MainActor-Writer,
+eine Korrektur kann den Abschluss wieder öffnen. Archivierung erhält das gültige
+Abschlussdatum, das auch in den Path-Details angezeigt wird. Entkräftet eine
+spätere Korrektur diesen historischen Abschluss, wird das Datum entfernt, der
+Path bleibt aber archiviert. Einzelner MainActor-Writer,
 kein Mehrprozess-/Mehrgeräte-Sync. Große Datenmengen benötigen später einen
 Hintergrund- oder Datenbankadapter; Fotos sind noch nicht eingeführt.
 
 ## Nachgewiesene Tests und CI
 
-- **36 Core-XCTest-Tests unter Swift 6.0.3/Linux bestanden, 0 Fehler.**
+- **37 Core-XCTest-Tests unter Swift 6.0.3/Linux bestanden, 0 Fehler.**
   Separate Swift-Testing-Ausgabe mit 0 Tests gehört zum ungenutzten zweiten Runner.
 - Abgedeckt: ursprüngliche 18 Regressionen; Schema-1-Felderhalt/1→4, Schema-2/3-
   Übernahme, strikte Pflichtfelder, fremder Dateiersatz, Schreibfehler/Rollback,
   Routine-Neustart/Snapshots/Pause, Habit-Path-Beiträge/Korrekturen/Einheiten,
-  historische Abschlussdaten, Adaptive-Budgets/Zustimmung/Originalziele/Neustart/
+  historische Abschlussdaten einschließlich Archiv/Neustart/Korrektur,
+  Adaptive-Budgets/Zustimmung/Originalziele/Neustart/
   Rückgängig/Null-Ziele sowie Kalender über DST und Jahresgrenzen.
 - Projektgenerator reproduzierbar; `git diff --check` bestanden. Neue SwiftUI-
   und UI-Testquellen zusätzlich syntaxgeprüft. Das ersetzt keine SDK-Typprüfung.
@@ -86,6 +90,9 @@ Hintergrund- oder Datenbankadapter; Fotos sind noch nicht eingeführt.
   Dessen [CI-Lauf 41623558789](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41623558789)
   prüft die nachfolgend beschriebene Scroll-Korrektur; Ergebnis noch offen.
   Noch laufende oder wartende Jobs sind kein bestandener Nachweis.
+- `9001e39`: 36 Core-Tests, alle acht UI-Tests, Debug und Release auf Apple Silicon
+  bestanden. Der anschließende Archiv-Datumsfix ergänzt den 37. Core-Test und eine
+  Datumsanzeige; seine separate iOS-Abnahme läuft nach dem Push.
 
 Die ursprüngliche Simulatorarchitektur-/Font-Blockade ist behoben. Der Widget-
 Fehler lag beim XCUI-Tap in der Mitte einer beschrifteten Switch-Zeile. Der Test

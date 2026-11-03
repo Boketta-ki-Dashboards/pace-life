@@ -1,7 +1,7 @@
 import PaceLifeCore
 
 enum PathCopy {
-    case paths, newPath, editPath, milestones, addMilestone, linkedHabit, manual, category, targetDate, noPaths, contributionRule, status, active, paused, completed, archived, finish, resume, todayValue, startDate
+    case paths, newPath, editPath, milestones, addMilestone, linkedHabit, manual, category, targetDate, noPaths, contributionRule, status, active, paused, completed, archived, finish, resume, todayValue, startDate, completedDate
     func text(_ language: AppLanguage) -> String {
         let v: (String, String, String)
         switch self {
@@ -25,6 +25,7 @@ enum PathCopy {
         case .resume: v = ("Aktivieren", "Activate", "Активировать")
         case .todayValue: v = ("Heutiger Beitrag", "Today's contribution", "Сегодняшний вклад")
         case .startDate: v = ("Startdatum", "Start date", "Дата начала")
+        case .completedDate: v = ("Abgeschlossen am", "Completed on", "Дата завершения")
         }
         switch language { case .de: return v.0; case .en: return v.1; case .ru: return v.2 }
     }

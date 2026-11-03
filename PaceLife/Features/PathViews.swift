@@ -57,6 +57,7 @@ struct PathDetail: View {
                     LabeledContent(model.pathText(.startDate), value: model.dayLabel(path.startDay))
                     if let day = path.targetDay { LabeledContent(model.pathText(.targetDate), value: model.dayLabel(day)) }
                     LabeledContent(model.pathText(.status), value: model.pathStatusName(path.status))
+                    if let day = path.completedDay { LabeledContent(model.pathText(.completedDate), value: model.dayLabel(day)) }
                     ForEach(path.milestones) { milestone in milestoneCard(milestone, in: path) }
                     Text(model.pathText(.contributionRule)).font(.footnote).foregroundStyle(PaceColor.textSecondary)
                     Button(model.text(.edit)) { editing = true }.buttonStyle(PaceButtonStyle(kind: .secondary))
