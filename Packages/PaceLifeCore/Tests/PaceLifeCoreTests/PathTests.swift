@@ -79,6 +79,7 @@ final class PathTests: XCTestCase {
             let state = LifeState(routines: [routine], routineSessions: [session])
             var legacy = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(state)) as? [String: Any])
             legacy.removeValue(forKey: "paths"); legacy.removeValue(forKey: "pathEntries")
+            legacy.removeValue(forKey: "adaptivePlans")
             legacy["widgets"] = [["kind": "routines", "isVisible": true], ["kind": "habits", "isVisible": false], ["kind": "mode", "isVisible": true], ["kind": "progress", "isVisible": false]]
             let data = try JSONSerialization.data(withJSONObject: ["schemaVersion": 2, "state": legacy])
             let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)

@@ -13,8 +13,8 @@ Vor Abschluss der UI-Feinabstimmung Originalaufnahmen aus dem aktiven Codex-Chat
 
 ## Ausführbare Prüfpfade Phase 1
 
-- `swift test --package-path Packages/PaceLifeCore`: 16 XCTest-Fälle der Domäne und Persistenz, ohne Backend.
-- macOS/Xcode 16+: `scripts/test-ios.sh` wählt einen vorhandenen iPhone-Simulator und führt das Scheme `PaceLife` inklusive fünf UI-Tests aus. Der UI-Test-Store wird je Test mit einer UUID isoliert; Neustarts verwenden denselben Test-Store.
+- `swift test --package-path Packages/PaceLifeCore`: 36 XCTest-Fälle der Domäne und Persistenz, ohne Backend.
+- macOS/Xcode 16+: `scripts/test-ios.sh` wählt einen vorhandenen iPhone-Simulator und führt das Scheme `PaceLife` inklusive acht UI-Tests aus. Der UI-Test-Store wird je Test mit einer UUID isoliert; Neustarts verwenden denselben Test-Store.
 - Build ohne Geräte-Signing: `xcodebuild -project PaceLife.xcodeproj -scheme PaceLife -destination 'generic/platform=iOS Simulator' -derivedDataPath DerivedData CODE_SIGNING_ALLOWED=NO build`.
 - GitHub-CI: `.github/workflows/ios.yml`; echter Laufstatus bleibt vom angelegten Workflow getrennt.
 - Gerät: `PaceLife.xcodeproj` öffnen, eigenes Team und ggf. eindeutige Bundle-ID einstellen, iPhone auswählen, ⌘R. Keine App-Store-Veröffentlichung konfiguriert. Default Bundle-ID `com.boketta.pacelife`, Version 0.1.0, Build 1.
