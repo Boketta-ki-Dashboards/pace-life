@@ -28,6 +28,21 @@ final class PaceLifeUITests: XCTestCase {
         XCTAssertTrue(element.isHittable, "Expected control to be reachable by scrolling", file: file, line: line)
     }
 
+    /// SwiftUI exposes the full labelled row as the switch accessibility frame.
+    /// Its center can hit only the label. Tap the trailing native switch control.
+    @MainActor
+    private func setSwitch(_ element: XCUIElement, to enabled: Bool,
+                           file: StaticString = #filePath, line: UInt = #line) {
+        let expected = enabled ? "1" : "0"
+        if element.value as? String != expected {
+            element.coordinate(withNormalizedOffset: CGVector(dx: 1, dy: 0.5))
+                .withOffset(CGVector(dx: -30, dy: 0)).tap()
+        }
+        let changed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", expected), object: element)
+        XCTAssertEqual(XCTWaiter.wait(for: [changed], timeout: 3), .completed,
+                       "Switch must reach the requested state", file: file, line: line)
+    }
+
     @MainActor
     private func createHabit(_ title: String, in app: XCUIApplication) {
         let add = app.buttons["addHabit"]
@@ -96,7 +111,7 @@ final class PaceLifeUITests: XCTestCase {
         let progress = app.switches["widget.progress"]
         XCTAssertTrue(progress.waitForExistence(timeout: 5))
         XCTAssertEqual(progress.value as? String, "1")
-        progress.tap()
+        setSwitch(progress, to: false)
         XCTAssertEqual(progress.value as? String, "0", "Visibility must change before saving")
         app.buttons["saveWidgets"].tap()
         XCTAssertTrue(app.buttons["customizeWidgets"].waitForExistence(timeout: 5))
@@ -109,7 +124,7 @@ final class PaceLifeUITests: XCTestCase {
         app.buttons["customizeWidgets"].tap()
         XCTAssertTrue(progress.waitForExistence(timeout: 5))
         XCTAssertEqual(progress.value as? String, "0")
-        progress.tap()
+        setSwitch(progress, to: true)
         XCTAssertEqual(progress.value as? String, "1", "Restoring visibility must update the draft")
         app.buttons["saveWidgets"].tap()
         XCTAssertTrue(app.otherElements["home.progress"].waitForExistence(timeout: 5))
@@ -180,7 +195,7 @@ final class PaceLifeUITests: XCTestCase {
         app.buttons["startRoutine"].tap()
         let step = app.switches["routine.step.Stretch"]
         XCTAssertTrue(step.waitForExistence(timeout: 5))
-        step.tap()
+        setSwitch(step, to: true)
         XCTAssertEqual(step.value as? String, "1")
         XCTAssertEqual(app.staticTexts["routine.progress"].label, "1 / 2")
         app.buttons["pauseRoutine"].tap()
@@ -191,7 +206,7 @@ final class PaceLifeUITests: XCTestCase {
         XCTAssertFalse(step.isEnabled)
         app.buttons["pauseRoutine"].tap()
         XCTAssertTrue(step.isEnabled)
-        app.switches["routine.step.Read"].tap()
+        setSwitch(app.switches["routine.step.Read"], to: true)
         XCTAssertEqual(app.staticTexts["routine.progress"].label, "2 / 2")
     }
 

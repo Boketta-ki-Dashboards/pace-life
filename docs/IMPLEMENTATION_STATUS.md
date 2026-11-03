@@ -87,3 +87,14 @@ der UI-Korrektur folgt im neuen macOS-CI-Lauf; lokal ist kein Xcode verfügbar.
 - Offen: wiederkehrende automatische Mode-Aktivierung, historische Habit-
   Planrevisionen/Kalender, Paths, Adaptive, Chapters, Experiments, lokale Circles.
   Geplante Uhrzeiten erzeugen noch keine Benachrichtigungen.
+
+### Widget-Ursache durch CI eingegrenzt
+
+Lauf 41619060817 baut erfolgreich, scheitert aber an der neuen Sofortprüfung:
+Der XCUI-Tap auf die Mitte des SwiftUI-Switch-Elements lässt dessen Wert bei `1`.
+Der Accessibility-Rahmen enthält die gesamte beschriftete Zeile. Der Test tippt
+nun gezielt auf den rechten nativen Schalter und wartet auf den gewünschten Wert.
+Sichtbarkeits- und Persistenzassertionen bleiben unverändert erhalten. Der erste
+Sortiermodus-Fix allein war damit noch keine bestätigte Fehlerbehebung.
+Routinen-Commit 23caf4a: Simulator-Build und 24 Core-Tests inzwischen auf beiden
+Mac-Runnern erfolgreich; UI-Tests laufen noch.
