@@ -66,16 +66,26 @@ Hintergrund- oder Datenbankadapter; Fotos sind noch nicht eingeführt.
 - Projektgenerator reproduzierbar; `git diff --check` bestanden. Neue SwiftUI-
   und UI-Testquellen zusätzlich syntaxgeprüft. Das ersetzt keine SDK-Typprüfung.
 - [Lauf 41620486944](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41620486944),
-  Commit `e44bdf0`: Apple Silicon **24 Core-Tests, sechs UI-Tests, Debug- und
-  generischer Release-Simulator-Build erfolgreich**. Damit sind Widget-Ausblenden/
-  Wiederherstellen und Routinen-Teilfortschritt/Pause/Neustart dort verifiziert.
-- Paths-Commit `cd3bb3c`: Debug-Simulator-Build und 28 Core-Tests auf beiden
-  Mac-Runnern erfolgreich; zu diesem Dokumentationsstand laufen die UI-Tests.
-- Adaptive-Commit `37cac26`: 33 Core-Tests und Intel-Debug-Simulator-Build erfolgreich;
-  nachfolgende Prüfungen laufen noch. Der aktuelle Branch enthält **acht UI-Tests**.
-- Jüngste Kalender-/Integrationscommits haben eigene CI-Läufe. Noch laufende oder
-  wartende Jobs sind kein bestandener Nachweis. Aktuelle Ergebnisse stehen unter
-  [GitHub Actions](https://github.com/Boketta-ki-Dashboards/pace-life/actions).
+  Commit `e44bdf0`: **auf Apple Silicon und Intel jeweils 24 Core-Tests, sechs
+  UI-Tests, Debug- und generischer Release-Simulator-Build erfolgreich**.
+  Widget-Ausblenden/Wiederherstellen und Routine-Teilfortschritt/Pause/Neustart
+  sind damit auf beiden Architekturen verifiziert.
+- Paths-Commit `cd3bb3c`: Debug-Build und 28 Core-Tests auf beiden Mac-Runnern
+  erfolgreich. Path- und Widget-UI-Tests bestehen; Routine-Tests scheitern bei der
+  Navigation zur Liste, einmal vor der Erstellung und einmal nach Neustart.
+- [Adaptive-Lauf 41621518240](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41621518240),
+  `37cac26`: Apple Silicon mit 33 Core-Tests, acht UI-Tests, Debug und Release
+  erfolgreich. Intel: Core/Debug und sechs UI-Tests erfolgreich, zwei Fehler
+  beim Öffnen des Habit-Formulars nach Scrollen. Release wurde dort noch von
+  den fehlgeschlagenen UI-Tests übersprungen; neuere Workflows prüfen es separat.
+- [Kalender-Lauf 41622039201](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41622039201),
+  `303d312`: Apple Silicon mit **35 Core-Tests, acht UI-Tests, Debug und Release
+  erfolgreich**. Der Intel-Lauf ist noch nicht beendet.
+- `9e6c34a` ergänzt den 36. Core-Test für historische Path-Abschlussdaten.
+  Alle 36 Tests bestehen auch beim abschließenden lokalen Lauf von `d5f0e9f`.
+  Dessen [CI-Lauf 41623558789](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41623558789)
+  prüft die nachfolgend beschriebene Scroll-Korrektur; Ergebnis noch offen.
+  Noch laufende oder wartende Jobs sind kein bestandener Nachweis.
 
 Die ursprüngliche Simulatorarchitektur-/Font-Blockade ist behoben. Der Widget-
 Fehler lag beim XCUI-Tap in der Mitte einer beschrifteten Switch-Zeile. Der Test
@@ -112,8 +122,8 @@ bei migrierten Daten bei Bedarf unter „Home anpassen“ einblenden.
 
 ### Nachtrag: Testnavigation im erweiterten Home
 
-Im Intel-Lauf von `cd3bb3c` bestehen Widget- und Path-Neustarttest. Der Routinen-
-Test erreicht nach Neustart die erwartete Liste nicht. Die Testhilfe verlangt
+Die älteren Läufe scheitern teilweise nach Taps auf Home-Buttons: Routinenliste
+oder Habit-Formular werden nicht erreicht. Die Testhilfe in `d5f0e9f` verlangt
 nun, dass das ganze Steuerelement innerhalb des aktiven Scrollbereichs liegt,
 unter Berücksichtigung von Dock und Tastatur; `isHittable` allein reicht bei nur
 teilweise sichtbaren Zeilen nicht aus. Zusätzliche Assertions trennen das Öffnen

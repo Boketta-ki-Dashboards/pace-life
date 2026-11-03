@@ -33,4 +33,11 @@ App startet in Xcode; Tabs `Heute / Entwicklung / Kreise / Profil`; Designsystem
 
 Lokales Habit-Anlegen/Bearbeiten/Archivieren mit Wochentagen und Ja/Nein-, Zähler- oder Minutenziel; heutige Erfüllung erfassen/ändern; Fortschritt anhand gespeicherter Ziel-Snapshots; Life Modes mit Habit-Auswahl anlegen/bearbeiten/löschen/aktivieren; dauerhaft sortier- und ausblendbare Home-Widgets; Darstellung Auto/Hell/Dunkel und Sprache DE/EN/RU. Keine vorbefüllten Beispielkontakte oder angeblichen Backenddaten.
 
-Paths, Adaptive, Chapters und Experiments werden als geplante Module benannt. Circles und Connect haben explizite Unavailable-Adapter. Wiederkehrende Mode-Pläne, eigenständige Routinen, Benachrichtigungen, Export/Import und sichere Synchronisierung bleiben spätere Arbeit; die sieben Modulziele oben bleiben vollständig bestehen.
+Dieser erste Abschnitt wurde inzwischen erweitert: Eigenständige Routinen,
+Life Paths, Pace Adaptive und eine Wochen-/Monatsansicht sind lokal implementiert.
+Der konkrete Umfang und die geprüften Abläufe stehen in
+[IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md). Chapters und Experiments
+bleiben geplant; Circles und Connect haben explizite Unavailable-Adapter.
+Wiederkehrende Mode-Pläne, historische Habit-Planrevisionen, Benachrichtigungen,
+Export/Import und sichere Synchronisierung bleiben spätere Arbeit. Die sieben
+Modulziele oben bleiben vollständig bestehen.

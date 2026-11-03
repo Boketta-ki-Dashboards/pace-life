@@ -22,4 +22,4 @@ Codex muss am Ende jeder Phase dokumentieren: Implementiert, tatsächlich getest
 
 
 ## Phase-1-Nachweis
-Habits, Life-Mode-Tagesvorlagen, persistente Home-Widgets und Einstellungen sind implementiert. Kein Modul wird wegen eines UI-Platzhalters als `Implemented` oder `Verified` geführt. Die lokale Domäne hat 36 bestandene XCTest-Tests. Sechs UI-Tests des Routinen-/Widget-Zwischenstands sind auf Apple Silicon bestanden; der aktuelle Stand enthält acht UI-Tests und benötigt die aktuelle CI-/Geräteabnahme. Details und Grenzen: [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md).
+Habits, Life-Mode-Tagesvorlagen, persistente Home-Widgets und Einstellungen sind implementiert. Kein Modul wird wegen eines UI-Platzhalters als `Implemented` oder `Verified` geführt. Die lokale Domäne hat 36 bestandene XCTest-Tests. Der Routinen-/Widget-Zwischenstand besteht auf beiden Mac-Architekturen; der Kalenderstand besteht mit acht UI-Tests auf Apple Silicon. Die jüngste Testnavigation benötigt noch ihre CI-Abnahme, echte Gerätetests bleiben offen. Commitgenaue Ergebnisse und Grenzen: [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md).

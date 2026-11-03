@@ -27,12 +27,15 @@ PaceLife/
 ```
 An Struktur bestehender, im neuen Repository vorhandener Komponenten anpassen.
 
-Views -> ViewModels/Use Cases -> Domain-Repository-Protokolle -> lokale / spätere Supabase-Adapter. Composition Root für Services. Test-Doubles ohne Netz. Schema und Migrationsdateien zunächst nur als **Vorschlag** und nicht produktiv ausführen.
+Views -> ViewModels/Use Cases -> Domain-Repository-Protokolle -> lokale / spätere Supabase-Adapter. Composition Root für Services. Test-Doubles ohne Netz. Die lokale Dateimigration ist implementiert. Backend-Schemata und Supabase-Migrationen bleiben ausschließlich Vorschläge und werden nicht produktiv ausgeführt.
 
 ## Mindest-Domainmodelle
 Habit(id, title, goalType, schedule, createdAt, isArchived), HabitCompletion(id, habitID, date, actualValue, targetSnapshot), LifeMode(id, title, recurringSchedule, activeRules), ModeActivation(start, end?, modeID), HomeWidgetPreference(id, kind, position, isVisible). Datumsoperationen mit explizitem lokalem Tagesbezug, stabiler Wiederholung und Tests für Sommer-/Winterzeit.
 
-Später: LifePath, Milestone, AdaptiveSuggestion, LifeChapter, LifeExperiment, ExperimentMeasurement, Circle, CircleMembership, CircleGoal, ShareGrant, ExternalPaceSource. Private Daten sind ohne Freigabe privat.
+Implementierte Erweiterungen: Routine, RoutineStep, RoutineSession, LifePath,
+PathMilestone, PathEntry, DailyAdaptivePlan und AdaptiveEntry. Später: LifeChapter,
+LifeExperiment, ExperimentMeasurement, Circle, CircleMembership, CircleGoal,
+ShareGrant und ExternalPaceSource. Private Daten sind ohne Freigabe privat.
 
 ## Schutzregeln
 - Pace Social ist exklusiv bei Claude. Kein Repository-Zugriff und keine produktiven Backendänderungen.
@@ -68,9 +71,10 @@ Vier Root-Tabs mit festem, Safe-Area-geschütztem Dock; Editieren in nativen She
 
 ### Schema 2 und Routine-Sessions
 
-Der aktuelle Writer schreibt Schema 2. `SchemaMigration.swift` liest Schema 1
-explizit und ergänzt leere Routinen-/Session-Arrays sowie das zunächst verborgene
-Routinen-Widget. Alle aktuellen Pflichtfelder werden streng decodiert. Laden
+Schema 2 führte Routinen ein. Der aktuelle Writer schreibt Schema 4.
+`SchemaMigration.swift` liest Schema 1 explizit und ergänzt unter anderem leere
+Routinen-/Session-Arrays sowie das zunächst verborgene Routinen-Widget.
+Alle aktuellen Pflichtfelder werden streng decodiert. Laden
 ändert keine Datei. Vor jedem atomaren Schreiben wird der Dateiinhalt mit dem
 zuletzt geladenen/geschriebenen Stand verglichen; fremde Änderungen werden nicht
 überschrieben. Das bleibt ein Single-Writer-Modell, kein Mehrprozess-Locking.
@@ -92,7 +96,8 @@ Archivierte Quellen zählen weiter. Korrigierte Arbeit unterhalb eines abgeschlo
 Path-Ziels öffnet den Path wieder. Manuelle und Habit-Beiträge sind pro Meilenstein
 exklusiv. Es werden keine Minuten mit Zählwerten vermischt.
 
-Der Writer verwendet Schema 3; explizite Schema-1-/Schema-2-DTOs erhalten alte
+Schema 3 führte Paths ein; der heutige Schema-4-Writer übernimmt sie mit einem
+expliziten Schema-3-DTO. Die Schema-1-/Schema-2-DTOs erhalten ebenfalls alle alten
 Felder einschließlich Routine-Sessions. Aktuelle Pflichtarrays sind strikt.
 
 ### Schema 4: Pace Adaptive
