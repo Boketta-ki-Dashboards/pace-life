@@ -148,3 +148,20 @@ Mac-Runnern erfolgreich; UI-Tests laufen noch.
 - Offen: Neuberechnung eines bereits eingefrorenen Tagesplans, Reduktion einzelner
   Routine-Schritte und freie Prioritäten/Zeitfenster. Routinen werden aktuell
   bewusst als feste Aufgaben berücksichtigt. Keine KI-API oder Online-Verbindung.
+
+## Kalender und bestätigte Widget-Korrektur
+
+Lauf **41620486944**, Commit `e44bdf0`: Auf Apple Silicon sind **alle sechs
+UI-Tests**, Debug-Simulator-Build, generischer Release-Simulator-Build und Core-
+Tests erfolgreich. Damit sind Widget-Ausblenden/Wiederherstellen sowie Routinen-
+Teilfortschritt/Pause/Neustart dort tatsächlich geprüft. Intel-Abschluss steht
+noch aus. Paths/Adaptive haben eigene nachfolgende CI-Läufe.
+
+Die neue Wochen-/Monatsansicht ist über das Kalender-Symbol unter Heute erreichbar.
+Sie verbindet ursprüngliche Habit-Ergebnisse, bestätigte Adaptive-Ziele und
+Routine-Snapshots. Vergangene vollständige Tagespläne sind unbekannt und werden
+nicht erfunden; künftige Pläne sind als Vorschau des aktuellen Modes/Wochenplans
+gekennzeichnet. Es gibt noch keine historische Kalenderquote für nicht erfasste
+Aktivitäten. Monat/Jahr und Sommerzeit werden mit Kalenderoperationen behandelt.
+Grid-Zellen skalieren mit Dynamic Type und bleiben horizontal erreichbar.
+**35 Core-Tests bestanden, 0 Fehler**; Kalender-Navigation ergänzt den UI-Test.

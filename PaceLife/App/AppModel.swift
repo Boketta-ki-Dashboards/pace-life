@@ -137,3 +137,8 @@ extension AppModel {
         perform { try $0.decideAdaptive(day: day, habitID: habitID, decision: decision, target: target) }
     }
 }
+
+
+extension AppModel {
+    func overview(on date: Date) -> DayOverview? { _ = state; return store?.overview(on: date, today: today) }
+}

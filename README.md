@@ -56,3 +56,7 @@ erfassen: angepasstes Tagesziel erreicht, ursprüngliches Ziel erst zur Hälfte.
 Der echte Wert fließt in verknüpfte Paths. Neustart erhält beide Ziele und den
 Istwert. Bereits erstellte Tagespläne bleiben eingefroren; einzelne Ziele können
 bearbeitet oder ihre Anpassung zurückgenommen werden.
+
+Kalender testen: Unter **Heute** das Kalender-Symbol öffnen, zwischen Woche und
+Monat wechseln und Tage auswählen. Historische Werte stammen aus gespeicherten
+Ergebnissen; Zukunftspläne sind ausdrücklich eine Vorschau mit dem aktuellen Mode.

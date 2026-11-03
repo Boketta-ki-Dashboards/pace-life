@@ -10,6 +10,7 @@ struct HomeView: View {
     @State private var routines = false
     @State private var paths = false
     @State private var adaptive = false
+    @State private var calendar = false
     @State private var allHabits = false
     @State private var selectedHabit: Habit?
 
@@ -18,6 +19,8 @@ struct HomeView: View {
             HStack {
                 Text(model.text(.welcome)).font(.title3.weight(.semibold))
                 Spacer()
+                Button { calendar = true } label: { Image(systemName: "calendar").frame(width: 44, height: 44) }
+                    .accessibilityLabel(model.calendarText(.calendar)).accessibilityIdentifier("openCalendar")
                 Button { widgets = true } label: { Image(systemName: "slider.horizontal.3").frame(width: 44, height: 44) }
                     .accessibilityLabel(model.text(.widgets)).accessibilityIdentifier("customizeWidgets")
             }
@@ -51,6 +54,7 @@ struct HomeView: View {
             Button(model.text(.routines)) { routines = true }
                 .buttonStyle(PaceButtonStyle(kind: .secondary)).accessibilityIdentifier("manageRoutines")
         }
+        .sheet(isPresented: $calendar) { CalendarView() }
         .sheet(isPresented: $adaptive) { AdaptiveView() }
         .sheet(isPresented: $paths) { PathsView() }
         .sheet(isPresented: $routines) { RoutinesView() }

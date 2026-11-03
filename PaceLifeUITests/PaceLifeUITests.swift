@@ -172,6 +172,11 @@ final class PaceLifeUITests: XCTestCase {
             app.swipeUp()
             XCTAssertTrue(button.isHittable, "Bottom dock must remain reachable while content scrolls")
         }
+        reveal(app.buttons["openCalendar"], in: app)
+        app.buttons["openCalendar"].tap()
+        XCTAssertTrue(app.buttons["closeCalendar"].waitForExistence(timeout: 5))
+        app.buttons["Monat"].tap()
+        app.buttons["closeCalendar"].tap()
         // Opening and closing an editor must return to the existing root, not create another stack.
         reveal(app.buttons["addHabit"], in: app)
         app.buttons["addHabit"].tap()

@@ -111,3 +111,12 @@ akzeptierte Kürzung noch Null-Ziel erzeugen eine fiktive volle Erfüllung. Der
 aktuelle Plan kann nach Ablehnung über Budget bleiben und zeigt dies explizit.
 Der Schema-4-Writer verlangt `adaptivePlans`; explizite DTOs für 1/2/3 ergänzen
 leere Pläne und ein verborgenes Adaptive-Widget unter Erhalt aller bisherigen Daten.
+
+### Kalenderprojektion ohne erfundene Historie
+
+`PlanningCalendar` bildet Wochen/Monate durch zivile gregorianische Tage in der
+lokalen Zeitzone ab, nicht durch Addition von 86400 Sekunden. `DayOverview`
+trennt gespeicherte Fakten von Planung: vergangene Pläne sind `nil` (unbekannt),
+heutige Pläne verwenden den aktuellen Mode, Zukunft ist eine gekennzeichnete
+Vorschau. Routine-Sessions und Adaptive-Originale bleiben historisch nachvollziehbar.
+Diese Ansicht ersetzt keine noch ausstehenden Habit-Planrevisionen.
