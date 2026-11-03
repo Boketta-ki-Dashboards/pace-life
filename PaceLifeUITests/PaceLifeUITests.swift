@@ -21,17 +21,30 @@ final class PaceLifeUITests: XCTestCase {
     @MainActor
     private func reveal(_ element: XCUIElement, in app: XCUIApplication,
                         file: StaticString = #filePath, line: UInt = #line) {
-        for _ in 0..<6 {
-            if element.exists && element.isHittable { return }
-            if element.exists && element.frame.midY < app.frame.midY { app.swipeDown() }
-            else { app.swipeUp() }
+        // isHittable can be true for a sliver of a row behind the fixed bottom dock.
+        // Bring the complete control into the scroll viewport before tapping it.
+        let scroll: XCUIElement
+        if app.scrollViews.firstMatch.exists && app.scrollViews.firstMatch.isHittable { scroll = app.scrollViews.firstMatch }
+        else if app.collectionViews.firstMatch.exists && app.collectionViews.firstMatch.isHittable { scroll = app.collectionViews.firstMatch }
+        else if app.tables.firstMatch.exists && app.tables.firstMatch.isHittable { scroll = app.tables.firstMatch }
+        else { scroll = app }
+        for attempt in 0..<12 {
+            var viewport = scroll.frame.insetBy(dx: 0, dy: 12)
+            let dock = app.buttons["tab.today"]
+            if dock.exists && dock.isHittable {
+                viewport.size.height = max(0, min(viewport.maxY, dock.frame.minY - 12) - viewport.minY)
+            }
+            if app.keyboards.firstMatch.exists {
+                viewport.size.height = max(0, min(viewport.maxY, app.keyboards.firstMatch.frame.minY - 12) - viewport.minY)
+            }
+            if element.exists && element.isHittable && viewport.contains(element.frame) { return }
+            if element.exists {
+                if element.frame.midY < viewport.midY { scroll.swipeDown() }
+                else { scroll.swipeUp() }
+            } else if attempt < 6 { scroll.swipeUp() }
+            else { scroll.swipeDown() }
         }
-        // Lazy lists may not expose a control above the viewport until scrolled back.
-        for _ in 0..<10 {
-            if element.exists && element.isHittable { return }
-            app.swipeDown()
-        }
-        XCTAssertTrue(element.isHittable, "Expected control to be reachable by scrolling", file: file, line: line)
+        XCTFail("Expected the whole control to be reachable in the scroll viewport.\n" + app.debugDescription, file: file, line: line)
     }
 
     /// SwiftUI exposes the full labelled row as the switch accessibility frame.
@@ -213,7 +226,8 @@ final class PaceLifeUITests: XCTestCase {
         app.buttons["pauseRoutine"].tap()
         app.terminate(); app.launch()
         reveal(app.buttons["manageRoutines"], in: app); app.buttons["manageRoutines"].tap()
-        XCTAssertTrue(open.waitForExistence(timeout: 5)); open.tap()
+        XCTAssertTrue(app.buttons["addRoutine"].waitForExistence(timeout: 10), app.debugDescription)
+        XCTAssertTrue(open.waitForExistence(timeout: 10), app.debugDescription); open.tap()
         XCTAssertEqual(app.staticTexts["routine.progress"].label, "1 / 2")
         XCTAssertFalse(step.isEnabled)
         app.buttons["pauseRoutine"].tap()

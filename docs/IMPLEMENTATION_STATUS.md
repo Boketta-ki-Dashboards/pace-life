@@ -109,3 +109,13 @@ mit Entwicklermodus auswählen → ⌘R. Zunächst Habit, Mode und Routine anleg
 danach unter Entwicklung einen Path verknüpfen und unter Heute Pace Adaptive
 öffnen. Werte erfassen, App vollständig beenden und erneut öffnen. Neue Widgets
 bei migrierten Daten bei Bedarf unter „Home anpassen“ einblenden.
+
+### Nachtrag: Testnavigation im erweiterten Home
+
+Im Intel-Lauf von `cd3bb3c` bestehen Widget- und Path-Neustarttest. Der Routinen-
+Test erreicht nach Neustart die erwartete Liste nicht. Die Testhilfe verlangt
+nun, dass das ganze Steuerelement innerhalb des aktiven Scrollbereichs liegt,
+unter Berücksichtigung von Dock und Tastatur; `isHittable` allein reicht bei nur
+teilweise sichtbaren Zeilen nicht aus. Zusätzliche Assertions trennen das Öffnen
+der Liste vom Wiederfinden der gespeicherten Routine und liefern bei einem Fehler
+den Accessibility-Baum. Bestätigung dieser Testkorrektur folgt im neuen CI-Lauf.
