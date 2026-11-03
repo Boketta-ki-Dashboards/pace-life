@@ -81,3 +81,16 @@ nehmen keine Schrittänderungen an. Archivierung erhält alle Sessions;
 Mode-Löschung entfernt die aktuelle Zuordnung, bewahrt aber historische IDs.
 SwiftUI ruft ausschließlich AppModel/Use Cases auf. Schritte sind unabhängig von
 Habits; sie buchen keine erfundenen Habit-Werte.
+
+### Schema 3: Life Paths
+
+`Paths.swift` berechnet Meilensteine aus eindeutigen HabitCompletion-Quellen oder
+manuellen PathEntry-Tageswerten, niemals aus wiederholtem Inkrementieren. Quelle,
+Einheit und Path-Start sind nach Erstellung fest; Titel/Ziel und Reihenfolge sind
+editierbar. Habit-Vorlagenänderungen bleiben von Completion-Snapshots getrennt.
+Archivierte Quellen zählen weiter. Korrigierte Arbeit unterhalb eines abgeschlossenen
+Path-Ziels öffnet den Path wieder. Manuelle und Habit-Beiträge sind pro Meilenstein
+exklusiv. Es werden keine Minuten mit Zählwerten vermischt.
+
+Der Writer verwendet Schema 3; explizite Schema-1-/Schema-2-DTOs erhalten alte
+Felder einschließlich Routine-Sessions. Aktuelle Pflichtarrays sind strikt.

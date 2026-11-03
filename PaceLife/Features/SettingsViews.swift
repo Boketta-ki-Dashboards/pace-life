@@ -90,14 +90,15 @@ struct ProfileView: View {
 
 struct DevelopmentView: View {
     @Environment(AppModel.self) private var model
+    @State private var paths = false
     var body: some View {
         Page(title: model.text(.development)) {
             Text(model.text(.futureDetail)).foregroundStyle(PaceColor.textSecondary)
-            future("Life Paths", message: .pathsDetail, icon: "point.topleft.down.to.point.bottomright.curvepath")
+            Button("Life Paths") { paths = true }.buttonStyle(PaceButtonStyle()).accessibilityIdentifier("managePaths")
             future("Pace Adaptive", message: .adaptiveDetail, icon: "slider.horizontal.3")
             future("Life Chapters", message: .chaptersDetail, icon: "book.closed")
             future("Life Experiments", message: .experimentsDetail, icon: "flask")
-        }
+        }.sheet(isPresented: $paths) { PathsView() }
     }
     private func future(_ title: String, message: Copy, icon: String) -> some View {
         PaceCard {

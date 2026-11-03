@@ -35,11 +35,14 @@ public enum LifeError: Error, Equatable, Sendable {
         let version: Int
         do { version = try decoder.decode(Header.self, from: data).schemaVersion }
         catch { throw LifeError.corruptStore }
-        guard (1...2).contains(version) else { throw LifeError.unsupportedSchema(version) }
+        guard (1...3).contains(version) else { throw LifeError.unsupportedSchema(version) }
         do {
-            let state = try version == 1
-                ? decoder.decode(SchemaOneEnvelope.self, from: data).state.migrated()
-                : decoder.decode(Envelope.self, from: data).state
+            let state: LifeState
+            switch version {
+            case 1: state = try decoder.decode(SchemaOneEnvelope.self, from: data).state.migrated()
+            case 2: state = try decoder.decode(SchemaTwoEnvelope.self, from: data).state.migrated()
+            default: state = try decoder.decode(Envelope.self, from: data).state
+            }
             try state.validate()
             loadedData = data; hasLoaded = true
             return state
@@ -54,7 +57,7 @@ public enum LifeError: Error, Equatable, Sendable {
         guard current == loadedData else { throw LifeError.concurrentModification }
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys]
-        let data = try encoder.encode(Envelope(schemaVersion: 2, state: state))
+        let data = try encoder.encode(Envelope(schemaVersion: 3, state: state))
         try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
         #if os(iOS)
         try data.write(to: url, options: [.atomic, .completeFileProtection])
@@ -115,6 +118,7 @@ extension LifeState {
         }
         try Self.validateWidgets(widgets)
         try validateRoutines()
+        try validatePaths()
     }
 
     static func validateWidgets(_ widgets: [HomeWidgetPreference]) throws {

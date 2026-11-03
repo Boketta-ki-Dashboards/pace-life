@@ -79,7 +79,7 @@ public struct ModeActivation: Identifiable, Codable, Equatable, Sendable {
     }
 }
 
-public enum HomeWidgetKind: String, Codable, CaseIterable, Sendable { case progress, mode, habits, routines }
+public enum HomeWidgetKind: String, Codable, CaseIterable, Sendable { case progress, mode, habits, routines, paths }
 public struct HomeWidgetPreference: Identifiable, Codable, Equatable, Sendable {
     public var id: HomeWidgetKind { kind }
     public let kind: HomeWidgetKind
@@ -96,6 +96,8 @@ public struct AppSettings: Codable, Equatable, Sendable {
 }
 
 public struct LifeState: Codable, Equatable, Sendable {
+    public var paths: [LifePath]
+    public var pathEntries: [PathEntry]
     public var routines: [Routine]
     public var routineSessions: [RoutineSession]
     public var habits: [Habit]
@@ -109,7 +111,8 @@ public struct LifeState: Codable, Equatable, Sendable {
     public init(habits: [Habit] = [], modes: [LifeMode] = [], completions: [HabitCompletion] = [],
                 activations: [ModeActivation] = [], activeModeID: UUID? = nil,
                 widgets: [HomeWidgetPreference] = HomeWidgetKind.allCases.map { HomeWidgetPreference(kind: $0) },
-                settings: AppSettings = AppSettings(), routines: [Routine] = [], routineSessions: [RoutineSession] = []) {
+                settings: AppSettings = AppSettings(), routines: [Routine] = [], routineSessions: [RoutineSession] = [], paths: [LifePath] = [], pathEntries: [PathEntry] = []) {
+        self.paths = paths; self.pathEntries = pathEntries
         self.routines = routines; self.routineSessions = routineSessions
         self.habits = habits; self.modes = modes; self.completions = completions
         self.activations = activations; self.activeModeID = activeModeID; self.widgets = widgets; self.settings = settings

@@ -3,7 +3,7 @@ import XCTest
 @testable import PaceLifeCore
 
 final class MigrationTests: XCTestCase {
-    func testSchemaOneMigrationIsIdempotentAndWritesStrictSchemaTwo() async throws {
+    func testSchemaOneMigrationIsIdempotentAndWritesStrictCurrentSchema() async throws {
         try await MainActor.run {
             let fixture = try Data(contentsOf: XCTUnwrap(Bundle.module.url(forResource: "schema-one", withExtension: "json", subdirectory: "Fixtures")))
             let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -16,11 +16,11 @@ final class MigrationTests: XCTestCase {
             XCTAssertEqual(first, try repo.load())
             XCTAssertEqual(try Data(contentsOf: url), fixture)
             XCTAssertTrue(first.routines.isEmpty); XCTAssertTrue(first.routineSessions.isEmpty)
-            XCTAssertEqual(first.widgets.last, HomeWidgetPreference(kind: .routines, isVisible: false))
+            XCTAssertEqual(first.widgets.first(where: { $0.kind == .routines }), HomeWidgetPreference(kind: .routines, isVisible: false))
             try repo.save(first)
             let saved = try Data(contentsOf: url)
             var json = try XCTUnwrap(JSONSerialization.jsonObject(with: saved) as? [String: Any])
-            XCTAssertEqual(json["schemaVersion"] as? Int, 2)
+            XCTAssertEqual(json["schemaVersion"] as? Int, 3)
             XCTAssertEqual(first, try JSONStateRepository(url: url).load())
             var state = try XCTUnwrap(json["state"] as? [String: Any])
             state.removeValue(forKey: "routineSessions"); json["state"] = state

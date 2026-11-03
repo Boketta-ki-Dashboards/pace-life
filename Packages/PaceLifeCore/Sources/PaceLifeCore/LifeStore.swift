@@ -15,6 +15,13 @@ import Foundation
     func transaction(_ change: (inout LifeState) throws -> Void) throws {
         var candidate = state
         try change(&candidate)
+        // Correcting actual work or raising a milestone target can reopen a completed path.
+        for index in candidate.paths.indices where candidate.paths[index].status == .completed {
+            if candidate.pathProgress(candidate.paths[index]) < 1 {
+                candidate.paths[index].status = .active
+                candidate.paths[index].completedDay = nil
+            }
+        }
         try candidate.validate()
         try repository.save(candidate)
         state = candidate

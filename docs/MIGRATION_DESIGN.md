@@ -35,3 +35,8 @@ verborgen. Lesen migriert nur im Speicher, Schreiben ersetzt atomar. Ein Verglei
 mit dem zuletzt gelesenen Dateiinhalt schützt zusätzlich vor einem fremden Ersatz.
 24 Core-Tests bestanden. Historische Habit-Planrevisionen und die nachfolgenden
 USP-Modelle bleiben weitere Schema-Erweiterungen; sie sind nicht vorgetäuscht.
+
+Schema 3 ergänzt `paths` und `pathEntries` sowie das bei Migration verborgene
+Paths-Widget. Auch Schema 2 wird explizit gelesen, einschließlich aller
+Routine-Snapshots. Ein Roundtrip-Test mit teilweise erledigter Routine und
+abweichender Widget-Reihenfolge prüft den Erhalt. 28 Core-Tests bestanden.

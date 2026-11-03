@@ -210,4 +210,28 @@ final class PaceLifeUITests: XCTestCase {
         XCTAssertEqual(app.staticTexts["routine.progress"].label, "2 / 2")
     }
 
+    @MainActor
+    func testManualPathMilestoneSurvivesRelaunch() {
+        let app = launchFreshApp()
+        app.buttons["tab.development"].tap(); app.buttons["managePaths"].tap()
+        app.buttons["addPath"].tap()
+        let title = app.textFields["pathTitle"]
+        XCTAssertTrue(title.waitForExistence(timeout: 5)); title.tap(); title.typeText("Learn Russian")
+        let milestone = app.textFields["milestoneTitle"]
+        reveal(milestone, in: app); milestone.tap(); milestone.typeText("Take exam")
+        app.buttons["savePath"].tap()
+        let open = app.buttons["path.open.Learn Russian"]
+        XCTAssertTrue(open.waitForExistence(timeout: 5)); open.tap()
+        let record = app.buttons["recordMilestone.Take exam"]
+        reveal(record, in: app); record.tap()
+        let completed = app.switches["pathEntryComplete"]
+        XCTAssertTrue(completed.waitForExistence(timeout: 5)); setSwitch(completed, to: true)
+        app.buttons["savePathEntry"].tap()
+        XCTAssertEqual(app.staticTexts["milestone.value.Take exam"].label, "1 / 1")
+        app.terminate(); app.launch()
+        app.buttons["tab.development"].tap(); app.buttons["managePaths"].tap()
+        XCTAssertTrue(open.waitForExistence(timeout: 5)); open.tap()
+        XCTAssertEqual(app.staticTexts["milestone.value.Take exam"].label, "1 / 1")
+    }
+
 }

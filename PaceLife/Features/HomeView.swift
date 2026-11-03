@@ -8,6 +8,7 @@ struct HomeView: View {
     @State private var widgets = false
     @State private var modes = false
     @State private var routines = false
+    @State private var paths = false
     @State private var allHabits = false
     @State private var selectedHabit: Habit?
 
@@ -37,6 +38,7 @@ struct HomeView: View {
                 case .mode: modeCard
                 case .habits: habitsCard
                 case .routines: routinesCard
+                case .paths: pathsCard
                 }
             }
             Button { newHabit = true } label: { Label(model.text(.newHabit), systemImage: "plus") }
@@ -45,12 +47,28 @@ struct HomeView: View {
             Button(model.text(.routines)) { routines = true }
                 .buttonStyle(PaceButtonStyle(kind: .secondary)).accessibilityIdentifier("manageRoutines")
         }
+        .sheet(isPresented: $paths) { PathsView() }
         .sheet(isPresented: $routines) { RoutinesView() }
         .sheet(isPresented: $newHabit) { HabitEditor() }
         .sheet(isPresented: $widgets) { WidgetEditor() }
         .sheet(isPresented: $modes) { ModesView() }
         .sheet(isPresented: $allHabits) { HabitsView() }
         .sheet(item: $selectedHabit) { HabitDetail(habitID: $0.id) }
+    }
+
+    private var pathsCard: some View {
+        PaceCard {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Life Paths").font(.title3.bold())
+                let active = model.state.paths.filter { $0.status == .active }
+                if active.isEmpty { Text(model.pathText(.noPaths)) }
+                ForEach(active) { path in
+                    Text(path.title).font(.headline)
+                    ProgressView(value: model.state.pathProgress(path)).tint(PaceColor.accent)
+                }
+                Button("Life Paths") { paths = true }
+            }
+        }
     }
 
     private var routinesCard: some View {

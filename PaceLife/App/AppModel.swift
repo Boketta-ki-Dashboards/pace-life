@@ -75,7 +75,7 @@ final class AppModel {
         switch kind { case .binary: text(.binary); case .count: text(.count); case .duration: text(.duration) }
     }
     func widgetName(_ kind: HomeWidgetKind) -> String {
-        switch kind { case .progress: text(.progress); case .mode: text(.activeMode); case .habits: text(.habits); case .routines: text(.routines) }
+        switch kind { case .progress: text(.progress); case .mode: text(.activeMode); case .habits: text(.habits); case .routines: text(.routines); case .paths: "Life Paths" }
     }
     @discardableResult func perform(_ action: (LifeStore) throws -> Void) -> Bool {
         guard let store else { return false }
@@ -114,4 +114,11 @@ extension AppModel {
         guard session.day == DayKey(date: today) else { return }
         perform { try $0.setRoutineStep(sessionID: session.id, stepID: stepID, completed: completed) }
     }
+}
+
+
+extension AppModel {
+    func savePath(_ path: LifePath) -> Bool { perform { try $0.savePath(path) } }
+    func setPathStatus(_ id: UUID, _ status: PathStatus) { perform { try $0.setPathStatus(id: id, status: status) } }
+    func recordPathEntry(_ id: UUID, value: Double) -> Bool { perform { try $0.recordPathEntry(milestoneID: id, value: value) } }
 }

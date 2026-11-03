@@ -98,3 +98,25 @@ Sichtbarkeits- und Persistenzassertionen bleiben unverändert erhalten. Der erst
 Sortiermodus-Fix allein war damit noch keine bestätigte Fehlerbehebung.
 Routinen-Commit 23caf4a: Simulator-Build und 24 Core-Tests inzwischen auf beiden
 Mac-Runnern erfolgreich; UI-Tests laufen noch.
+
+## Life Paths – 3. November 2026
+
+- Nutzbare Übersicht, Details, Erstellen/Bearbeiten, Lebensbereich, Beschreibung,
+  Start-/Zieldatum, mehrere sortierbare Meilensteine, aktive/pausierte/abgeschlossene/
+  archivierte Paths, Wiederaktivierung und Home-Widget. Zugriff über Entwicklung.
+- Meilensteine: binär, Zähler oder Minuten; manuelle Tagesbeiträge mit Korrektur
+  oder exakt eine Habit-Quelle. Quell-IDs und Einheiten bleiben nach Erstellung
+  fest. Es zählen ausschließlich tatsächliche Werte in der gespeicherten Einheit
+  ab Path-Start; Archivierung und Änderungen der Habit-Vorlage löschen nichts.
+- Beiträge werden berechnet, nicht bei Anzeige inkrementiert. Ein korrigierter
+  Habit-Wert korrigiert genau einen Beitrag. Ein Path wird nur nach vollständigen
+  Meilensteinen manuell abgeschlossen; spätere Korrekturen können ihn wieder öffnen.
+- Schema 3 liest Schema 1 und 2 über explizite Migrationen. Routinen/Sessions und
+  vorhandene Widget-Einstellungen bleiben erhalten; Paths-Widget bei Migration
+  hinten und ausgeblendet. Neue Felder `paths` und `pathEntries` sind obligatorisch.
+- **28 Core-Tests bestanden, 0 Fehler**; SwiftUI-Quellen syntaxgeprüft, Projekt
+  reproduzierbar erzeugt. Ein zusätzlicher UI-Test erfasst einen Meilenstein und
+  prüft ihn nach Neustart; aktueller Apple-SDK-/UI-Nachweis folgt in CI.
+- Noch offen: Routine-Beiträge zu Paths, Titelbilder, Änderung einer bestehenden
+  Beitragsregel mit eigener historischer Gültigkeit und reichhaltige Diagramme.
+  Das Modul ist ein nutzbarer erster Ausbau, nicht die vollständige Sprintabnahme.

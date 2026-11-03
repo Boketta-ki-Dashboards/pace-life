@@ -43,3 +43,9 @@ anlegen, optional einem Life Mode zuordnen und diesen aktivieren. Routine starte
 einige Schritte erledigen, pausieren und die App neu starten. Teilfortschritt und
 Pause bleiben erhalten. Das Routinen-Widget lässt sich unter „Home anpassen“
 einblenden. Bestehende Schema-1-Daten werden automatisch verlustfrei übernommen.
+
+Life Paths testen: **Entwicklung → Life Paths**, Ziel mit mehreren Meilensteinen
+anlegen. Einen Minuten-Meilenstein mit einer Dauer-Gewohnheit verknüpfen (100
+Lernstunden = 6000 Minuten). Heute 45 Minuten bei dieser Gewohnheit erfassen: Der
+Path zeigt 45 tatsächliche Minuten. Korrekturen ändern diesen Beitrag ohne
+Doppelzählung; weitere Meilensteine bleiben unabhängig.

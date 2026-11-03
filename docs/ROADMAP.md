@@ -4,7 +4,7 @@ Status pro Modul: `Not started` / `In progress` / `Implemented` / `Verified`. St
 | Modul | Aktueller Status | Implementiert | Verifiziert / offen |
 |---|---|---|---|
 | Life Modes | In progress | CRUD, manuelle Aktivierung, Habit-Tagesvorlagen, eigenständige Routinen mit Tages-Snapshots und Home-Widget | 24 Core-Tests bestanden; aktuelle iOS-Abnahme, automatische Mode-Pläne und historische Habit-Pläne offen |
-| Life Paths | Not started | Als geplantes Modul ausgewiesen | Phase 2: Ziele, Meilensteine, Habit-Verknüpfungen |
+| Life Paths | In progress | Gespeicherte Paths, Meilensteine, manuelle und Habit-Beiträge, Status/Archiv, Home-Widget | Core inklusive Verknüpfungen geprüft; aktuelle iOS-Abnahme und Routine-Beiträge offen |
 | Pace Adaptive | Not started | Als geplantes Modul ausgewiesen | Phase 2: bestätigte regelbasierte Anpassungen |
 | Life Chapters | Not started | Als geplantes Modul ausgewiesen | Phase 3: private Chronik und Erinnerungen |
 | Life Experiments | Not started | Als geplantes Modul ausgewiesen | Phase 3: Experimente und Auswertungen |
