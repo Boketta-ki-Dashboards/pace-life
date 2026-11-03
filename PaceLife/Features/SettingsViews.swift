@@ -6,6 +6,7 @@ struct WidgetEditor: View {
     @Environment(\.dismiss) private var dismiss
     @State private var widgets: [HomeWidgetPreference] = []
     @State private var initialized = false
+    @State private var editMode: EditMode = .inactive
 
     var body: some View {
         NavigationStack {
@@ -18,11 +19,15 @@ struct WidgetEditor: View {
                     }.onMove { source, destination in widgets.move(fromOffsets: source, toOffset: destination) }
                 } footer: { Text(model.text(.widgetsHelp)) }
             }
-            .environment(\.editMode, .constant(.active))
+            .environment(\.editMode, $editMode)
             .scrollContentBackground(.hidden).background(PaceColor.background)
             .navigationTitle(model.text(.widgets)).navigationBarTitleDisplayMode(.inline)
             .onAppear { if !initialized { widgets = model.state.widgets; initialized = true } }
             .toolbar {
+                ToolbarItem(placement: .bottomBar) {
+                    EditButton().environment(\.editMode, $editMode)
+                        .accessibilityIdentifier("reorderWidgets")
+                }
                 ToolbarItem(placement: .cancellationAction) { Button(model.text(.cancel)) { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(model.text(.save)) { if model.setWidgets(widgets) { dismiss() } }.accessibilityIdentifier("saveWidgets")

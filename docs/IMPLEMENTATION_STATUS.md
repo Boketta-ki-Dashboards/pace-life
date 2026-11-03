@@ -44,3 +44,18 @@ Ausgangsstand: `c2299e5`, remote Phase-1-Branch am Sprintstart unverändert. Der
 Der Projektgenerator ließ `ONLY_ACTIVE_ARCH` offen. Die App kann dadurch in Debug beide Simulatorarchitekturen anfordern, während Xcodes Swift-Package-Target nur die aktive Destination baut. Die Korrektur setzt konsistent Xcodes normale Policy: Debug `YES`, Release `NO`. Keine Architektur wird ausgeschlossen oder fest auf arm64 gesetzt. CI prüft native Simulator-Builds/UI-Tests auf Apple Silicon und Intel sowie einen generischen Release-Simulator-Build. Der Erfolg dieser Korrektur wird erst nach dem neuen CI-Lauf bestätigt.
 
 Der erste Korrekturlauf 41046026637 erreicht auf Apple Silicon nun die eigentliche SwiftUI-Kompilierung. Er deckt einen weiteren Phase-1-Fehler auf: `Font.title3.semibold()` ist keine SwiftUI-API. Korrigiert zu `Font.title3.weight(.semibold)`. Zwei neue Tests mit dem eingefrorenen Schema-1-Datenbestand bestanden; aktuell insgesamt **18 Core-Tests, 0 Fehler**. Die Schema-Version bleibt bis zur getesteten Migration unverändert bei 1.
+
+## Fortsetzung am 3. November 2026 – Widget-Stabilisierung
+
+Remote-Ausgangspunkt geprüft: `codex/pace-life-offline-beta` bei `232cd520`.
+Actions-Lauf 41046372623: Core-Tests und Simulator-Build auf **beiden** Runnern
+(`macos-15` und `macos-15-intel`) erfolgreich; UI-Test für ausgeblendetes
+Fortschritts-Widget fehlgeschlagen (Zeile 105), vier andere UI-Tests bestanden.
+Damit ist die frühere Architektur-/SwiftUI-Buildblockade behoben.
+
+Der Widget-Editor startet jetzt außerhalb des Sortiermodus; Sortieren wird über
+„Bearbeiten“ gezielt aktiviert. Der Regressionstest prüft den Schalterzustand
+bereits vor dem Speichern sowie die Anzeige vor und nach dem Neustart. Dadurch
+werden fehlgeschlagene Umschaltgesten von Persistenzfehlern unterschieden.
+Projektgenerator reproduzierbar, `git diff --check` bestanden. Die Bestätigung
+der UI-Korrektur folgt im neuen macOS-CI-Lauf; lokal ist kein Xcode verfügbar.

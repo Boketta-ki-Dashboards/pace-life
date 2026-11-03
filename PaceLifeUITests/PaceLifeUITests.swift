@@ -97,7 +97,10 @@ final class PaceLifeUITests: XCTestCase {
         XCTAssertTrue(progress.waitForExistence(timeout: 5))
         XCTAssertEqual(progress.value as? String, "1")
         progress.tap()
+        XCTAssertEqual(progress.value as? String, "0", "Visibility must change before saving")
         app.buttons["saveWidgets"].tap()
+        XCTAssertTrue(app.buttons["customizeWidgets"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.otherElements["home.progress"].exists)
 
         app.terminate()
         app.launch()
@@ -107,6 +110,7 @@ final class PaceLifeUITests: XCTestCase {
         XCTAssertTrue(progress.waitForExistence(timeout: 5))
         XCTAssertEqual(progress.value as? String, "0")
         progress.tap()
+        XCTAssertEqual(progress.value as? String, "1", "Restoring visibility must update the draft")
         app.buttons["saveWidgets"].tap()
         XCTAssertTrue(app.otherElements["home.progress"].waitForExistence(timeout: 5))
     }
