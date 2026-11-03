@@ -65,3 +65,19 @@ Ein aktiver Life Mode filtert seine ausgewählten Habits zusätzlich nach deren 
 ### Navigation
 
 Vier Root-Tabs mit festem, Safe-Area-geschütztem Dock; Editieren in nativen Sheets/Formularen. Im ersten Abschnitt kein horizontales Root-Paging, damit Widget-Reordering, vertikales Scrollen und Texteingabe nicht mit einer eigenen Root-Geste konkurrieren. Der spätere Paging-Ausbau benötigt die Abnahme aus VIDEO_REFERENCE.md. Kein Backend-Listener und kein externes Auth-Lifecycle.
+
+### Schema 2 und Routine-Sessions
+
+Der aktuelle Writer schreibt Schema 2. `SchemaMigration.swift` liest Schema 1
+explizit und ergänzt leere Routinen-/Session-Arrays sowie das zunächst verborgene
+Routinen-Widget. Alle aktuellen Pflichtfelder werden streng decodiert. Laden
+ändert keine Datei. Vor jedem atomaren Schreiben wird der Dateiinhalt mit dem
+zuletzt geladenen/geschriebenen Stand verglichen; fremde Änderungen werden nicht
+überschrieben. Das bleibt ein Single-Writer-Modell, kein Mehrprozess-Locking.
+
+`Routines.swift` hält Vorlagen und Tages-Snapshots getrennt. Eine Session pro
+Routine/lokalem Tag friert Schritte und Mode-Zuordnung ein. Pausierte Sessions
+nehmen keine Schrittänderungen an. Archivierung erhält alle Sessions;
+Mode-Löschung entfernt die aktuelle Zuordnung, bewahrt aber historische IDs.
+SwiftUI ruft ausschließlich AppModel/Use Cases auf. Schritte sind unabhängig von
+Habits; sie buchen keine erfundenen Habit-Werte.

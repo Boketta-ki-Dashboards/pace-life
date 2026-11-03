@@ -25,3 +25,13 @@ Schema 1 speicherte keine Wochentagsrevisionen. Frühere Planänderungen sind da
 ## Migrationsabnahme
 
 Ein Test muss vor/nach Migration und nach erneutem Laden sämtliche bisherigen Felder vergleichen. Weitere Tests: unbekannte neuere Version, beschädigtes JSON, fehlende Pflichtfelder in Schema 2, referenzielle Inkonsistenz, doppelte IDs, fehlgeschlagener atomarer Schreibvorgang und wiederholtes Laden ohne doppelte Migration. Erst danach darf Schema 2 produktiv aus der App geschrieben werden.
+
+## Umgesetzt am 3. November 2026
+
+Schema 2 ist für Routinen aktiviert und mit dem eingefrorenen Schema-1-Fixture
+geprüft. `SchemaOneState` übernimmt sämtliche Altwerte; neue Pflichtfelder sind
+`routines` und `routineSessions`. Der neue Widget-Eintrag ist bei Migration
+verborgen. Lesen migriert nur im Speicher, Schreiben ersetzt atomar. Ein Vergleich
+mit dem zuletzt gelesenen Dateiinhalt schützt zusätzlich vor einem fremden Ersatz.
+24 Core-Tests bestanden. Historische Habit-Planrevisionen und die nachfolgenden
+USP-Modelle bleiben weitere Schema-Erweiterungen; sie sind nicht vorgetäuscht.

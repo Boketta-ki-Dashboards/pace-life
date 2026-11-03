@@ -75,7 +75,7 @@ final class AppModel {
         switch kind { case .binary: text(.binary); case .count: text(.count); case .duration: text(.duration) }
     }
     func widgetName(_ kind: HomeWidgetKind) -> String {
-        switch kind { case .progress: text(.progress); case .mode: text(.activeMode); case .habits: text(.habits) }
+        switch kind { case .progress: text(.progress); case .mode: text(.activeMode); case .habits: text(.habits); case .routines: text(.routines) }
     }
     @discardableResult func perform(_ action: (LifeStore) throws -> Void) -> Bool {
         guard let store else { return false }
@@ -99,5 +99,19 @@ final class AppModel {
     func setLanguage(_ language: AppLanguage) {
         var settings = state.settings; settings.language = language
         perform { try $0.setSettings(settings) }
+    }
+}
+
+
+extension AppModel {
+    var dueRoutines: [Routine] { _ = state; return store?.dueRoutines(on: today) ?? [] }
+    func routineSession(_ id: UUID) -> RoutineSession? { _ = state; return store?.routineSession(routineID: id, on: today) }
+    func saveRoutine(_ routine: Routine) -> Bool { perform { try $0.saveRoutine(routine) } }
+    func archiveRoutine(_ id: UUID) { perform { try $0.archiveRoutine(id: id) } }
+    func startRoutine(_ id: UUID) { perform { try $0.startRoutine(id: id, on: today) } }
+    func pauseRoutine(_ id: UUID, paused: Bool) { perform { try $0.setRoutinePaused(sessionID: id, paused: paused) } }
+    func setRoutineStep(_ session: RoutineSession, stepID: UUID, completed: Bool) {
+        guard session.day == DayKey(date: today) else { return }
+        perform { try $0.setRoutineStep(sessionID: session.id, stepID: stepID, completed: completed) }
     }
 }

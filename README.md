@@ -1,6 +1,6 @@
 # Pace Life — iOS
 
-Native, lokale SwiftUI-App für iPhone mit iOS 17+, Swift 6 und Xcode 16 oder neuer. Der erste Entwicklungsabschnitt implementiert Life Modes, Habits und einen modularen Homescreen. Die sieben langfristigen Module bleiben in [Roadmap](docs/ROADMAP.md) und [Produktspezifikation](docs/PRODUCT_SPEC.md) verankert.
+Native, lokale SwiftUI-App für iPhone mit iOS 17+, Swift 6 und Xcode 16 oder neuer. Der Entwicklungsbranch implementiert Life Modes, Habits, eigenständige Routinen mit Tagesverlauf und einen modularen Homescreen. Die sieben langfristigen Module bleiben in [Roadmap](docs/ROADMAP.md) und [Produktspezifikation](docs/PRODUCT_SPEC.md) verankert.
 
 ## In Xcode öffnen und auf dem iPhone testen
 
@@ -37,3 +37,9 @@ Pace Social wird ausschließlich von Claude betreut. Kein Zugriff auf dessen Rep
 ## Projektanforderungen
 
 [AGENTS.md](AGENTS.md), [Kickoff](05_CODEX_KICKOFF_PROMPT.md), [Designsystem](docs/DESIGN_SYSTEM.md), [Testanforderungen](docs/TEST_AND_RELEASE.md), [Integrationsvertrag](docs/INTEGRATION_CONTRACT.md) und [Videoreferenz](docs/VIDEO_REFERENCE.md).
+
+Routinen testen: Unter **Heute → Routinen** eine Routine mit mehreren Schritten
+anlegen, optional einem Life Mode zuordnen und diesen aktivieren. Routine starten,
+einige Schritte erledigen, pausieren und die App neu starten. Teilfortschritt und
+Pause bleiben erhalten. Das Routinen-Widget lässt sich unter „Home anpassen“
+einblenden. Bestehende Schema-1-Daten werden automatisch verlustfrei übernommen.

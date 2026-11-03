@@ -5,6 +5,7 @@ import PaceLifeCore
 enum Copy: CaseIterable {
     case today, development, circles, profile, localOnly, welcome, welcomeDetail
     case dayChanged, validNumber, notScheduled
+    case routines
     case habits, newHabit, editHabit, name, goal, binary, count, duration, target, minutes, frequency, everyDay
     case save, cancel, done, edit, archive, archiveMessage, confirmArchive, add, noHabits, noDueHabits, manageHabits
     case progress, progressDetail, completed, recordProgress, actualValue, reset, originalGoal, emptyProgress
@@ -17,6 +18,7 @@ enum Copy: CaseIterable {
     func text(_ language: AppLanguage) -> String {
         let values: (String, String, String)
         switch self {
+        case .routines: values = ("Routinen", "Routines", "Рутины")
         case .dayChanged: values = ("Ein neuer Tag hat begonnen. Schließe diesen Eintrag und öffne ihn erneut für heute.", "A new day has started. Close this entry and reopen it for today.", "Начался новый день. Закрой запись и открой её снова для сегодняшнего дня.")
         case .validNumber: values = ("Gib eine gültige Zahl ein. Zähler benötigen ganze Zahlen; Ziele müssen größer als null sein.", "Enter a valid number. Counts need whole numbers; targets must be greater than zero.", "Введи корректное число. Количество должно быть целым, а цель — больше нуля.")
         case .notScheduled: values = ("Diese Gewohnheit ist heute nicht geplant.", "This habit is not scheduled today.", "Эта привычка не запланирована на сегодня.")

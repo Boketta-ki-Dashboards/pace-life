@@ -12,7 +12,7 @@ import Foundation
         state = loaded
     }
 
-    private func transaction(_ change: (inout LifeState) throws -> Void) throws {
+    func transaction(_ change: (inout LifeState) throws -> Void) throws {
         var candidate = state
         try change(&candidate)
         try candidate.validate()
@@ -57,6 +57,9 @@ import Foundation
                 state.activeModeID = nil
             }
             state.modes.removeAll { $0.id == id }
+            for index in state.routines.indices where state.routines[index].modeID == id {
+                state.routines[index].modeID = nil
+            }
         }
     }
 

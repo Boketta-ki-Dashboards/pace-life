@@ -7,6 +7,7 @@ struct HomeView: View {
     @State private var newHabit = false
     @State private var widgets = false
     @State private var modes = false
+    @State private var routines = false
     @State private var allHabits = false
     @State private var selectedHabit: Habit?
 
@@ -35,17 +36,40 @@ struct HomeView: View {
                 case .progress: progressCard
                 case .mode: modeCard
                 case .habits: habitsCard
+                case .routines: routinesCard
                 }
             }
             Button { newHabit = true } label: { Label(model.text(.newHabit), systemImage: "plus") }
                 .buttonStyle(PaceButtonStyle()).accessibilityIdentifier("addHabit")
             Button(model.text(.manageHabits)) { allHabits = true }.buttonStyle(PaceButtonStyle(kind: .secondary))
+            Button(model.text(.routines)) { routines = true }
+                .buttonStyle(PaceButtonStyle(kind: .secondary)).accessibilityIdentifier("manageRoutines")
         }
+        .sheet(isPresented: $routines) { RoutinesView() }
         .sheet(isPresented: $newHabit) { HabitEditor() }
         .sheet(isPresented: $widgets) { WidgetEditor() }
         .sheet(isPresented: $modes) { ModesView() }
         .sheet(isPresented: $allHabits) { HabitsView() }
         .sheet(item: $selectedHabit) { HabitDetail(habitID: $0.id) }
+    }
+
+    private var routinesCard: some View {
+        PaceCard {
+            VStack(alignment: .leading, spacing: 12) {
+                Text(model.text(.routines)).font(.title3.bold())
+                if model.dueRoutines.isEmpty { Text(model.routineText(.noRoutines)).foregroundStyle(PaceColor.textSecondary) }
+                ForEach(model.dueRoutines) { routine in
+                    HStack {
+                        Text(routine.title)
+                        Spacer()
+                        if let session = model.routineSession(routine.id) {
+                            Text(model.number(Double(session.completedStepIDs.count)) + " / " + model.number(Double(session.steps.count)))
+                        }
+                    }
+                }
+                Button(model.text(.routines)) { routines = true }
+            }
+        }
     }
 
     private var progressCard: some View {

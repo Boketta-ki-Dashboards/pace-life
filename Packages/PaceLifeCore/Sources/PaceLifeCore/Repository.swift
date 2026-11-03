@@ -2,6 +2,7 @@ import Foundation
 
 public enum LifeError: Error, Equatable, Sendable {
     case invalidTitle, invalidGoal, invalidSchedule, missingHabit, missingMode, invalidValue
+    case missingRoutine, concurrentModification
     case invalidWidgets, invalidActivationDate, corruptStore, unsupportedSchema(Int)
 }
 
@@ -18,10 +19,15 @@ public enum LifeError: Error, Equatable, Sendable {
         let schemaVersion: Int
         let state: LifeState
     }
+    private var loadedData: Data?
+    private var hasLoaded = false
     public init(url: URL) { self.url = url }
 
     public func load() throws -> LifeState {
-        guard FileManager.default.fileExists(atPath: url.path) else { return LifeState() }
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            loadedData = nil; hasLoaded = true
+            return LifeState()
+        }
         let data = try Data(contentsOf: url)
         // Inspect the schema before decoding models so a future document isn't mistaken for corruption.
         struct Header: Decodable { let schemaVersion: Int }
@@ -29,25 +35,33 @@ public enum LifeError: Error, Equatable, Sendable {
         let version: Int
         do { version = try decoder.decode(Header.self, from: data).schemaVersion }
         catch { throw LifeError.corruptStore }
-        guard version == 1 else { throw LifeError.unsupportedSchema(version) }
+        guard (1...2).contains(version) else { throw LifeError.unsupportedSchema(version) }
         do {
-            let state = try decoder.decode(Envelope.self, from: data).state
+            let state = try version == 1
+                ? decoder.decode(SchemaOneEnvelope.self, from: data).state.migrated()
+                : decoder.decode(Envelope.self, from: data).state
             try state.validate()
+            loadedData = data; hasLoaded = true
             return state
         } catch { throw LifeError.corruptStore }
     }
 
     public func save(_ state: LifeState) throws {
         try state.validate()
+        // Never overwrite an unread, replaced, corrupt, or newer document.
+        if !hasLoaded { _ = try load() }
+        let current = FileManager.default.fileExists(atPath: url.path) ? try Data(contentsOf: url) : nil
+        guard current == loadedData else { throw LifeError.concurrentModification }
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys]
-        let data = try encoder.encode(Envelope(schemaVersion: 1, state: state))
+        let data = try encoder.encode(Envelope(schemaVersion: 2, state: state))
         try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
         #if os(iOS)
         try data.write(to: url, options: [.atomic, .completeFileProtection])
         #else
         try data.write(to: url, options: [.atomic])
         #endif
+        loadedData = data
     }
 }
 
@@ -100,6 +114,7 @@ extension LifeState {
             }
         }
         try Self.validateWidgets(widgets)
+        try validateRoutines()
     }
 
     static func validateWidgets(_ widgets: [HomeWidgetPreference]) throws {
@@ -118,7 +133,7 @@ extension Habit {
     }
 }
 
-private extension DayKey {
+extension DayKey {
     var isValid: Bool {
         guard rawValue.range(of: #"^\d{4}-\d{2}-\d{2}$"#, options: .regularExpression) != nil else { return false }
         let pieces = rawValue.split(separator: "-").compactMap { Int($0) }

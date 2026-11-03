@@ -59,3 +59,31 @@ bereits vor dem Speichern sowie die Anzeige vor und nach dem Neustart. Dadurch
 werden fehlgeschlagene Umschaltgesten von Persistenzfehlern unterschieden.
 Projektgenerator reproduzierbar, `git diff --check` bestanden. Die Bestätigung
 der UI-Korrektur folgt im neuen macOS-CI-Lauf; lokal ist kein Xcode verfügbar.
+
+## Schema 2 und Routinen – 3. November 2026
+
+- Schema 1 wird über ein explizites Legacy-DTO gelesen, validiert und ohne
+  Dateischreibzugriff migriert. Erst eine erfolgreiche Änderung schreibt atomar
+  Schema 2. Alle bisherigen Felder bleiben erhalten. Das Routinen-Widget wird
+  bei Migration hinten und ausgeblendet ergänzt; neue Installationen zeigen es.
+- Schema 2 verlangt Routinen und Tages-Sessions als Pflichtfelder. Fehlende
+  Felder, beschädigte/neuere Dateien und extern ausgetauschte Dateien werden
+  abgewiesen; der sichtbare Zustand bleibt bei Schreibfehlern unverändert.
+- Routinen: Erstellen/Bearbeiten, Beschreibung, Wochentage, optionale Tageszeit,
+  Mode-Zuordnung, sortierbare Schritte mit optionaler Dauer, Start, Teilabschluss,
+  Pause/Fortsetzen, Rückgängig pro Schritt, Archiv/Wiederherstellen und Verlauf.
+  Tages-Snapshots behalten Titel, Schritt-IDs, Reihenfolge und Dauer. Ein erneuter
+  Start setzt denselben Tag fort. Mode-Löschung löst nur die Vorlagen-Zuordnung.
+- Home verbindet fällige Routinen mit dem aktiven Mode und zeigt echte
+  Teilfortschritte. Die Routinenverwaltung bleibt auch bei verborgenem Widget
+  erreichbar. Neue Texte sind DE/EN/RU lokalisiert.
+- **24 Core-XCTest-Tests unter Swift 6.0.3/Linux bestanden, 0 Fehler**.
+  Enthalten: vollständiger Schema-1-Felderhalt, striktes Schema 2, wiederholtes
+  Laden, Schreibfehler, Fremdersatz, Mode-/Routine-/Neustartablauf, Teilfortschritt,
+  Pause, Archiv und Vorlagenänderung. SwiftUI/UI-Testquellen syntaxgeprüft.
+- Ein zusätzlicher XCUITest prüft Anlegen, Teilabschluss, Pause und Wiederaufnahme
+  nach Neustart. Apple-SDK-Typprüfung und UI-Test dieser Erweiterung folgen in CI;
+  Syntaxprüfung ist ausdrücklich kein iOS-Buildnachweis.
+- Offen: wiederkehrende automatische Mode-Aktivierung, historische Habit-
+  Planrevisionen/Kalender, Paths, Adaptive, Chapters, Experiments, lokale Circles.
+  Geplante Uhrzeiten erzeugen noch keine Benachrichtigungen.

@@ -159,4 +159,40 @@ final class PaceLifeUITests: XCTestCase {
         app.buttons["tab.profile"].tap()
         XCTAssertTrue(app.buttons["tab.today"].isHittable)
     }
+    @MainActor
+    func testRoutinePartialProgressAndPauseSurviveRelaunch() {
+        let app = launchFreshApp()
+        reveal(app.buttons["manageRoutines"], in: app)
+        app.buttons["manageRoutines"].tap()
+        app.buttons["addRoutine"].tap()
+        let title = app.textFields["routineTitle"]
+        XCTAssertTrue(title.waitForExistence(timeout: 5))
+        title.tap(); title.typeText("Morning routine")
+        let first = app.textFields.matching(identifier: "routineStepTitle").element(boundBy: 0)
+        reveal(first, in: app); first.tap(); first.typeText("Stretch")
+        let add = app.buttons["addRoutineStep"]
+        reveal(add, in: app); add.tap()
+        let second = app.textFields.matching(identifier: "routineStepTitle").element(boundBy: 1)
+        reveal(second, in: app); second.tap(); second.typeText("Read")
+        app.buttons["saveRoutine"].tap()
+        let open = app.buttons["routine.open.Morning routine"]
+        XCTAssertTrue(open.waitForExistence(timeout: 5)); open.tap()
+        app.buttons["startRoutine"].tap()
+        let step = app.switches["routine.step.Stretch"]
+        XCTAssertTrue(step.waitForExistence(timeout: 5))
+        step.tap()
+        XCTAssertEqual(step.value as? String, "1")
+        XCTAssertEqual(app.staticTexts["routine.progress"].label, "1 / 2")
+        app.buttons["pauseRoutine"].tap()
+        app.terminate(); app.launch()
+        reveal(app.buttons["manageRoutines"], in: app); app.buttons["manageRoutines"].tap()
+        XCTAssertTrue(open.waitForExistence(timeout: 5)); open.tap()
+        XCTAssertEqual(app.staticTexts["routine.progress"].label, "1 / 2")
+        XCTAssertFalse(step.isEnabled)
+        app.buttons["pauseRoutine"].tap()
+        XCTAssertTrue(step.isEnabled)
+        app.switches["routine.step.Read"].tap()
+        XCTAssertEqual(app.staticTexts["routine.progress"].label, "2 / 2")
+    }
+
 }
