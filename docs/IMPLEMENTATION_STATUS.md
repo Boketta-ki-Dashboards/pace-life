@@ -70,31 +70,27 @@ Hintergrund- oder Datenbankadapter; Fotos sind noch nicht eingeführt.
 - Projektgenerator reproduzierbar; `git diff --check` bestanden. Neue SwiftUI-
   und UI-Testquellen zusätzlich syntaxgeprüft. Das ersetzt keine SDK-Typprüfung.
 
-Geprüfter App-Code: **`bd1888da73c6c52e40ad79cc569fd5eb37f71a68`**.
-[Lauf 41628685984](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41628685984)
+Geprüfter App- und Testcode: **`76e0572a18ca857547730ece0e170758f88c5322`**.
+[Lauf 41631877527](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41631877527)
 prüft genau diesen Stand; spätere reine Dokumentationscommits verändern ihn nicht.
+Gesamtergebnis: **erfolgreich**. Beide Jobs und ihre vollständigen Logs wurden geprüft.
 
 | Prüfung | Apple Silicon (`macos-15`) | Intel (`macos-15-intel`) |
 |---|---|---|
 | 37 Core-XCTest-Tests | Bestanden, 0 Fehler | Bestanden, 0 Fehler |
 | Reproduzierbares Xcode-Projekt | Bestanden | Bestanden |
 | Debug-Simulator-/Test-Build | Bestanden | Bestanden |
-| Acht UI-Tests | Bestanden, 0 Fehler | Sieben bestanden; Habit-Test wartet nach Speichern ohne Zurückscrollen auf den neuen Home-Button |
+| Acht UI-Tests | Bestanden, 0 Fehler | Bestanden, 0 Fehler |
 | Generischer Release-Simulator-Build | Bestanden | Bestanden |
 
 Die UI-Tests prüfen Habit-Erfüllung/Rückgängig nach Neustart, Mode-Aktivierung,
 Widget-Sichtbarkeit/Wiederherstellung, Sprachwechsel, Routine-Teilfortschritt und
 Pause, Path-Beiträge, Adaptive-Ziele sowie Tab-/Scroll-/Kalendernavigation.
 
-Der unmittelbar vorausgehende Code-/Teststand `d5f0e9f` besteht bereits auf beiden
-Architekturen vollständig: 36 Core-Tests, acht UI-Tests, Debug und Release
-([Lauf 41623558789](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41623558789)).
-Damit ist die Scroll-Korrektur auf beiden Architekturen bestätigt. Der letzte
-App-Code-Commit ergänzt ausschließlich den Archiv-Datumsfix, seine Anzeige und
-den 37. Core-Test. Die nächste reine Testkorrektur prüft nach dem Speichern erst
-das Schließen des Formulars und scrollt dann zum neuen Habit; sie verändert keine
-App-Funktion. Ihr CI-Nachweis steht noch aus. Noch laufende Prüfungen sind kein
-bestandener Nachweis.
+Der Archiv-Datumsfix ist mit Persistenz-/Korrekturtest und iOS-Builds abgedeckt.
+Die korrigierte Habit-Testsequenz prüft Texteingabe, aktivierten Speicherbutton,
+geschlossenes Formular und das Wiederfinden des Habits an der gespeicherten
+Home-Scrollposition. Neustart und Rückgängig bleiben Teil desselben Tests.
 
 Die ursprüngliche Simulatorarchitektur-/Font-Blockade ist behoben. Der Widget-
 Fehler lag beim XCUI-Tap in der Mitte einer beschrifteten Switch-Zeile. Der Test
@@ -104,16 +100,15 @@ im Widget-Editor gezielt aktiviert, statt dauerhaft aktiv zu sein.
 
 ## Offene Abnahme und nächste Arbeiten
 
-1. UI-Prüfung der korrigierten Navigation nach dem Habit-Speichern abschließen.
-2. Echten iPhone-Start und Speicherung mit eigenem Signing-Team prüfen.
-3. Automatische Mode-Pläne, historische Habit-Wochenpläne/Streaks und Adaptive-
+1. Echten iPhone-Start und Speicherung mit eigenem Signing-Team prüfen.
+2. Automatische Mode-Pläne, historische Habit-Wochenpläne/Streaks und Adaptive-
    Neuplanung ausbauen. Aktuelle Streak-Berechnung verwendet weiterhin den heutigen
    Habit-Wochenplan und ist keine historische Rekonstruktion.
-4. Chapters/Fotos, Experiments und lokale Circles als nächste echte Module bauen;
+3. Chapters/Fotos, Experiments und lokale Circles als nächste echte Module bauen;
    danach Connect gemäß freigegebenem Vertrag. Keine produktive Auth-Anbindung.
-5. Backup/Export/Import, lokale Benachrichtigungen und horizontales Root-Paging
+4. Backup/Export/Import, lokale Benachrichtigungen und horizontales Root-Paging
    fehlen. Der Kalender ist eine Ansicht, kein Drag-and-drop-Planer.
-6. Klein/groß, Light/Dark, größte Dynamic-Type-Stufen, VoiceOver, Tastatur,
+5. Klein/groß, Light/Dark, größte Dynamic-Type-Stufen, VoiceOver, Tastatur,
    Safe Areas, Swipe-Back und Widget-Reordering auf Gerät visuell abnehmen.
 
 **Visueller Videoabgleich ausstehend.** In dieser Sitzung lagen keine lesbaren
@@ -129,12 +124,15 @@ danach unter Entwicklung einen Path verknüpfen und unter Heute Pace Adaptive
 öffnen. Werte erfassen, App vollständig beenden und erneut öffnen. Neue Widgets
 bei migrierten Daten bei Bedarf unter „Home anpassen“ einblenden.
 
-### Nachtrag: Testnavigation im erweiterten Home
+### Testnavigation im erweiterten Home
 
-Die älteren Läufe scheitern teilweise nach Taps auf Home-Buttons: Routinenliste
-oder Habit-Formular werden nicht erreicht. Die Testhilfe in `d5f0e9f` verlangt
-nun, dass das ganze Steuerelement innerhalb des aktiven Scrollbereichs liegt,
-unter Berücksichtigung von Dock und Tastatur; `isHittable` allein reicht bei nur
+Die Testhilfe verlangt, dass das ganze Steuerelement innerhalb des aktiven
+Scrollbereichs liegt, unter Berücksichtigung von Dock und Tastatur;
+`isHittable` allein reicht bei nur
 teilweise sichtbaren Zeilen nicht aus. Zusätzliche Assertions trennen das Öffnen
 der Liste vom Wiederfinden der gespeicherten Routine und liefern bei einem Fehler
-den Accessibility-Baum. Alle acht UI-Tests einschließlich dieser Navigation bestehen mit `d5f0e9f` auf beiden Mac-Architekturen.
+den Accessibility-Baum. Nach dem Habit-Speichern wird ausdrücklich das geschlossene
+Formular bestätigt und zurück zum Habit gescrollt: Die Home-Scrollposition bleibt
+beim Schließen eines Sheets erhalten, und außerhalb des sichtbaren Bereichs können
+Elemente auch im Accessibility-Baum fehlen. Alle acht UI-Tests bestehen mit
+`76e0572` auf beiden Mac-Architekturen.
