@@ -69,30 +69,32 @@ Hintergrund- oder Datenbankadapter; Fotos sind noch nicht eingeführt.
   Rückgängig/Null-Ziele sowie Kalender über DST und Jahresgrenzen.
 - Projektgenerator reproduzierbar; `git diff --check` bestanden. Neue SwiftUI-
   und UI-Testquellen zusätzlich syntaxgeprüft. Das ersetzt keine SDK-Typprüfung.
-- [Lauf 41620486944](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41620486944),
-  Commit `e44bdf0`: **auf Apple Silicon und Intel jeweils 24 Core-Tests, sechs
-  UI-Tests, Debug- und generischer Release-Simulator-Build erfolgreich**.
-  Widget-Ausblenden/Wiederherstellen und Routine-Teilfortschritt/Pause/Neustart
-  sind damit auf beiden Architekturen verifiziert.
-- Paths-Commit `cd3bb3c`: Debug-Build und 28 Core-Tests auf beiden Mac-Runnern
-  erfolgreich. Path- und Widget-UI-Tests bestehen; Routine-Tests scheitern bei der
-  Navigation zur Liste, einmal vor der Erstellung und einmal nach Neustart.
-- [Adaptive-Lauf 41621518240](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41621518240),
-  `37cac26`: Apple Silicon mit 33 Core-Tests, acht UI-Tests, Debug und Release
-  erfolgreich. Intel: Core/Debug und sechs UI-Tests erfolgreich, zwei Fehler
-  beim Öffnen des Habit-Formulars nach Scrollen. Release wurde dort noch von
-  den fehlgeschlagenen UI-Tests übersprungen; neuere Workflows prüfen es separat.
-- [Kalender-Lauf 41622039201](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41622039201),
-  `303d312`: Apple Silicon mit **35 Core-Tests, acht UI-Tests, Debug und Release
-  erfolgreich**. Der Intel-Lauf ist noch nicht beendet.
-- `9e6c34a` ergänzt den 36. Core-Test für historische Path-Abschlussdaten.
-  Alle 36 Tests bestehen auch beim abschließenden lokalen Lauf von `d5f0e9f`.
-  Dessen [CI-Lauf 41623558789](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41623558789)
-  prüft die nachfolgend beschriebene Scroll-Korrektur; Ergebnis noch offen.
-  Noch laufende oder wartende Jobs sind kein bestandener Nachweis.
-- `9001e39`: 36 Core-Tests, alle acht UI-Tests, Debug und Release auf Apple Silicon
-  bestanden. Der anschließende Archiv-Datumsfix ergänzt den 37. Core-Test und eine
-  Datumsanzeige; seine separate iOS-Abnahme läuft nach dem Push.
+
+Geprüfter App-Code: **`bd1888da73c6c52e40ad79cc569fd5eb37f71a68`**.
+[Lauf 41628685984](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41628685984)
+prüft genau diesen Stand; spätere reine Dokumentationscommits verändern ihn nicht.
+
+| Prüfung | Apple Silicon (`macos-15`) | Intel (`macos-15-intel`) |
+|---|---|---|
+| 37 Core-XCTest-Tests | Bestanden, 0 Fehler | Bestanden, 0 Fehler |
+| Reproduzierbares Xcode-Projekt | Bestanden | Bestanden |
+| Debug-Simulator-/Test-Build | Bestanden | Bestanden |
+| Acht UI-Tests | Bestanden, 0 Fehler | Sieben bestanden; Habit-Test wartet nach Speichern ohne Zurückscrollen auf den neuen Home-Button |
+| Generischer Release-Simulator-Build | Bestanden | Bestanden |
+
+Die UI-Tests prüfen Habit-Erfüllung/Rückgängig nach Neustart, Mode-Aktivierung,
+Widget-Sichtbarkeit/Wiederherstellung, Sprachwechsel, Routine-Teilfortschritt und
+Pause, Path-Beiträge, Adaptive-Ziele sowie Tab-/Scroll-/Kalendernavigation.
+
+Der unmittelbar vorausgehende Code-/Teststand `d5f0e9f` besteht bereits auf beiden
+Architekturen vollständig: 36 Core-Tests, acht UI-Tests, Debug und Release
+([Lauf 41623558789](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41623558789)).
+Damit ist die Scroll-Korrektur auf beiden Architekturen bestätigt. Der letzte
+App-Code-Commit ergänzt ausschließlich den Archiv-Datumsfix, seine Anzeige und
+den 37. Core-Test. Die nächste reine Testkorrektur prüft nach dem Speichern erst
+das Schließen des Formulars und scrollt dann zum neuen Habit; sie verändert keine
+App-Funktion. Ihr CI-Nachweis steht noch aus. Noch laufende Prüfungen sind kein
+bestandener Nachweis.
 
 Die ursprüngliche Simulatorarchitektur-/Font-Blockade ist behoben. Der Widget-
 Fehler lag beim XCUI-Tap in der Mitte einer beschrifteten Switch-Zeile. Der Test
@@ -102,7 +104,7 @@ im Widget-Editor gezielt aktiviert, statt dauerhaft aktiv zu sein.
 
 ## Offene Abnahme und nächste Arbeiten
 
-1. Neueste CI-Läufe inklusive aller acht UI-Tests und beider Release-Builds abschließen.
+1. UI-Prüfung der korrigierten Navigation nach dem Habit-Speichern abschließen.
 2. Echten iPhone-Start und Speicherung mit eigenem Signing-Team prüfen.
 3. Automatische Mode-Pläne, historische Habit-Wochenpläne/Streaks und Adaptive-
    Neuplanung ausbauen. Aktuelle Streak-Berechnung verwendet weiterhin den heutigen
@@ -135,4 +137,4 @@ nun, dass das ganze Steuerelement innerhalb des aktiven Scrollbereichs liegt,
 unter Berücksichtigung von Dock und Tastatur; `isHittable` allein reicht bei nur
 teilweise sichtbaren Zeilen nicht aus. Zusätzliche Assertions trennen das Öffnen
 der Liste vom Wiederfinden der gespeicherten Routine und liefern bei einem Fehler
-den Accessibility-Baum. Bestätigung dieser Testkorrektur folgt im neuen CI-Lauf.
+den Accessibility-Baum. Alle acht UI-Tests einschließlich dieser Navigation bestehen mit `d5f0e9f` auf beiden Mac-Architekturen.

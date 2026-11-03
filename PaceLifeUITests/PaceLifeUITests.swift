@@ -71,8 +71,17 @@ final class PaceLifeUITests: XCTestCase {
         XCTAssertTrue(name.waitForExistence(timeout: 5))
         name.tap()
         name.typeText(title)
-        app.buttons["saveHabit"].tap()
-        XCTAssertTrue(app.buttons["habit.complete.\(title)"].waitForExistence(timeout: 5))
+        XCTAssertEqual(name.value as? String, title)
+        let save = app.buttons["saveHabit"]
+        XCTAssertTrue(save.isEnabled)
+        save.tap()
+        let dismissed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: save)
+        XCTAssertEqual(XCTWaiter.wait(for: [dismissed], timeout: 10), .completed, app.debugDescription)
+        // Home retains the position of its bottom add button. An offscreen habit
+        // may be absent from the accessibility tree until scrolled into view.
+        let completion = app.buttons["habit.complete.\(title)"]
+        reveal(completion, in: app)
+        XCTAssertTrue(completion.exists)
     }
 
     @MainActor

@@ -4,7 +4,7 @@ Native, lokale SwiftUI-App für iPhone mit iOS 17+, Swift 6 und Xcode 16 oder ne
 
 ## In Xcode öffnen und auf dem iPhone testen
 
-1. Dieses Repository klonen und `PaceLife.xcodeproj` öffnen. Das lokale Package `Packages/PaceLifeCore` wird ohne externe Abhängigkeiten eingebunden; kein Generator oder Paketmanager ist zum Öffnen nötig.
+1. Dieses Repository klonen, den Branch `codex/pace-life-offline-beta` auswählen und `PaceLife.xcodeproj` öffnen. Das lokale Package `Packages/PaceLifeCore` wird ohne externe Abhängigkeiten eingebunden; kein Generator oder Paketmanager ist zum Öffnen nötig.
 2. Scheme **PaceLife** auswählen. Unter **Signing & Capabilities** beim Target **PaceLife** dein Apple-Entwicklerteam wählen. Falls nötig `com.boketta.pacelife` in eine eigene eindeutige Bundle-ID ändern. Es ist kein fremdes Team vorkonfiguriert.
 3. iPhone verbinden, dem Mac vertrauen und den Entwicklermodus am iPhone aktivieren. Gerät als Run Destination wählen und mit **⌘R** starten. Ein kostenloses Personal Team kann für lokale Gerätetests verwendet werden; dessen Apple-Limits gelten.
 4. Eine Gewohnheit erstellen, Wochentage/Ziel wählen und heutigen Fortschritt erfassen. Einen Life Mode anlegen, Gewohnheiten zuordnen und aktivieren. Home-Widgets unter „Home anpassen“ sortieren/ausblenden. App schließen und erneut öffnen: Eingaben und Einstellungen bleiben erhalten.
