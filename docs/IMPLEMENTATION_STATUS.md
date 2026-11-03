@@ -165,3 +165,12 @@ gekennzeichnet. Es gibt noch keine historische Kalenderquote für nicht erfasste
 Aktivitäten. Monat/Jahr und Sommerzeit werden mit Kalenderoperationen behandelt.
 Grid-Zellen skalieren mit Dynamic Type und bleiben horizontal erreichbar.
 **35 Core-Tests bestanden, 0 Fehler**; Kalender-Navigation ergänzt den UI-Test.
+
+## Integrationsprüfung – historische Abschlussdaten
+
+**36 Core-Tests bestanden, 0 Fehler.** Path-Abschluss prüft jetzt ausschließlich
+Beiträge bis zum Abschlussdatum. Später erfasste Arbeit kann einen früheren
+Abschluss nicht nachträglich rechtfertigen; eine entsprechende Korrektur öffnet
+den Path wieder. Neue Datumsanzeigen verwenden die gewählte App-Sprache;
+Routine-Listen und Details zeigen die geplante Uhrzeit. CI prüft den generischen
+Release-Build auch bei einem UI-Testfehler, sofern der Debug-Build erfolgreich war.

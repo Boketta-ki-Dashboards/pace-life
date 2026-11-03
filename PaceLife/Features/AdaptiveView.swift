@@ -39,7 +39,7 @@ struct AdaptiveView: View {
                 Section(model.text(.history)) {
                     ForEach(model.state.adaptivePlans.filter { $0.day != DayKey(date: model.today) }.sorted { $0.day > $1.day }) { plan in
                         VStack(alignment: .leading, spacing: 8) {
-                            Text(plan.day.rawValue).font(.headline)
+                            Text(model.dayLabel(plan.day)).font(.headline)
                             ForEach(plan.entries) { entry in
                                 let actual = model.state.completions.first { $0.habitID == entry.habitID && $0.day == plan.day }?.actualValue ?? 0
                                 Text(entry.titleSnapshot).font(.headline)

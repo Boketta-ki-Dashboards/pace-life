@@ -54,8 +54,8 @@ struct PathDetail: View {
                     PaceProgressRing(progress: model.state.pathProgress(path), value: model.state.pathProgress(path).formatted(.percent.locale(model.locale).precision(.fractionLength(0))), label: model.text(.progress))
                     Text(path.notes)
                     Text(path.category).foregroundStyle(PaceColor.textSecondary)
-                    LabeledContent(model.pathText(.startDate), value: path.startDay.rawValue)
-                    if let day = path.targetDay { LabeledContent(model.pathText(.targetDate), value: day.rawValue) }
+                    LabeledContent(model.pathText(.startDate), value: model.dayLabel(path.startDay))
+                    if let day = path.targetDay { LabeledContent(model.pathText(.targetDate), value: model.dayLabel(day)) }
                     LabeledContent(model.pathText(.status), value: model.pathStatusName(path.status))
                     ForEach(path.milestones) { milestone in milestoneCard(milestone, in: path) }
                     Text(model.pathText(.contributionRule)).font(.footnote).foregroundStyle(PaceColor.textSecondary)
@@ -92,7 +92,7 @@ struct PathDetail: View {
                 let days = Set(model.state.pathEntries.filter { $0.milestoneID == milestone.id }.map(\.day)
                     + model.state.completions.filter { $0.habitID == milestone.habitID && $0.goalTypeSnapshot == milestone.goalType && $0.day >= path.startDay }.map(\.day)).sorted(by: >)
                 ForEach(days, id: \.self) { day in
-                    LabeledContent(day.rawValue, value: model.number(model.state.milestoneValue(milestone, in: path, through: day)))
+                    LabeledContent(model.dayLabel(day), value: model.number(model.state.milestoneValue(milestone, in: path, through: day)))
                         .font(.footnote).foregroundStyle(PaceColor.textSecondary)
                 }
             }

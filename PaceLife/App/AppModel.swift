@@ -142,3 +142,24 @@ extension AppModel {
 extension AppModel {
     func overview(on date: Date) -> DayOverview? { _ = state; return store?.overview(on: date, today: today) }
 }
+
+
+extension AppModel {
+    func dayLabel(_ day: DayKey) -> String {
+        let parser = DateFormatter()
+        parser.calendar = Calendar(identifier: .gregorian)
+        parser.locale = Locale(identifier: "en_US_POSIX")
+        parser.timeZone = TimeZone(secondsFromGMT: 0)
+        parser.dateFormat = "yyyy-MM-dd"
+        guard let date = parser.date(from: day.rawValue) else { return day.rawValue }
+        let display = DateFormatter()
+        display.calendar = Calendar(identifier: .gregorian)
+        display.locale = locale; display.timeZone = parser.timeZone; display.dateStyle = .medium
+        return display.string(from: date)
+    }
+    func routineTime(_ routine: Routine) -> String? {
+        guard let minute = routine.plannedMinute,
+              let date = Calendar.current.date(bySettingHour: minute / 60, minute: minute % 60, second: 0, of: today) else { return nil }
+        return date.formatted(.dateTime.hour().minute().locale(locale))
+    }
+}

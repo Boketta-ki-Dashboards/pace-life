@@ -95,4 +95,27 @@ final class PathTests: XCTestCase {
             XCTAssertEqual(loaded, try JSONStateRepository(url: url).load())
         }
     }
+    func testFutureContributionsCannotBackdatePathCompletion() async throws {
+        try await MainActor.run {
+            let store = try LifeStore(repository: MemoryStateRepository())
+            let milestone = PathMilestone(title: "Finish")
+            let path = LifePath(title: "Learn", startDay: DayKey(date: Self.now), milestones: [milestone])
+            try store.savePath(path)
+            try store.recordPathEntry(milestoneID: milestone.id, value: 1, on: Self.now.addingTimeInterval(86400))
+            XCTAssertThrowsError(try store.setPathStatus(id: path.id, status: .completed, on: Self.now))
+            XCTAssertEqual(store.state.paths[0].status, .active)
+            try store.setPathStatus(id: path.id, status: .completed, on: Self.now.addingTimeInterval(86400))
+            XCTAssertEqual(store.state.paths[0].status, .completed)
+            let habit = Habit(title: "Read", createdAt: Self.now)
+            try store.saveHabit(habit)
+            let linked = LifePath(title: "Read once", startDay: DayKey(date: Self.now), milestones: [PathMilestone(title: "One", habitID: habit.id)])
+            try store.savePath(linked)
+            try store.record(habitID: habit.id, value: 1, on: Self.now)
+            try store.setPathStatus(id: linked.id, status: .completed, on: Self.now)
+            try store.record(habitID: habit.id, value: 1, on: Self.now.addingTimeInterval(86400))
+            try store.record(habitID: habit.id, value: 0, on: Self.now)
+            XCTAssertEqual(store.state.paths[1].status, .active, "Future work must not conceal a corrected completion date")
+        }
+    }
+
 }

@@ -17,7 +17,7 @@ import Foundation
         try change(&candidate)
         // Correcting actual work or raising a milestone target can reopen a completed path.
         for index in candidate.paths.indices where candidate.paths[index].status == .completed {
-            if candidate.pathProgress(candidate.paths[index]) < 1 {
+            if candidate.pathProgress(candidate.paths[index], through: candidate.paths[index].completedDay) < 1 {
                 candidate.paths[index].status = .active
                 candidate.paths[index].completedDay = nil
             }

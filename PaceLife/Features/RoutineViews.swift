@@ -19,6 +19,7 @@ struct RoutinesView: View {
                     } label: {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(routine.title).font(.headline)
+                            if let time = model.routineTime(routine) { Text(time).font(.footnote).foregroundStyle(PaceColor.textSecondary) }
                             Text(model.routineText(.steps) + ": " + model.number(Double(routine.steps.count)))
                                 .font(.footnote).foregroundStyle(PaceColor.textSecondary)
                         }
@@ -51,6 +52,7 @@ struct RoutineDetail: View {
                 SaveErrorBanner()
                 if let routine {
                     Text(routine.notes).foregroundStyle(PaceColor.textSecondary)
+                    if let time = model.routineTime(routine) { LabeledContent(model.routineText(.plannedTime), value: time) }
                     if let session = model.routineSession(routineID) {
                         sessionCard(session)
                     } else if !routine.isArchived {
@@ -68,7 +70,7 @@ struct RoutineDetail: View {
                     ForEach(model.state.routineSessions.filter { $0.routineID == routineID }.sorted { $0.day > $1.day }) { session in
                         PaceCard {
                             VStack(alignment: .leading, spacing: 8) {
-                                Text(session.day.rawValue + " · " + session.titleSnapshot).font(.headline)
+                                Text(model.dayLabel(session.day) + " · " + session.titleSnapshot).font(.headline)
                                 Text(model.number(Double(session.completedStepIDs.count)) + " / " + model.number(Double(session.steps.count)))
                                 ForEach(session.steps) { step in
                                     Label(step.title, systemImage: session.completedStepIDs.contains(step.id) ? "checkmark.circle.fill" : "circle")

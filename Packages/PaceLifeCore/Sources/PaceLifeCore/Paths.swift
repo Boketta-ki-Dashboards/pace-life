@@ -58,7 +58,7 @@ extension LifeState {
             guard !path.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, !path.milestones.isEmpty,
                   path.startDay.isValid, path.targetDay.map({ $0.isValid && $0 >= path.startDay }) ?? true,
                   (path.status == .completed) == (path.completedDay != nil),
-                  path.completedDay.map({ $0.isValid && $0 >= path.startDay }) ?? true else { throw LifeError.invalidValue }
+                  path.completedDay.map({ $0.isValid && $0 >= path.startDay && pathProgress(path, through: $0) >= 1 }) ?? true else { throw LifeError.invalidValue }
             for milestone in path.milestones {
                 try Habit(title: milestone.title, goalType: milestone.goalType, target: milestone.target).validate()
                 guard milestone.habitID == nil || habits.contains(where: { $0.id == milestone.habitID }),
@@ -103,8 +103,9 @@ extension LifeStore {
         try transaction { state in
             guard let index = state.paths.firstIndex(where: { $0.id == id }) else { throw LifeError.invalidValue }
             if status == .completed {
-                guard state.pathProgress(state.paths[index]) >= 1 else { throw LifeError.invalidValue }
-                state.paths[index].completedDay = DayKey(date: date, calendar: calendar)
+                let day = DayKey(date: date, calendar: calendar)
+                guard state.pathProgress(state.paths[index], through: day) >= 1 else { throw LifeError.invalidValue }
+                state.paths[index].completedDay = day
             } else { state.paths[index].completedDay = nil }
             state.paths[index].status = status
         }

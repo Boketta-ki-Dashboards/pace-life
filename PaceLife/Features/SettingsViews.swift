@@ -94,7 +94,6 @@ struct DevelopmentView: View {
     @State private var adaptive = false
     var body: some View {
         Page(title: model.text(.development)) {
-            Text(model.text(.futureDetail)).foregroundStyle(PaceColor.textSecondary)
             Button("Life Paths") { paths = true }.buttonStyle(PaceButtonStyle()).accessibilityIdentifier("managePaths")
             Button("Pace Adaptive") { adaptive = true }.buttonStyle(PaceButtonStyle(kind: .secondary))
             future("Life Chapters", message: .chaptersDetail, icon: "book.closed")
