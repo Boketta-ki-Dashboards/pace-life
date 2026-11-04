@@ -12,7 +12,7 @@ jobs:
       matrix:
         runner: [macos-15, macos-15-intel]
     runs-on: ${{ matrix.runner }}
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v5
       - name: Toolchain
@@ -20,6 +20,13 @@ jobs:
           uname -m
           xcodebuild -version
           swift --version
+      - name: Start simulator while compiling
+        run: |
+          simulator="$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin); v=next(v for k,vs in d["devices"].items() if "iOS" in k for v in vs if v["name"].startswith("iPhone")); print(v["udid"], v["state"])')"
+          simulator_id="${simulator%% *}"
+          simulator_state="${simulator#* }"
+          echo "SIMULATOR_ID=$simulator_id" >> "$GITHUB_ENV"
+          if [ "$simulator_state" = "Shutdown" ]; then xcrun simctl boot "$simulator_id"; fi
       - name: Core tests (Swift 6)
         run: swift test --package-path Packages/PaceLifeCore
       - name: Project generation is reproducible
@@ -33,15 +40,18 @@ jobs:
       - name: iOS simulator build
         id: simulator_build
         run: scripts/test-ios.sh build-for-testing
+      - name: Native back navigation regression
+        run: scripts/test-ios.sh test-navigation
       - name: iOS UI tests
         run: scripts/test-ios.sh test-without-building
       - name: Export actual simulator screenshots
         if: ${{ !cancelled() && steps.simulator_build.outcome == 'success' }}
         run: |
           mkdir -p "$RUNNER_TEMP/pace-screenshots"
-          for result in /tmp/PaceLife-test-without-building-*.xcresult; do
+          for result in /tmp/PaceLife-test-*.xcresult; do
             if [ -d "$result" ]; then
-              xcrun xcresulttool export attachments --path "$result" --output-path "$RUNNER_TEMP/pace-screenshots"
+              result_name="$(basename "$result" .xcresult)"
+              xcrun xcresulttool export attachments --path "$result" --output-path "$RUNNER_TEMP/pace-screenshots/$result_name"
             fi
           done
       - name: Release simulator architectures

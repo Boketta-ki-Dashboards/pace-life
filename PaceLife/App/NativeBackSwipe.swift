@@ -18,6 +18,7 @@ final class NativeBackSwipeController: UIViewController, UIGestureRecognizerDele
     private var visible = false
     #if DEBUG
     private var originalIdentifier: String?
+    private var originalValue: String?
     #endif
 
     override func loadView() {
@@ -54,7 +55,9 @@ final class NativeBackSwipeController: UIViewController, UIGestureRecognizerDele
         #if DEBUG
         if ProcessInfo.processInfo.arguments.contains("--uitesting") {
             originalIdentifier = navigationController.view.accessibilityIdentifier
+            originalValue = navigationController.view.accessibilityValue
             navigationController.view.accessibilityIdentifier = "nativeBackNavigation"
+            navigationController.view.accessibilityValue = "Ready; depth=\(navigationController.viewControllers.count)"
         }
         #endif
     }
@@ -65,7 +68,27 @@ final class NativeBackSwipeController: UIViewController, UIGestureRecognizerDele
     }
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         guard visible, let navigation = observedNavigation else { return false }
-        return navigation.viewControllers.count > 1 && navigation.transitionCoordinator == nil
+        var horizontalBack = true
+        if let pan = gestureRecognizer as? UIPanGestureRecognizer {
+            let movement = pan.velocity(in: navigation.view)
+            let direction: CGFloat = navigation.view.effectiveUserInterfaceLayoutDirection == .rightToLeft ? -1 : 1
+            horizontalBack = movement.x * direction > abs(movement.y)
+        }
+        let allowed = navigation.viewControllers.count > 1 && navigation.transitionCoordinator == nil && horizontalBack
+        #if DEBUG
+        if navigation.view.accessibilityIdentifier == "nativeBackNavigation" {
+            navigation.view.accessibilityValue = "Begin=\(allowed); depth=\(navigation.viewControllers.count); transition=\(navigation.transitionCoordinator != nil); horizontal=\(horizontalBack)"
+        }
+        #endif
+        return allowed
+    }
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                           shouldBeRequiredToFailBy otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        // The native edge gesture takes precedence over a descendant scroll pan.
+        // A vertical edge drag still fails shouldBegin and remains a scroll.
+        if gestureRecognizer === observedNavigation?.interactivePopGestureRecognizer,
+           otherGestureRecognizer is UIPanGestureRecognizer { return true }
+        return originalDelegate?.gestureRecognizer?(gestureRecognizer, shouldBeRequiredToFailBy: otherGestureRecognizer) ?? false
     }
     func restore() {
         guard installed else { return }
@@ -76,8 +99,10 @@ final class NativeBackSwipeController: UIViewController, UIGestureRecognizerDele
         #if DEBUG
         if observedNavigation?.view.accessibilityIdentifier == "nativeBackNavigation" {
             observedNavigation?.view.accessibilityIdentifier = originalIdentifier
+            observedNavigation?.view.accessibilityValue = originalValue
         }
         originalIdentifier = nil
+        originalValue = nil
         #endif
         installed = false
         observedNavigation = nil

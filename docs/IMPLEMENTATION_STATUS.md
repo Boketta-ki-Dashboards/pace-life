@@ -35,7 +35,7 @@ Nachgewiesene UI-Tests prüfen schnelle/langsame Swipes, Abbrechen, vertikales
 Scrollen, Dock-Position/-Höhe und Editorisolation. Die größte Dynamic-Type-Stufe
 besteht mit `0c88d9a` auf Apple Silicon einschließlich Dock, Scrollen und
 Formular/Tastatur. Die native Detail-Zurückgeste bleibt nach intermittierenden
-Ergebnissen offen; Korrektur `34dff1e` wird gerade geprüft. Keine Assertion wurde
+Ergebnissen offen; Auch `34dff1e` besteht auf Apple Silicon mit 13/14 UI-Tests; die native Zurückgeste bleibt offen. Keine Assertion wurde
 entfernt oder abgeschwächt. Kleinere/größere Displays und VoiceOver bleiben offen.
 Originalvideos und Wordmark liegen nicht auswertbar vor; visuelle 1:1-Übereinstimmung
 ist nicht verifiziert.
@@ -150,6 +150,17 @@ Testkoordinaten sind direkt an der modalen NavigationBar verankert; eine zusätz
 Assertion kontrolliert den tatsächlichen ScreenPoint am linken Rand. Rückkehr zur
 Path-Liste und unveränderte Root-Auswahl bleiben die Abnahmebedingungen.
 
-Aktueller Nachlauf: [CI 41820926314](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41820926314).
-Sein vollständiges Ergebnis steht noch aus; `34dff1e` ist noch kein als grün
-bestätigter Gesamtstand. Die bisherigen grünen Modulnachweise bleiben oben separat.
+[CI 41820926314](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41820926314):
+`34dff1e` besteht auf Apple Silicon mit 53 Core-Tests, Debug/Release und 13/14 UI-Tests.
+Der Diagnose-Identifier bestätigt die Anbindung am korrekten nativen Controller;
+die Randgeste bleibt erfolglos. Die übrigen UI-Tests einschließlich größter Schrift
+und aller Screenshotansichten bestehen. Intel läuft noch.
+
+Die nächste Korrektur gibt dem vorhandenen nativen Edge-Pop-Erkenner Vorrang vor
+Scroll-Pans und lässt vertikale Bewegungen weiterhin scrollen. Sein Begin-Entscheid
+wird ausschließlich im UI-Test-Modus diagnostizierbar. Noch kein grüner Nachweis.
+CI startet den Simulator parallel zur Kompilierung, wartet vor XCTest weiterhin
+auf Bootbereitschaft und prüft die Back-Regression zuerst. Erst danach läuft die
+unveränderte vollständige 14-Test-Suite. Das Budget beträgt wegen tatsächlich
+beobachteter Intel-Zeitabbrüche jetzt 60 Minuten; keine Tests werden entfernt.
+Die bisherigen grünen Modulnachweise bleiben oben separat.

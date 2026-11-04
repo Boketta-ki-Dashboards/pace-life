@@ -2,7 +2,13 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 action="${1:-test}"
-case "$action" in test|build-for-testing|test-without-building) ;; *) echo "Unsupported action: $action" >&2; exit 2;; esac
+case "$action" in test|build-for-testing|test-without-building|test-navigation) ;; *) echo "Unsupported action: $action" >&2; exit 2;; esac
+build_action="$action"
+test_arguments=(CODE_SIGNING_ALLOWED=NO)
+if [[ "$action" == "test-navigation" ]]; then
+  build_action="test-without-building"
+  test_arguments+=(-only-testing:PaceLifeUITests/PaceLifeUITests/testManualPathMilestoneSurvivesRelaunch)
+fi
 simulator_id="${SIMULATOR_ID:-$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin); print(next(v["udid"] for k,vs in d["devices"].items() if "iOS" in k for v in vs if v["name"].startswith("iPhone")))')}"
 # Wait for the chosen simulator's actual boot before XCTest initializes AX.
 # Serial UI execution avoids a second, unprepared cloned simulator.
@@ -16,7 +22,7 @@ set +e
 xcodebuild -project PaceLife.xcodeproj -scheme PaceLife \
   -destination "platform=iOS Simulator,id=$simulator_id" \
   -derivedDataPath DerivedData -resultBundlePath "${RESULT_BUNDLE_PATH:-/tmp/PaceLife-${action}-$(date +%s).xcresult}" \
-  -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO "$action" 2>&1 | tee "$log_file"
+  -parallel-testing-enabled NO "${test_arguments[@]}" "$build_action" 2>&1 | tee "$log_file"
 result=${PIPESTATUS[0]}
 set -e
 if [[ -n "${GITHUB_ACTIONS:-}" && "$result" -ne 0 ]]; then

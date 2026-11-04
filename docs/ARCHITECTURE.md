@@ -191,3 +191,9 @@ besitzen weiterhin ihre eigenen nativen Stacks. Der Back-Swipe-Adapter bindet si
 bei Attachment/Layout/Appearance nur an einen tatsächlich im Fenster befindlichen
 Controller. Unter UI-Tests erhält dessen Navigation-View einen temporären AX-Identifier
 zur Diagnose; Gestenverhalten ist in Test und regulärer App identisch.
+
+Der native Edge-Erkenner bekommt über seine UIKit-Failure-Abhängigkeit Vorrang
+vor Scroll-Pans; der Begin-Guard lehnt vertikale Bewegungen und die falsche
+Zurückrichtung ab. Es wird kein eigener Pan-Erkenner angelegt. Der UI-Test-Modus
+protokolliert die Begin-Entscheidung im temporären AX-Wert des Navigationscontainers.
+Diese Ergänzung benötigt weiterhin einen grünen nativen Back-Swipe-Nachweis.
