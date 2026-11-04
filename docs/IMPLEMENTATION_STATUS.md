@@ -209,3 +209,9 @@ Screenshot-Artefakte bleiben in GitHub Actions. Der direkte Download in die Clou
 wurde mit HTTP 403 blockiert. Automatische Freigabeprüfung lehnte zusätzliche
 CI-Schreibrechte zum Einchecken ab; die CI behält `contents: read`. Daher bisher
 keine neuen PNG-Dateien unter `docs/screenshots/` und keine behauptete Sichtprüfung.
+
+Experiment-CI `41807223450`: Core-Tests bestanden, iOS-Build meldet fehlenden
+Foundation-Import für `UUID` in `ExperimentCopy.swift`. Separat korrigiert und
+mit lokaler Typprüfung der neuen Lokalisierungs-/AppModel-Erweiterung geprüft;
+iOS-Nachlauf erforderlich. Der letzte vollständig auf Apple Silicon geprüfte
+Code bleibt bis dahin `9d8a140`.
