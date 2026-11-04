@@ -169,3 +169,7 @@ Ein Dateibereinigungsfehler wird sichtbar und kann erneut versucht werden.
 Neuer UI-Test: Kapitel → Erinnerung → Neustart → Archiv → Neustart →
 Wiederherstellen → Bearbeiten → Neustart. Die native Auswahl echter Fotos und
 Photo-Library-Abbruch sind noch nicht durch einen Simulatorlauf nachgewiesen.
+
+Chapter-CI `41804646306`: 42 Core-Tests bestanden; iOS-Build wegen fehlendem
+expliziten `return` in `ChapterCopy.text` fehlgeschlagen. Separater Korrekturcommit
+behebt die Ursache; Erfolg wird erst nach dem neuen Lauf bestätigt.

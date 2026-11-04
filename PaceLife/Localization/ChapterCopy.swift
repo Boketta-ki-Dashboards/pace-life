@@ -33,7 +33,7 @@ enum ChapterCopy {
         case .travel: v = ("Reisen", "Travel", "Путешествия")
         case .relationships: v = ("Beziehungen", "Relationships", "Отношения")
         }
-        switch language { case .de: v.0; case .en: v.1; case .ru: v.2 }
+        switch language { case .de: return v.0; case .en: return v.1; case .ru: return v.2 }
     }
 }
 extension AppModel {
