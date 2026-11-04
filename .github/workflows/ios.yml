@@ -35,6 +35,15 @@ jobs:
         run: scripts/test-ios.sh build-for-testing
       - name: iOS UI tests
         run: scripts/test-ios.sh test-without-building
+      - name: Export actual simulator screenshots
+        if: ${{ !cancelled() && steps.simulator_build.outcome == 'success' }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/pace-screenshots"
+          for result in /tmp/PaceLife-test-without-building-*.xcresult; do
+            if [ -d "$result" ]; then
+              xcrun xcresulttool export attachments --path "$result" --output-path "$RUNNER_TEMP/pace-screenshots"
+            fi
+          done
       - name: Release simulator architectures
         if: ${{ !cancelled() && steps.simulator_build.outcome == 'success' }}
         run: >-
@@ -50,3 +59,4 @@ jobs:
             ${{ runner.temp }}/build-settings.txt
             ${{ runner.temp }}/pace-ios-*.log
             /tmp/PaceLife-*.xcresult
+            ${{ runner.temp }}/pace-screenshots

@@ -52,7 +52,7 @@ struct RootView: View {
                 } label: {
                     VStack(spacing: 4) {
                         Image(systemName: item.icon).font(.system(size: 20))
-                        Text(model.text(item.copy)).font(.system(size: tabFont, weight: tab == item ? .semibold : .regular))
+                        Text(model.text(item.copy)).font(.system(size: tabFont, weight: .semibold))
                             .multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
                     }
                     .frame(maxWidth: .infinity, minHeight: 48)
@@ -67,6 +67,8 @@ struct RootView: View {
             }
         }
         .padding(.horizontal, 16).padding(.vertical, 8)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("paceDock")
         .background(PaceColor.surface.shadow(color: .black.opacity(0.04), radius: 10, y: -3))
     }
 }

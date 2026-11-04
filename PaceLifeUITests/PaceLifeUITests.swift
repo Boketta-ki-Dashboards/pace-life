@@ -313,7 +313,7 @@ final class PaceLifeUITests: XCTestCase {
     @MainActor
     func testNativePagingDirectionCancellationAndVerticalScroll() {
         let app = launchFreshApp()
-        let dockFrame = app.buttons["tab.today"].frame
+        let dockFrame = app.otherElements["paceDock"].frame
         app.swipeLeft(velocity: .slow)
         assertTab("development", in: app)
         XCTAssertTrue(app.buttons["managePaths"].isHittable)
@@ -328,7 +328,8 @@ final class PaceLifeUITests: XCTestCase {
         assertTab("development", in: app)
         app.swipeUp()
         assertTab("development", in: app)
-        XCTAssertEqual(app.buttons["tab.today"].frame.minY, dockFrame.minY, accuracy: 1)
+        XCTAssertEqual(app.otherElements["paceDock"].frame.minY, dockFrame.minY, accuracy: 1)
+        XCTAssertEqual(app.otherElements["paceDock"].frame.height, dockFrame.height, accuracy: 1)
         app.buttons["tab.today"].tap()
         assertTab("today", in: app)
         reveal(app.buttons["addHabit"], in: app)

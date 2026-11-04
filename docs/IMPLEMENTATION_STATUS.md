@@ -173,3 +173,15 @@ Photo-Library-Abbruch sind noch nicht durch einen Simulatorlauf nachgewiesen.
 Chapter-CI `41804646306`: 42 Core-Tests bestanden; iOS-Build wegen fehlendem
 expliziten `return` in `ChapterCopy.text` fehlgeschlagen. Separater Korrekturcommit
 behebt die Ursache; Erfolg wird erst nach dem neuen Lauf bestätigt.
+
+Paging-Lauf `41803412187` auf Apple Silicon: Core und Debug/Release-Build bestanden;
+9/10 UI-Tests bestanden. Der neue Dock-Test verglich die AX-Labelrahmen eines
+aktiven und inaktiven Tabs (unterschiedliche Textgeometrie). Die Schrift bleibt
+jetzt immer semibold, die Auswahl erfolgt weiter über Mint-Hintergrund/Icon/Text.
+Der Test prüft Position **und Höhe des echten Dock-Containers**. Keine Assertion
+entfernt oder Toleranz vergrößert. Screenshot-Test bestanden; CI exportiert jetzt
+zusätzlich die tatsächlichen XCTAttachments als PNG-Dateien zur visuellen Prüfung.
+
+Chapter-Fixlauf `41804979763`: weiterer Swift-6-Isolationsfehler im PhotoPicker-
+Label gefunden. Der lokalisierte Titel wird nun auf dem MainActor vor der
+Sendable-Label-Closure aufgelöst. Neuer Simulatorlauf erforderlich.

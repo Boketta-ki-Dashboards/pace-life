@@ -115,7 +115,8 @@ struct ChapterDetail: View {
         }
     }
     private func photos(_ chapter: LifeChapter) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        let pickerTitle = model.chapterText(.addPhotos)
+        return VStack(alignment: .leading, spacing: 12) {
             Text(model.chapterText(.photos)).font(.title3.bold())
             ForEach(chapter.photoIDs, id: \.self) { id in
                 PaceCard {
@@ -131,7 +132,7 @@ struct ChapterDetail: View {
                 }
             }
             PhotosPicker(selection: $selections, maxSelectionCount: 10, matching: .images) {
-                Label(model.chapterText(.addPhotos), systemImage: "photo.badge.plus")
+                Label(pickerTitle, systemImage: "photo.badge.plus")
             }.disabled(importing).accessibilityIdentifier("addChapterPhotos")
             if importing { ProgressView() }
             if model.photoFailed {
