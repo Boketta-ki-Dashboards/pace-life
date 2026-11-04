@@ -13,7 +13,7 @@ Vor Abschluss der UI-Feinabstimmung Originalaufnahmen aus dem aktiven Codex-Chat
 
 ## Ausführbare Prüfpfade Phase 1
 
-- `swift test --package-path Packages/PaceLifeCore`: 53 XCTest-Fälle der Domäne und Persistenz, ohne Backend.
+- `swift test --package-path Packages/PaceLifeCore`: 54 XCTest-Fälle der Domäne und Persistenz, ohne Backend.
 - macOS/Xcode 16+: `scripts/test-ios.sh` wählt einen vorhandenen iPhone-Simulator und führt das Scheme `PaceLife` inklusive 15 UI-Tests aus. Der UI-Test-Store wird je Test mit einer UUID isoliert; Neustarts verwenden denselben Test-Store.
 - Build ohne Geräte-Signing: `xcodebuild -project PaceLife.xcodeproj -scheme PaceLife -destination 'generic/platform=iOS Simulator' -derivedDataPath DerivedData CODE_SIGNING_ALLOWED=NO build`.
 - GitHub-CI: `.github/workflows/ios.yml`; echter Laufstatus bleibt vom angelegten Workflow getrennt.

@@ -56,7 +56,7 @@ Luminanz, keine Schätzung aus komprimierten Bildschirmbildern):
 | textPrimary / background | 17,95:1 | 17,38:1 |
 | textSecondary / surface | 5,64:1 | 7,82:1 |
 | onSelection / selectionFill | 10,84:1 | 13,39:1 |
-| onAccent / actionFill | 5,60:1 | 13,18:1 |
+| onAccent / accentStrong (PaceButton primär) | 9,25:1 | 13,18:1 |
 
 Diese vier Textkombinationen überschreiten 4,5:1. Das ist keine vollständige
 Barrierefreiheitsprüfung aller Zustände, Charts, Transparenzen oder Systemelemente.

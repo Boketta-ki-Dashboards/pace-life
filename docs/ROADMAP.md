@@ -23,7 +23,8 @@ Codex muss am Ende jeder Phase dokumentieren: Implementiert, tatsächlich getest
 
 ## Aktueller Nachweis und nächste Abschnitte
 
-Die lokale Domäne besteht mit 53 XCTest-Tests. `50dd2dd` besteht auf Apple Silicon
+Die lokale Domäne besteht mit 54 XCTest-Tests, einschließlich des neuen
+Kalender-/Zeitzonen-Roundtrips für Datumseditoren. `50dd2dd` besteht auf Apple Silicon
 und Intel mit 53 Core-/13 UI-Tests und Debug-/Release-Builds; `d2b17e4` mit 14 UI-Tests.
 Die Suite enthält inzwischen 15 UI-Fälle einschließlich nativer Fotoauswahl; Apple
 besteht mit `7ee521e` vollständig, Intel scheiterte nur am Screenshot-Sheet-Öffnen.

@@ -75,12 +75,18 @@ public struct ExperimentSummary: Equatable, Sendable {
     public var changeFromBaseline: Double? { guard let baseline, let lastValue else { return nil }; return lastValue - baseline }
 }
 extension DayKey {
-    /// Civil arithmetic in UTC: no DST drift and no reinterpretation of stored day labels.
-    public var civilDate: Date? {
+    /// Stored keys always use Gregorian years, even when the device's calendar
+    /// is Buddhist or Japanese. Only its time zone influences the editor date.
+    public func localDate(calendar: Calendar = .current) -> Date? {
         guard isValid else { return nil }
         let c = rawValue.split(separator: "-").compactMap { Int($0) }
+        var civil = Calendar(identifier: .gregorian); civil.timeZone = calendar.timeZone
+        return civil.date(from: DateComponents(year: c[0], month: c[1], day: c[2], hour: 12))
+    }
+    /// Civil arithmetic in UTC: no DST drift and no reinterpretation of stored day labels.
+    public var civilDate: Date? {
         var calendar = Calendar(identifier: .gregorian); calendar.timeZone = TimeZone(secondsFromGMT: 0)!
-        return calendar.date(from: DateComponents(year: c[0], month: c[1], day: c[2], hour: 12))
+        return localDate(calendar: calendar)
     }
     public func adding(days: Int) -> DayKey? {
         guard let date = civilDate else { return nil }

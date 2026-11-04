@@ -84,7 +84,7 @@ Dies ist ein Domain-Integrationstest, kein behaupteter durchgehender Geräte-UI-
 
 ## Commitgenauer Prüfstand
 
-Die unveränderte lokale Core-Domäne besteht mit Swift 6.0.3/Linux: **53 XCTest-Fälle,
+Die aktuelle Core-Domäne besteht am 4. November mit Swift 6.0.3/Linux: **54 XCTest-Fälle,
 0 Fehler**. Projektgenerator, Swift-Syntax- und Diff-Prüfung bestanden. Linux ist
 kein Ersatz für die tatsächliche iOS-SDK-Prüfung in den folgenden macOS-Läufen.
 
@@ -93,7 +93,7 @@ kein Ersatz für die tatsächliche iOS-SDK-Prüfung in den folgenden macOS-Läuf
 | `76e0572` vor diesem Auftrag | 37 Core, acht UI, Debug/Release auf Apple Silicon und Intel; [CI 41631877527](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41631877527). |
 | `50dd2dd` | Alle drei neuen Module und Routine-Paths/Schema 8: beide Architekturen 53 Core, 13 UI, Debug/Release bestanden; [CI 41810514373](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41810514373). |
 | `d2b17e4` | Beide Architekturen 53 Core, 14 UI plus vorgezogene Back-Regression, Debug/Release bestanden; [CI 41828056482](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41828056482). |
-| `b6e8780` | Vereinfachte reine SwiftUI-Navigation ohne UIKit-Overrides: Apple 53 Core, 14 UI, Back-Regression und Debug/Release bestanden; Quelle der eingecheckten Standard-Screenshots. Intel-Nachlauf noch offen; [CI 41829938956](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41829938956). |
+| `b6e8780` | Vereinfachte reine SwiftUI-Navigation ohne UIKit-Overrides: Apple 53 Core, 14 UI, Back-Regression und Debug/Release bestanden; Quelle der eingecheckten Standard-Screenshots. Intel: XCTest-AX-Abfrage hing nach einem Experiment-Tap-Timeout, anschließend Jobabbruch; [CI 41829938956](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41829938956). |
 | `7ee521e` | Nativer Fotoablauf auf beiden Architekturen bestanden. Apple vollständig 53 Core, 15 UI, Debug/Release; Intel 53 Core, 14/15 UI, Debug/Release. Ein Screenshot-Sheet öffnete nach Tabwechsel nicht; [CI 41832182819](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41832182819). |
 | `dfd03d7` | Kompakte Accessibility-Tabbar und endlicher 50-ms-Touch für einmaliges Öffnen der Screenshot-Sheets. Keine Wiederholungen maskieren Fehler, die Sheet-/Persistenz-Assertions bleiben verbindlich. Vollständiger Nachlauf ausstehend; [CI 41837583213](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41837583213). |
 
@@ -140,3 +140,16 @@ Ausführliche Testabläufe für alle lokalen Module stehen in [README.md](../REA
 Bei Migration ggf. verborgene neue Home-Widgets unter „Home anpassen“ aktivieren.
 Nach dem Schreiben von Schema 8 keine ältere Beta über denselben Datencontainer
 installieren: ältere Writer lehnen das neue Schema absichtlich ab.
+
+## Datumseditoren: gregorianische Schlüssel erhalten
+
+Die beim Chapter-/Experiment-/Circle-Ausbau hinzugefügte Datumshilfe verwendete
+`Calendar.current` zur Rekonstruktion gespeicherter gregorianischer Jahreszahlen.
+Bei buddhistischem oder japanischem Systemkalender konnte dadurch ein falsches
+Editor-Datum entstehen. `DayKey.localDate` verwendet nun ausdrücklich den
+gregorianischen Kalender und übernimmt nur die lokale Zeitzone; bestehende
+Schlüssel und JSON-Dateien werden nicht verändert. UTC-Tagesarithmetik bleibt
+unverändert. Der neue 54. Core-Test prüft drei Kalendertypen, Sommer-/Winterzeit
+sowie Berlin, Kiritimati und Los Angeles gegen feste erwartete Zeitpunkte und
+verlustfreien DayKey-Roundtrip. Alle 54 Core-Tests lokal bestanden; eigener
+iOS-Nachlauf für diese kleine Korrektur ausstehend.

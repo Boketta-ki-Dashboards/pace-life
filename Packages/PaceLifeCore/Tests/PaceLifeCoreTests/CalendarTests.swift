@@ -38,4 +38,26 @@ final class CalendarTests: XCTestCase {
             XCTAssertTrue(future.completions.isEmpty)
         }
     }
+
+    func testStoredDayEditorDatesIgnoreCalendarEraAndPreserveLocalDayAcrossDST() throws {
+        let cases = [
+            ("2026-03-28", "Europe/Berlin", "2026-03-28T11:00:00Z"),
+            ("2026-03-29", "Europe/Berlin", "2026-03-29T10:00:00Z"),
+            ("2026-10-25", "Europe/Berlin", "2026-10-25T11:00:00Z"),
+            ("2026-11-04", "Pacific/Kiritimati", "2026-11-03T22:00:00Z"),
+            ("2026-11-04", "America/Los_Angeles", "2026-11-04T20:00:00Z")
+        ]
+        for identifier in [Calendar.Identifier.gregorian, .buddhist, .japanese] {
+            for (stored, zone, expected) in cases {
+                var calendar = Calendar(identifier: identifier)
+                calendar.timeZone = try XCTUnwrap(TimeZone(identifier: zone))
+                let key = DayKey(rawValue: stored)
+                let date = try XCTUnwrap(key.localDate(calendar: calendar))
+                XCTAssertEqual(date, Self.date(expected), "Editor must use the stored Gregorian year and local noon")
+                XCTAssertEqual(DayKey(date: date, calendar: calendar), key, "Opening and saving must preserve the stored day")
+            }
+        }
+        XCTAssertNil(DayKey(rawValue: "2026-02-30").localDate(calendar: Self.berlin))
+        XCTAssertEqual(DayKey(rawValue: "2026-03-29").civilDate, Self.date("2026-03-29T12:00:00Z"))
+    }
 }

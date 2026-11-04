@@ -50,8 +50,6 @@ extension AppModel {
         } catch { return nil } // The view explicitly displays an unavailable-photo state.
     }
     func date(for day: DayKey) -> Date {
-        let components = day.rawValue.split(separator: "-").compactMap { Int($0) }
-        guard components.count == 3 else { return today }
-        return Calendar.current.date(from: DateComponents(year: components[0], month: components[1], day: components[2], hour: 12)) ?? today
+        day.localDate() ?? today
     }
 }
