@@ -103,6 +103,5 @@ struct Page<Content: View>: View {
             .frame(maxWidth: .infinity)
         }
         .background(PaceColor.background)
-        .toolbar(.hidden, for: .navigationBar)
     }
 }

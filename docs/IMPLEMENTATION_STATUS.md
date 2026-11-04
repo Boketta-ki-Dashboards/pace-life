@@ -29,7 +29,7 @@ Pager teilen denselben Auswahlzustand. Der Dock bleibt außerhalb der scrollende
 Seiten im unteren Safe-Area-Inset; mintfarbener Hintergrund, Icon und Text markieren
 die Auswahl. Vollständige Touch-Flächen, konstante Schriftstärke und Reduce Motion.
 Root-Pager ohne ungenutzten äußeren Stack, separate modale Detail-/Editor-Navigation; keine manuelle
-Root-Drag-Geste. Schrift, Farben und Komponenten verwenden das bestehende Designsystem.
+Root-Drag-Geste, keine globale Toolbar-Ausblendung und keine UIKit-Delegate-Overrides. Schrift, Farben und Komponenten verwenden das bestehende Designsystem.
 
 Nachgewiesene UI-Tests prüfen schnelle/langsame Swipes, Abbrechen, vertikales
 Scrollen, Dock-Position/-Höhe und Editorisolation. Die größte Dynamic-Type-Stufe
@@ -179,3 +179,10 @@ drei Sekunden, da Intel-AX-Abfragen allein bereits mehrere Sekunden benötigten;
 kein erneutes Umschalten, keine ersetzte Zustands- oder Persistenzprüfung.
 `34dff1e` auf Intel: 11/14 UI, zusätzlich Schalter-/Screenshot-Timeout, anschließender
 45-Minuten-Abbruch. Diese Ergebnisse sind keine grüne Gesamtabnahme.
+
+`d2b17e4`, [CI 41828056482](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41828056482):
+Der vorgezogene Back-Test besteht auf Apple Silicon mit 50-ms-Kontakt; die komplette
+Suite läuft. Für den folgenden Nachlauf werden die erfolglosen UIKit-Delegate-
+Eingriffe vollständig entfernt, ebenso die seit Entfernen des äußeren Stacks
+unnötige Root-Toolbar-Ausblendung. Die native SwiftUI-Zurücknavigation muss dieselben
+unveränderten Ergebnis-Assertions bestehen. Kein neuer Gesamt-Erfolg vor diesem Nachweis.

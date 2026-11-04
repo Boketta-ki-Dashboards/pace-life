@@ -175,25 +175,16 @@ wieder öffnen; archivierte Vorlagen und historische Session-Snapshots bleiben
 erhalten. Schema 7 wird explizit übernommen. Der neue Writer verhindert, dass
 eine ältere App neue Quellen irrtümlich als manuelle Beiträge interpretiert.
 
-### Begrenzte native Back-Swipe-Anbindung
+### Native Detail-Zurücknavigation
 
-Im Path-Detail zeigte iOS 18.5 einen nativen Back-Button, ignorierte aber in
-wiederholten UI-Läufen die Randgeste. `NativeBackSwipe` verwendet denselben
-`UINavigationController.interactivePopGestureRecognizer`: nur solange das Detail
-sichtbar ist, nur bei mehr als einem Controller und ohne laufenden Übergang.
-Der ursprüngliche Delegate und Enabled-Zustand werden beim Verlassen/Dismantle
-wiederhergestellt. Keine eigene Pan-Geste, kein globaler UIKit-Zugriff und kein
-Eingriff in Root-Paging. Der echte UI-Back-Swipe-Test bleibt die Abnahmebedingung.
+Root-Seiten besitzen eigene Pace-Header, keinen äußeren NavigationStack und keine
+globale Toolbar-Ausblendung. Modale Bereiche besitzen ihre normalen SwiftUI-
+NavigationStacks mit nativen Back-Buttons. Es gibt keinen UIKit-Delegate-Ersatz,
+keinen globalen Gesture-Zugriff und keine manuell konstruierte Zurückgeste.
 
-Nach dem weiterhin fehlgeschlagenen Path-Edge-Test entfällt der ungenutzte äußere
-Root-NavigationStack. Der Pager enthält ausschließlich Root-Seiten, modale Bereiche
-besitzen weiterhin ihre eigenen nativen Stacks. Der Back-Swipe-Adapter bindet sich
-bei Attachment/Layout/Appearance nur an einen tatsächlich im Fenster befindlichen
-Controller. Unter UI-Tests erhält dessen Navigation-View einen temporären AX-Identifier
-zur Diagnose; Gestenverhalten ist in Test und regulärer App identisch.
-
-Der native Edge-Erkenner bekommt über seine UIKit-Failure-Abhängigkeit Vorrang
-vor Scroll-Pans; der Begin-Guard lehnt vertikale Bewegungen und die falsche
-Zurückrichtung ab. Es wird kein eigener Pan-Erkenner angelegt. Der UI-Test-Modus
-protokolliert die Begin-Entscheidung im temporären AX-Wert des Navigationscontainers.
-Diese Ergänzung benötigt weiterhin einen grünen nativen Back-Swipe-Nachweis.
+Der UI-Test beginnt direkt am linken Rand der modalen Leiste, prüft den tatsächlichen
+ScreenPoint, verwendet einen kurzen Fingerkontakt von 50 ms und verlangt danach
+die Rückkehr zur Liste sowie den unveränderten Root-Tab. Ein Nullzeit-Kontakt hatte
+in wiederholten Läufen den nativen Begin-Check nicht erreicht. Der Test bestand
+nach Wiederherstellen des kurzen Kontakts wieder; die vereinfachte Navigation
+benötigt ihren eigenen Nachlauf. Commitgenaue Ergebnisse im Implementierungsstatus.
