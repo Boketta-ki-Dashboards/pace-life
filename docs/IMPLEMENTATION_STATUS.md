@@ -215,3 +215,11 @@ Foundation-Import für `UUID` in `ExperimentCopy.swift`. Separat korrigiert und
 mit lokaler Typprüfung der neuen Lokalisierungs-/AppModel-Erweiterung geprüft;
 iOS-Nachlauf erforderlich. Der letzte vollständig auf Apple Silicon geprüfte
 Code bleibt bis dahin `9d8a140`.
+
+Experiment-Nachlauf `41807623995`: iOS-Builds und 46 Core-Tests bestanden. Der
+Apple-Silicon-UI-Runner scheiterte **vor dem Start der Tests** an `Timed out waiting
+for AX loaded notification`; keine fehlgeschlagene Experiment-Assertion.
+`scripts/test-ios.sh` wartet jetzt mit `simctl bootstatus -b` auf den gewählten
+Simulator und deaktiviert parallele UI-Runner/zusätzliche Klone. Alle Testfälle
+bleiben aktiv. Das Jobbudget steigt wegen der erweiterten Suite und der gemessenen
+Intel-Laufzeit (schon zehn UI-Tests ca. 14,5 Minuten plus Builds) auf 45 Minuten.
