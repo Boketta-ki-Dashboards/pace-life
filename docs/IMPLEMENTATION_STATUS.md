@@ -13,7 +13,7 @@ Remote-Commit anschließend überprüft. Keine Änderungen an Pace Social oder S
 | Life Paths | Mehrere Paths, Lebensbereich/Beschreibung/Zieldatum, binäre/Zähler/Minuten-Meilensteine, Tagesbeiträge oder Habit-Verknüpfung, nachvollziehbarer Fortschritt, Statuswechsel/Archiv, Verlauf und Home-Widget. | Routine-Beiträge, Titelbilder, historisch versionierte Änderungen einer Beitragsregel und umfassende Fortschrittsdiagramme. |
 | Pace Adaptive | Lokale deterministische Vorschläge aus Zeit/Energie/Belastung, geschützten Habits, Routine-Dauern und aktiven Paths; ausdrückliche Annahme/Ablehnung, individuelle Ziele, Rückgängig, Tageshistorie und Home-Widget. | Neuplanung eines schon eingefrorenen Tages, flexible Routine-Schritte, freie Prioritäten/Zeitfenster. |
 | Life Chapters | Private Timeline, Titel/Text/Kategorie/Zeitraum, Path-Verknüpfung, Erinnerungen und persönliche Meilensteine, Bearbeiten/Archiv/Wiederherstellen/Löschen, native Fotoauswahl und separate lokale JPEG-Dateien; DE/EN/RU. | Simulator-Abnahme des neuen UI-Ablaufs und Fotoauswahl, Export. |
-| Life Experiments | Noch nicht implementiert; Oberfläche kennzeichnet den Bereich als nicht verfügbar. | Messgrößen, Check-ins, fehlende Daten, Diagramme und Auswertungen. |
+| Life Experiments | 7/14/30 Tage und frei wählbarer Zeitraum; individuelle numerische, Minuten-, Skalen- und Ja/Nein-Messgrößen; Ausgangswerte, tägliche Check-ins/Korrekturen, Punktdiagramme, ehrliche Vergleiche, Reflexion, Abschluss/Wiederholung/Archiv, Habit-Links. | Neue Simulator- und visuelle Abnahme läuft; kein automatischer Datenimport. |
 | Pace Circles | Vorhandener Unavailable-Service und ehrlicher Leerzustand. | Noch keine Gruppen/Challenges, auch kein lokaler Demo-Modus. |
 | Pace Connect | Vorhandene Capability-Protokolle melden nicht verfügbar; keine Netzwerkverbindung oder Identität wird vorgetäuscht. | Vollständige Adapter-/Berechtigungsarchitektur nach freigegebenem externen Vertrag. |
 
@@ -40,7 +40,7 @@ Die neuen Funktionen verwenden echte lokale Daten und DE/EN/RU-Texte.
 
 ## Persistenz und Migration
 
-Aktueller Writer: **Schema 5** (Chapters). Separate DTOs lesen Schema 1, 2, 3 und 4. Alle alten
+Aktueller Writer: **Schema 6** (Chapters und Experiments). Separate DTOs lesen Schema 1, 2, 3, 4 und 5. Alle alten
 UUIDs, Habits, Ziel-Snapshots, Erfüllungen, Modes/Aktivierungen, Widgets und
 Einstellungen bleiben erhalten. Neue Widgets werden bei Migration hinten und
 zunächst verborgen ergänzt. Lesen migriert ausschließlich im Speicher; erst ein
@@ -185,3 +185,27 @@ zusätzlich die tatsächlichen XCTAttachments als PNG-Dateien zur visuellen Prü
 Chapter-Fixlauf `41804979763`: weiterer Swift-6-Isolationsfehler im PhotoPicker-
 Label gefunden. Der lokalisierte Titel wird nun auf dem MainActor vor der
 Sendable-Label-Closure aufgelöst. Neuer Simulatorlauf erforderlich.
+
+### Verifizierter Zwischenstand und Life Experiments
+
+`9d8a140` / [CI 41805696013](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41805696013):
+Apple Silicon vollständig erfolgreich: 42 Core-Tests, 11 UI-Tests, Debug-/Release-
+Simulator-Build und Screenshot-Export. Der Chapter-Neustart-/Archiv-/Editierablauf
+und native Paging-Richtung, Abbrechen, Scrollen und Dock-Geometrie sind enthalten.
+Intel zum Zeitpunkt dieses Eintrags noch laufend. Keine echte Geräteabnahme.
+
+Life Experiments: 46 Core-Tests unter Swift 6.0.3/Linux bestanden (0 Fehler), davon
+vier neue Tests für mehrere gespeicherte Tage, fehlende Daten, Korrekturen,
+Vergleiche, unabhängige Wiederholungen, Wertevalidierung, Datumsgrenzen und Schema
+5→6. Neue UI-Prüfung erfasst/korrigiert einen Wert mit zwei App-Neustarts.
+Messgrößen, Einheiten und Ausgangswerte sind nach Erstellung fest; Änderungen
+können gespeicherte Zahlen nicht umdeuten. Eine Wiederholung erzeugt neue IDs,
+leere Messungen und keinen erfundenen Ausgangswert. Fehlende Tage zählen nie als
+null. Diagramme zeigen nur echte Messpunkte; Vergleiche sind Beobachtungen ohne
+Kausalitätsbehauptung. Schema 6 verlangt beide Experiment-Arrays, ältere Schemas
+erhalten leere Arrays. Die neue UI ist bis zur zugehörigen CI ungeprüft.
+
+Screenshot-Artefakte bleiben in GitHub Actions. Der direkte Download in die Cloud
+wurde mit HTTP 403 blockiert. Automatische Freigabeprüfung lehnte zusätzliche
+CI-Schreibrechte zum Einchecken ab; die CI behält `contents: read`. Daher bisher
+keine neuen PNG-Dateien unter `docs/screenshots/` und keine behauptete Sichtprüfung.

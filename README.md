@@ -67,3 +67,10 @@ Picker auswählen, eine Erinnerung bzw. einen Meilenstein anlegen und die App ne
 starten. Ein archivierter Path bleibt verknüpft. Kapitel lassen sich archivieren,
 wiederherstellen und nach Bestätigung löschen. Fotos bleiben privat im App-Container.
 Die vier Haupttabs unterstützen natives horizontales Paging und den festen Pace-Dock.
+
+Life Experiments testen: **Entwicklung → Life Experiments → +**, Zeitraum und
+mindestens eine Messgröße wählen. Optionale Ausgangswerte selbst erfassen. Im
+Experiment tägliche Check-ins eingeben, leere Felder als fehlende Daten belassen.
+Ein erneuter Check-in am selben Tag korrigiert die Werte. Diagramm und Vergleich
+zeigen nur eingegebene Beobachtungen. Abschließen, Reflexion bearbeiten oder als
+neues Experiment ohne alte Messwerte wiederholen. Neustart erhält alle Einträge.

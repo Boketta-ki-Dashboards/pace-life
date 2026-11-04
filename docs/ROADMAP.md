@@ -7,7 +7,7 @@ Status pro Modul: `Not started` / `In progress` / `Implemented` / `Verified`. St
 | Life Paths | In progress | Gespeicherte Paths, Meilensteine, manuelle und Habit-Beiträge, Status/Archiv samt Abschlussdatum, Home-Widget | Core inklusive Verknüpfungen und Simulatorabläufe bestanden; Gerät und Routine-Beiträge offen |
 | Pace Adaptive | In progress | Deterministische Vorschläge, Bestätigung/Ablehnung/Änderung/Rückgängig, Tageshistorie und Home-Widget; Habits/Paths/Routinen verbunden | Core und Simulatorabläufe bestanden; Gerät, Neuplanung und flexible Routine-Schritte offen |
 | Life Chapters | In progress | Private Chronik, Zeitraum/Kategorie, Erinnerungen/Meilensteine, Path-Links, Fotoauswahl mit separater Dateiablage, Archiv/Löschen | Fünf neue Core-Tests bestanden; iOS- und visuelle Abnahme laufen, Export offen |
-| Life Experiments | Not started | Als geplantes Modul ausgewiesen | Phase 3: Experimente und Auswertungen |
+| Life Experiments | In progress | Eigene Zeiträume/Messgrößen, Check-ins, Korrekturen, Baselines/Vergleiche, Punktdiagramme, Reflexion, Abschluss/Wiederholung/Archiv | Vier neue Core-Tests bestanden, neue UI-CI läuft |
 | Pace Circles | In progress | Unavailable-Capability-Protokoll und ehrlicher UI-Zustand | Lokaler Testmodus, Gruppenziele und Challenges offen; reale externe Gruppen erst nach freigegebenem Vertrag |
 | Pace Connect | In progress | Unavailable-Identitäts-/Aktivitäts-/Freunde-Protokolle und UI-Zustand | Keine Integration implementiert; freigegebener Vertrag erforderlich |
 

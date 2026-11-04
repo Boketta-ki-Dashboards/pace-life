@@ -108,3 +108,20 @@ struct SchemaFourState: Decodable {
                   routineSessions: routineSessions, paths: paths, pathEntries: pathEntries, adaptivePlans: adaptivePlans)
     }
 }
+
+struct SchemaFiveEnvelope: Decodable {
+    let schemaVersion: Int
+    let state: SchemaFiveState
+}
+struct SchemaFiveState: Decodable {
+    let base: SchemaFourState
+    let chapters: [LifeChapter]
+    enum CodingKeys: String, CodingKey { case chapters }
+    init(from decoder: Decoder) throws {
+        base = try SchemaFourState(from: decoder)
+        chapters = try decoder.container(keyedBy: CodingKeys.self).decode([LifeChapter].self, forKey: .chapters)
+    }
+    func migrated() -> LifeState {
+        var state = base.migrated(); state.chapters = chapters; return state
+    }
+}

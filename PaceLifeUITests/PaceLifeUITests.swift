@@ -399,4 +399,33 @@ final class PaceLifeUITests: XCTestCase {
         XCTAssertTrue(app.buttons["chapter.open.My graduation day"].waitForExistence(timeout: 5))
     }
 
+    @MainActor
+    func testExperimentMeasurementCorrectionAndRelaunch() {
+        let app = launchFreshApp()
+        app.buttons["tab.development"].tap(); app.buttons["manageExperiments"].tap(); app.buttons["addExperiment"].tap()
+        let title = app.textFields["experimentTitle"]
+        XCTAssertTrue(title.waitForExistence(timeout: 5)); title.tap(); title.typeText("Earlier sleep")
+        let metric = app.textFields["metricTitle"]
+        reveal(metric, in: app); metric.tap(); metric.typeText("Energy")
+        app.buttons["saveExperiment"].tap()
+        let open = app.buttons["experiment.open.Earlier sleep"]
+        XCTAssertTrue(open.waitForExistence(timeout: 5)); open.tap()
+        app.buttons["experimentCheckIn"].tap()
+        let value = app.textFields["measurement.Energy"]
+        XCTAssertTrue(value.waitForExistence(timeout: 5)); value.tap(); value.typeText("7")
+        app.buttons["saveCheckIn"].tap()
+        app.terminate(); app.launch()
+        app.buttons["tab.development"].tap(); app.buttons["manageExperiments"].tap()
+        XCTAssertTrue(open.waitForExistence(timeout: 5)); open.tap(); app.buttons["experimentCheckIn"].tap()
+        XCTAssertTrue(value.waitForExistence(timeout: 5)); XCTAssertEqual(value.value as? String, "7")
+        value.tap(); value.typeText(XCUIKeyboardKey.delete.rawValue + "8")
+        app.buttons["saveCheckIn"].tap()
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = "pace-experiments-detail-light"; attachment.lifetime = .keepAlways; add(attachment)
+        app.terminate(); app.launch()
+        app.buttons["tab.development"].tap(); app.buttons["manageExperiments"].tap()
+        XCTAssertTrue(open.waitForExistence(timeout: 5)); open.tap(); app.buttons["experimentCheckIn"].tap()
+        XCTAssertTrue(value.waitForExistence(timeout: 5)); XCTAssertEqual(value.value as? String, "8")
+    }
+
 }

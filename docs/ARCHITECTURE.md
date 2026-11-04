@@ -141,3 +141,17 @@ Referenz; Fehler entfernen nur die gerade erzeugte Datei. Nach erfolgreicher
 Mutation bereinigt AppModel nicht mehr referenzierte Fotos, unter Einschluss aller
 Archive. Fehlende Fotos verhindern nicht das Laden der Chronik. Der iOS-Adapter
 verkleinert Bilder und entfernt Originalmetadaten durch erneutes JPEG-Encoding.
+
+### Schema 6: Life Experiments
+
+`LifeExperiment`, `ExperimentMetric` und `ExperimentCheckIn` bleiben getrennte
+Domain-Typen. Ein Check-in pro Experiment/zivilem Tag speichert nur tatsächlich
+eingegebene Werte; eine Korrektur ersetzt den Tag. Numerische Werte, Minuten,
+ganzzahlige Skalen und binäre Werte werden typgerecht validiert. Messdefinitionen
+bleiben nach Erstellung unverändert. `ExperimentSummary` liefert Messpunkte,
+fehlende erwartete Tage, Mittelwert und optional Ausgangswert/letzten Wert/Differenz.
+Es gibt keine Interpolation oder kausale Aussage. Wiederholung kopiert nur die
+Definition, mit neuen IDs und ohne Werte/Baselines. Habit-Links dienen der
+Navigation, buchen keine fiktiven Messungen. Schema 5 wird explizit gelesen,
+inklusive Chapter-Medienreferenzen; Schema 6 verlangt `experiments` und
+`experimentCheckIns`. Civil-Day-Arithmetik erfolgt gregorianisch ohne DST-Drift.
