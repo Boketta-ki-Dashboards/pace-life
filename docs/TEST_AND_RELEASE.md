@@ -14,7 +14,7 @@ Vor Abschluss der UI-Feinabstimmung Originalaufnahmen aus dem aktiven Codex-Chat
 ## Ausführbare Prüfpfade Phase 1
 
 - `swift test --package-path Packages/PaceLifeCore`: 53 XCTest-Fälle der Domäne und Persistenz, ohne Backend.
-- macOS/Xcode 16+: `scripts/test-ios.sh` wählt einen vorhandenen iPhone-Simulator und führt das Scheme `PaceLife` inklusive 13 UI-Tests aus. Der UI-Test-Store wird je Test mit einer UUID isoliert; Neustarts verwenden denselben Test-Store.
+- macOS/Xcode 16+: `scripts/test-ios.sh` wählt einen vorhandenen iPhone-Simulator und führt das Scheme `PaceLife` inklusive 14 UI-Tests aus. Der UI-Test-Store wird je Test mit einer UUID isoliert; Neustarts verwenden denselben Test-Store.
 - Build ohne Geräte-Signing: `xcodebuild -project PaceLife.xcodeproj -scheme PaceLife -destination 'generic/platform=iOS Simulator' -derivedDataPath DerivedData CODE_SIGNING_ALLOWED=NO build`.
 - GitHub-CI: `.github/workflows/ios.yml`; echter Laufstatus bleibt vom angelegten Workflow getrennt.
 - Gerät: `PaceLife.xcodeproj` öffnen, eigenes Team und ggf. eindeutige Bundle-ID einstellen, iPhone auswählen, ⌘R. Keine App-Store-Veröffentlichung konfiguriert. Default Bundle-ID `com.boketta.pacelife`, Version 0.1.0, Build 1.
@@ -27,3 +27,9 @@ Light-/Dark-Screenshot-Anhänge. Der neue Circle-Test und die erweiterten Screen
 sind bis zum zugehörigen CI-Ergebnis vorbereitet, nicht bereits bestanden.
 Native Fotoauswahl, VoiceOver, größte Dynamic-Type-Stufen, weitere Displaygrößen
 und echte iPhones brauchen weiterhin eine eigene Abnahme.
+
+Zusätzlicher Dynamic-Type-Nachtest: größte Accessibility-Schrift per nativer
+UIKit-Launch-Option; vergrößerter Dock als Voraussetzung, alle vier Tabs erreichbar,
+Touch-Flächen innerhalb des Displays ohne Überlappung, Formular nach Home-Scroll
+erreichbar, Tastatur/Toolbar bedienbar. Ein echter Screenshot wird angehängt.
+Dieser neue Test benötigt seinen eigenen grünen CI-Nachweis.

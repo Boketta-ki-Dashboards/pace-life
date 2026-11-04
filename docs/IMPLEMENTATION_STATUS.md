@@ -151,3 +151,7 @@ bestanden. 53 Core-Tests sowie Debug/Release ebenfalls erfolgreich.
 `536b4cd` / [Nachtest 41812897844](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41812897844)
 prüft die präzisere Gestenlokalisierung und explizite native Detail-Navigation;
 Core/Debug beider Architekturen bestanden, UI noch laufend.
+
+Die UI-Suite wird um einen 14. Test für die größte Dynamic-Type-Stufe erweitert:
+vergrößerter Dock, erreichbare/überlappungsfreie Tabflächen, Scrollen und Formular
+mit Tastatur. Bis zum neuen CI-Ergebnis bleibt diese Abnahme offen.

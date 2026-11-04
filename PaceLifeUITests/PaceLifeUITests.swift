@@ -9,9 +9,12 @@ final class PaceLifeUITests: XCTestCase {
     }
 
     @MainActor
-    private func launchFreshApp() -> XCUIApplication {
+    private func launchFreshApp(accessibilityText: Bool = false) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments = ["--uitesting"]
+        if accessibilityText {
+            app.launchArguments += ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"]
+        }
         app.launchEnvironment["PACE_UI_TEST_SESSION"] = UUID().uuidString
         app.launch()
         XCTAssertTrue(app.buttons["tab.today"].waitForExistence(timeout: 10))
@@ -369,6 +372,41 @@ final class PaceLifeUITests: XCTestCase {
         field.tap(); field.typeText("Paging editor")
         app.swipeLeft()
         XCTAssertTrue(app.buttons["cancelHabit"].exists)
+        app.buttons["cancelHabit"].tap()
+        assertTab("today", in: app)
+    }
+
+    @MainActor
+    func testLargestDynamicTypeKeepsDockAndEditorReachable() {
+        let app = launchFreshApp(accessibilityText: true)
+        let tabs = ["today", "development", "circles", "profile"]
+        let dock = app.otherElements["paceDock"]
+        XCTAssertGreaterThan(dock.frame.height, 100, "The accessibility text-size override must actually enlarge the dock")
+        for tab in tabs {
+            let button = app.buttons["tab." + tab]
+            XCTAssertTrue(button.isHittable)
+            XCTAssertGreaterThanOrEqual(button.frame.width, 44)
+            XCTAssertGreaterThanOrEqual(button.frame.height, 48)
+            XCTAssertTrue(app.frame.contains(button.frame))
+            button.tap(); assertTab(tab, in: app)
+            app.swipeUp()
+            XCTAssertTrue(button.isHittable)
+        }
+        for index in 0..<(tabs.count - 1) {
+            let left = app.buttons["tab." + tabs[index]].frame
+            let right = app.buttons["tab." + tabs[index + 1]].frame
+            XCTAssertLessThanOrEqual(left.maxX, right.minX, "Large labels must not overlap adjacent tab targets")
+        }
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = "pace-profile-accessibility-xxxl-light"; attachment.lifetime = .keepAlways; add(attachment)
+        app.buttons["tab.today"].tap()
+        let add = app.buttons["addHabit"]
+        reveal(add, in: app); add.tap()
+        let title = app.textFields["habitTitle"]
+        XCTAssertTrue(title.waitForExistence(timeout: 5))
+        title.tap(); title.typeText("Accessible habit")
+        XCTAssertTrue(app.buttons["saveHabit"].isHittable)
+        XCTAssertTrue(app.buttons["cancelHabit"].isHittable)
         app.buttons["cancelHabit"].tap()
         assertTab("today", in: app)
     }
