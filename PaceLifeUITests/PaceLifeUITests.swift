@@ -71,8 +71,10 @@ final class PaceLifeUITests: XCTestCase {
                 .withOffset(CGVector(dx: -30, dy: 0)).tap()
         }
         let changed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", expected), object: element)
-        XCTAssertEqual(XCTWaiter.wait(for: [changed], timeout: 3), .completed,
-                       "Switch must reach the requested state", file: file, line: line)
+        // Intel AX snapshots can themselves take longer than three seconds.
+        // Wait for the same required value; do not retry or toggle a second time.
+        XCTAssertEqual(XCTWaiter.wait(for: [changed], timeout: 10), .completed,
+                       "Switch must reach the requested state.\n" + element.debugDescription, file: file, line: line)
     }
 
     @MainActor
@@ -301,6 +303,7 @@ final class PaceLifeUITests: XCTestCase {
         let bar = app.navigationBars["Learn Russian"]
         XCTAssertTrue(bar.waitForExistence(timeout: 5), app.debugDescription)
         XCTAssertTrue(bar.buttons["Life Paths"].exists, app.debugDescription)
+        XCTAssertTrue(bar.buttons["Life Paths"].isHittable, app.debugDescription)
         // The modal navigation controller can be inset from the application frame.
         // Start at its own leading edge, below the bar, with an actual swipe.
         let edge = bar.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 1))
@@ -308,7 +311,9 @@ final class PaceLifeUITests: XCTestCase {
         let center = bar.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 1))
             .withOffset(CGVector(dx: 0, dy: 80))
         XCTAssertEqual(edge.screenPoint.x, bar.frame.minX + 2, accuracy: 0.5)
-        edge.press(forDuration: 0, thenDragTo: center, withVelocity: .default, thenHoldForDuration: 0)
+        // Use the brief finger contact from the original passing gesture. A
+        // zero-duration press did not reach the native recognizer's begin check.
+        edge.press(forDuration: 0.05, thenDragTo: center, withVelocity: .default, thenHoldForDuration: 0)
         XCTAssertTrue(app.buttons["addPath"].waitForExistence(timeout: 5), app.debugDescription)
         app.buttons["closePaths"].tap()
         assertTab("development", in: app)
@@ -445,13 +450,16 @@ final class PaceLifeUITests: XCTestCase {
                 ("development", "manageExperiments", "closeExperiments", "experiments")
             ] {
                 app.buttons["tab.\(tab)"].tap()
+                assertTab(tab, in: app)
                 let opener = app.buttons[open]
                 reveal(opener, in: app); opener.tap()
-                XCTAssertTrue(app.buttons[close].waitForExistence(timeout: 5))
+                XCTAssertTrue(app.buttons[close].waitForExistence(timeout: 5), app.debugDescription)
                 let attachment = XCTAttachment(screenshot: app.screenshot())
                 attachment.name = "pace-\(name)-\(theme == "Hell" ? "light" : "dark")"
                 attachment.lifetime = .keepAlways; add(attachment)
                 app.buttons[close].tap()
+                let dismissed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: app.buttons[close])
+                XCTAssertEqual(XCTWaiter.wait(for: [dismissed], timeout: 10), .completed, app.debugDescription)
             }
         }
     }

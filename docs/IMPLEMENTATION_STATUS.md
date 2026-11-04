@@ -164,3 +164,18 @@ auf Bootbereitschaft und prüft die Back-Regression zuerst. Erst danach läuft d
 unveränderte vollständige 14-Test-Suite. Das Budget beträgt wegen tatsächlich
 beobachteter Intel-Zeitabbrüche jetzt 60 Minuten; keine Tests werden entfernt.
 Die bisherigen grünen Modulnachweise bleiben oben separat.
+
+`6f7429d`, [CI 41825468558](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41825468558):
+Der vorgezogene Back-Test schlägt auf beiden Architekturen fehl; die vollständige
+Suite wird deshalb nicht gestartet. Apple-Silicon-Diagnose: `Ready; depth=2`, kein
+Aufruf der Begin-Prüfung beim synthetischen Nullzeit-Kontakt. Der nächste Nachlauf
+stellt den 50-ms-Kontakt des ursprünglich bestandenen Tests wieder her; Randkoordinaten,
+Rückkehr-/Tab-Assertions bleiben erhalten, der Back-Button muss zusätzlich hittable sein.
+
+Der Pager schließt inaktive Seiten explizit aus dem Accessibility-Baum aus. Der
+Screenshot-Test wartet auf Sheet-Dismissal und prüft vor jeder Modulöffnung den
+aktiven Tab. Die Schalterprüfung wartet auf denselben Sollwert bis zu zehn statt
+drei Sekunden, da Intel-AX-Abfragen allein bereits mehrere Sekunden benötigten;
+kein erneutes Umschalten, keine ersetzte Zustands- oder Persistenzprüfung.
+`34dff1e` auf Intel: 11/14 UI, zusätzlich Schalter-/Screenshot-Timeout, anschließender
+45-Minuten-Abbruch. Diese Ergebnisse sind keine grüne Gesamtabnahme.

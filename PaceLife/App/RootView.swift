@@ -23,10 +23,10 @@ struct RootView: View {
                 // Root pages have no push destinations: do not nest an unused
                 // navigation controller around the page controller.
                 TabView(selection: $tab) {
-                    HomeView().tag(RootTab.today)
-                    DevelopmentView().tag(RootTab.development)
-                    CirclesView().tag(RootTab.circles)
-                    ProfileView().tag(RootTab.profile)
+                    HomeView().tag(RootTab.today).accessibilityHidden(tab != .today)
+                    DevelopmentView().tag(RootTab.development).accessibilityHidden(tab != .development)
+                    CirclesView().tag(RootTab.circles).accessibilityHidden(tab != .circles)
+                    ProfileView().tag(RootTab.profile).accessibilityHidden(tab != .profile)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .background(PaceColor.background)
