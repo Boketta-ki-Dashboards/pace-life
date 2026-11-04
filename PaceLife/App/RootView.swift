@@ -17,20 +17,20 @@ struct RootView: View {
     var body: some View {
         Group {
             if model.loaded {
-                NavigationStack {
-                    // Native page gestures provide interactive tracking, cancellation,
-                    // velocity-aware settling and vertical scroll arbitration. Editors
-                    // and detail stacks are presented above this root in sheets.
-                    TabView(selection: $tab) {
-                        HomeView().tag(RootTab.today)
-                        DevelopmentView().tag(RootTab.development)
-                        CirclesView().tag(RootTab.circles)
-                        ProfileView().tag(RootTab.profile)
-                    }
-                    .tabViewStyle(.page(indexDisplayMode: .never))
-                    .background(PaceColor.background)
-                    .safeAreaInset(edge: .bottom, spacing: 0) { dock }
+                // Native page gestures provide interactive tracking, cancellation,
+                // velocity-aware settling and vertical scroll arbitration. Editors
+                // and detail stacks are presented above this root in sheets.
+                // Root pages have no push destinations: do not nest an unused
+                // navigation controller around the page controller.
+                TabView(selection: $tab) {
+                    HomeView().tag(RootTab.today)
+                    DevelopmentView().tag(RootTab.development)
+                    CirclesView().tag(RootTab.circles)
+                    ProfileView().tag(RootTab.profile)
                 }
+                .tabViewStyle(.page(indexDisplayMode: .never))
+                .background(PaceColor.background)
+                .safeAreaInset(edge: .bottom, spacing: 0) { dock }
             } else {
                 VStack(spacing: 24) {
                     PaceStatus(title: "Pace Life", message: model.text(.loadError), systemImage: "externaldrive.badge.exclamationmark")

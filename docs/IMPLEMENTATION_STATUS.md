@@ -28,7 +28,7 @@ Page-TabView liefert interaktive Fingerbewegung, Einrasten und Abbrechen. Dock u
 Pager teilen denselben Auswahlzustand. Der Dock bleibt außerhalb der scrollenden
 Seiten im unteren Safe-Area-Inset; mintfarbener Hintergrund, Icon und Text markieren
 die Auswahl. Vollständige Touch-Flächen, konstante Schriftstärke und Reduce Motion.
-Ein Root-NavigationStack, separate modale Detail-/Editor-Navigation; keine manuelle
+Root-Pager ohne ungenutzten äußeren Stack, separate modale Detail-/Editor-Navigation; keine manuelle
 Root-Drag-Geste. Schrift, Farben und Komponenten verwenden das bestehende Designsystem.
 
 Nachgewiesene UI-Tests prüfen schnelle/langsame Swipes, Abbrechen, vertikales
@@ -166,3 +166,9 @@ angeschnitten bei y=37, sichtbarer Bereich ab y=62). Für nahe Ziele verwendet s
 jetzt einen begrenzten langsamen Drag statt eines weiteren weiten Swipes. Die
 vollständige Viewport-Containment-Assertion und zwölf Versuche bleiben unverändert.
 Das ist eine Korrektur der Teststeuerung, kein bestandener Nachweis vor dem Nachlauf.
+
+`0c88d9a` auf Apple Silicon: 13/14 UI-Tests bestanden; größte Dynamic-Type-Stufe
+inklusive Scrollen/Formular/Tastatur jetzt erfolgreich. Back-Swipe bleibt offen.
+Der äußere Root-NavigationStack ohne eigene Push-Ziele wird entfernt; modale
+Stacks bleiben. Die native Back-Anbindung berücksichtigt nun Attachment und Layout
+im Fenster. Die bestehenden Randgesten-/Root-Auswahl-Assertions bleiben unverändert.

@@ -57,7 +57,7 @@ Ein aktiver Life Mode filtert seine ausgewählten Habits zusätzlich nach deren 
 
 ### Navigation
 
-Vier Root-Tabs mit festem, Safe-Area-geschütztem Dock; Editieren in nativen Sheets/Formularen. Der native SwiftUI-`TabView` mit Page-Stil übernimmt interaktives Root-Paging, Abbrechen und geschwindigkeitsabhängiges Einrasten. Die Auswahl bindet Seiten und Dock an denselben Zustand. Ein einzelner Root-NavigationStack enthält den Pager; Editor- und Detail-Sheets besitzen getrennte modale Navigation und empfangen keine Root-Gesten. Der Dock liegt außerhalb des Pagers im unteren Safe-Area-Inset. Die visuelle Abnahme aus VIDEO_REFERENCE.md bleibt erforderlich. Kein Backend-Listener und kein externes Auth-Lifecycle.
+Vier Root-Tabs mit festem, Safe-Area-geschütztem Dock; Editieren in nativen Sheets/Formularen. Der native SwiftUI-`TabView` mit Page-Stil übernimmt interaktives Root-Paging, Abbrechen und geschwindigkeitsabhängiges Einrasten. Die Auswahl bindet Seiten und Dock an denselben Zustand. Die vier Root-Seiten haben keine Push-Ziele und benötigen keinen äußeren NavigationStack. Editor- und Detail-Sheets besitzen getrennte modale Navigation und empfangen keine Root-Gesten. Der Dock liegt außerhalb des Pagers im unteren Safe-Area-Inset. Die visuelle Abnahme aus VIDEO_REFERENCE.md bleibt erforderlich. Kein Backend-Listener und kein externes Auth-Lifecycle.
 
 ### Schema 2 und Routine-Sessions
 
@@ -184,3 +184,10 @@ sichtbar ist, nur bei mehr als einem Controller und ohne laufenden Übergang.
 Der ursprüngliche Delegate und Enabled-Zustand werden beim Verlassen/Dismantle
 wiederhergestellt. Keine eigene Pan-Geste, kein globaler UIKit-Zugriff und kein
 Eingriff in Root-Paging. Der echte UI-Back-Swipe-Test bleibt die Abnahmebedingung.
+
+Nach dem weiterhin fehlgeschlagenen Path-Edge-Test entfällt der ungenutzte äußere
+Root-NavigationStack. Der Pager enthält ausschließlich Root-Seiten, modale Bereiche
+besitzen weiterhin ihre eigenen nativen Stacks. Der Back-Swipe-Adapter bindet sich
+bei Attachment/Layout/Appearance nur an einen tatsächlich im Fenster befindlichen
+Controller. Unter UI-Tests erhält dessen Navigation-View einen temporären AX-Identifier
+zur Diagnose; Gestenverhalten ist in Test und regulärer App identisch.
