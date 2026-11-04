@@ -76,6 +76,7 @@ struct PathDetail: View {
         .background(PaceColor.background).navigationTitle(path?.title ?? "Life Paths").navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)
         .navigationBarBackButtonHidden(false)
+        .background { NativeBackSwipe().frame(width: 0, height: 0).allowsHitTesting(false) }
         .sheet(isPresented: $editing) { if let path { PathEditor(path: path) } }
         .sheet(item: $recording) { PathEntryEditor(milestone: $0) }
     }

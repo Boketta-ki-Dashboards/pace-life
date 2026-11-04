@@ -155,3 +155,10 @@ Core/Debug beider Architekturen bestanden, UI noch laufend.
 Die UI-Suite wird um einen 14. Test für die größte Dynamic-Type-Stufe erweitert:
 vergrößerter Dock, erreichbare/überlappungsfreie Tabflächen, Scrollen und Formular
 mit Tastatur. Bis zum neuen CI-Ergebnis bleibt diese Abnahme offen.
+
+Nachtest `536b4cd`: 12/13 UI-Tests auf Apple Silicon bestanden. Der zusätzliche
+Accessibility-Baum bestätigt den sichtbaren nativen Back-Button; die präzise
+Randgeste bleibt trotzdem wirkungslos. Ein lokal begrenzter UIKit-Adapter stellt
+den nativen Interactive-Pop-Erkenner im Path-Detail bereit und restauriert dessen
+Konfiguration beim Verlassen. Unveränderte Swipe-/Root-Assertions, neuer CI-Lauf
+erforderlich. Dynamic-Type-Test ebenfalls noch in Prüfung.

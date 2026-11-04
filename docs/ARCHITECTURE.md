@@ -174,3 +174,13 @@ Messwerte. Korrekturen verwenden dieselbe Ableitung und können Path-Abschlüsse
 wieder öffnen; archivierte Vorlagen und historische Session-Snapshots bleiben
 erhalten. Schema 7 wird explizit übernommen. Der neue Writer verhindert, dass
 eine ältere App neue Quellen irrtümlich als manuelle Beiträge interpretiert.
+
+### Begrenzte native Back-Swipe-Anbindung
+
+Im Path-Detail zeigte iOS 18.5 einen nativen Back-Button, ignorierte aber in
+wiederholten UI-Läufen die Randgeste. `NativeBackSwipe` verwendet denselben
+`UINavigationController.interactivePopGestureRecognizer`: nur solange das Detail
+sichtbar ist, nur bei mehr als einem Controller und ohne laufenden Übergang.
+Der ursprüngliche Delegate und Enabled-Zustand werden beim Verlassen/Dismantle
+wiederhergestellt. Keine eigene Pan-Geste, kein globaler UIKit-Zugriff und kein
+Eingriff in Root-Paging. Der echte UI-Back-Swipe-Test bleibt die Abnahmebedingung.
