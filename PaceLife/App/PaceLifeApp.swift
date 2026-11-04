@@ -19,7 +19,8 @@ struct PaceLifeApp: App {
             }
         }
         #endif
-        _model = State(initialValue: AppModel(repository: JSONStateRepository(url: folder.appendingPathComponent("life.json"))))
+        _model = State(initialValue: AppModel(repository: JSONStateRepository(url: folder.appendingPathComponent("life.json")),
+            photos: FileChapterPhotoRepository(directory: folder.appendingPathComponent("photos", isDirectory: true))))
     }
 
     var body: some Scene {

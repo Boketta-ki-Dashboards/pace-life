@@ -91,14 +91,16 @@ struct ProfileView: View {
 struct DevelopmentView: View {
     @Environment(AppModel.self) private var model
     @State private var paths = false
+    @State private var chapters = false
     @State private var adaptive = false
     var body: some View {
         Page(title: model.text(.development)) {
             Button("Life Paths") { paths = true }.buttonStyle(PaceButtonStyle()).accessibilityIdentifier("managePaths")
             Button("Pace Adaptive") { adaptive = true }.buttonStyle(PaceButtonStyle(kind: .secondary))
-            future("Life Chapters", message: .chaptersDetail, icon: "book.closed")
+            Button("Life Chapters") { chapters = true }.buttonStyle(PaceButtonStyle(kind: .secondary)).accessibilityIdentifier("manageChapters")
             future("Life Experiments", message: .experimentsDetail, icon: "flask")
         }.sheet(isPresented: $paths) { PathsView() }
+            .sheet(isPresented: $chapters) { ChaptersView() }
             .sheet(isPresented: $adaptive) { AdaptiveView() }
     }
     private func future(_ title: String, message: Copy, icon: String) -> some View {

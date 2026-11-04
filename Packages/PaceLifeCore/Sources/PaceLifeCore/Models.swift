@@ -96,6 +96,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
 }
 
 public struct LifeState: Codable, Equatable, Sendable {
+    public var chapters: [LifeChapter]
     public var adaptivePlans: [DailyAdaptivePlan]
     public var paths: [LifePath]
     public var pathEntries: [PathEntry]
@@ -112,7 +113,8 @@ public struct LifeState: Codable, Equatable, Sendable {
     public init(habits: [Habit] = [], modes: [LifeMode] = [], completions: [HabitCompletion] = [],
                 activations: [ModeActivation] = [], activeModeID: UUID? = nil,
                 widgets: [HomeWidgetPreference] = HomeWidgetKind.allCases.map { HomeWidgetPreference(kind: $0) },
-                settings: AppSettings = AppSettings(), routines: [Routine] = [], routineSessions: [RoutineSession] = [], paths: [LifePath] = [], pathEntries: [PathEntry] = [], adaptivePlans: [DailyAdaptivePlan] = []) {
+                settings: AppSettings = AppSettings(), routines: [Routine] = [], routineSessions: [RoutineSession] = [], paths: [LifePath] = [], pathEntries: [PathEntry] = [], adaptivePlans: [DailyAdaptivePlan] = [], chapters: [LifeChapter] = []) {
+        self.chapters = chapters
         self.adaptivePlans = adaptivePlans
         self.paths = paths; self.pathEntries = pathEntries
         self.routines = routines; self.routineSessions = routineSessions

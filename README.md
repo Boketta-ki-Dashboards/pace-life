@@ -1,6 +1,6 @@
 # Pace Life — iOS
 
-Native, lokale SwiftUI-App für iPhone mit iOS 17+, Swift 6 und Xcode 16 oder neuer. Der Entwicklungsbranch implementiert Life Modes, Habits, eigenständige Routinen, Life Paths, Pace Adaptive, einen Wochen-/Monatskalender und einen modularen Homescreen. Die sieben langfristigen Module bleiben in [Roadmap](docs/ROADMAP.md) und [Produktspezifikation](docs/PRODUCT_SPEC.md) verankert.
+Native, lokale SwiftUI-App für iPhone mit iOS 17+, Swift 6 und Xcode 16 oder neuer. Der Entwicklungsbranch implementiert Life Modes, Habits, eigenständige Routinen, Life Paths, Pace Adaptive, einen Wochen-/Monatskalender, einen modularen Homescreen und private Life Chapters mit Fotos. Die sieben langfristigen Module bleiben in [Roadmap](docs/ROADMAP.md) und [Produktspezifikation](docs/PRODUCT_SPEC.md) verankert.
 
 ## In Xcode öffnen und auf dem iPhone testen
 
@@ -60,3 +60,10 @@ bearbeitet oder ihre Anpassung zurückgenommen werden.
 Kalender testen: Unter **Heute** das Kalender-Symbol öffnen, zwischen Woche und
 Monat wechseln und Tage auswählen. Historische Werte stammen aus gespeicherten
 Ergebnissen; Zukunftspläne sind ausdrücklich eine Vorschau mit dem aktuellen Mode.
+
+Life Chapters testen: **Entwicklung → Life Chapters → +**. Titel, Zeitraum,
+Kategorie und optional verknüpfte Paths speichern. Im Kapitel Fotos über den nativen
+Picker auswählen, eine Erinnerung bzw. einen Meilenstein anlegen und die App neu
+starten. Ein archivierter Path bleibt verknüpft. Kapitel lassen sich archivieren,
+wiederherstellen und nach Bestätigung löschen. Fotos bleiben privat im App-Container.
+Die vier Haupttabs unterstützen natives horizontales Paging und den festen Pace-Dock.

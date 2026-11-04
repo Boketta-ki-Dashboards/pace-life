@@ -359,4 +359,43 @@ final class PaceLifeUITests: XCTestCase {
         }
     }
 
+    @MainActor
+    func testChapterMemoryEditArchiveAndRelaunch() {
+        let app = launchFreshApp()
+        app.buttons["tab.development"].tap()
+        app.buttons["manageChapters"].tap(); app.buttons["addChapter"].tap()
+        let title = app.textFields["chapterTitle"]
+        XCTAssertTrue(title.waitForExistence(timeout: 5)); title.tap(); title.typeText("My graduation")
+        app.buttons["saveChapter"].tap()
+        let open = app.buttons["chapter.open.My graduation"]
+        XCTAssertTrue(open.waitForExistence(timeout: 5)); open.tap()
+        let add = app.buttons["addMemory"]
+        reveal(add, in: app); add.tap()
+        let memory = app.textFields["memoryTitle"]
+        XCTAssertTrue(memory.waitForExistence(timeout: 5)); memory.tap(); memory.typeText("Passed the exam")
+        app.buttons["saveMemory"].tap()
+        XCTAssertTrue(app.staticTexts["Passed the exam"].waitForExistence(timeout: 5))
+        app.terminate(); app.launch()
+        app.buttons["tab.development"].tap(); app.buttons["manageChapters"].tap()
+        XCTAssertTrue(open.waitForExistence(timeout: 5)); open.tap()
+        XCTAssertTrue(app.staticTexts["Passed the exam"].waitForExistence(timeout: 5))
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = "pace-chapters-detail-light"; attachment.lifetime = .keepAlways; self.add(attachment)
+        let archive = app.buttons["archiveChapter"]
+        reveal(archive, in: app); archive.tap()
+        app.terminate(); app.launch()
+        app.buttons["tab.development"].tap(); app.buttons["manageChapters"].tap()
+        XCTAssertFalse(open.exists)
+        setSwitch(app.switches["chapterArchive"], to: true)
+        XCTAssertTrue(open.waitForExistence(timeout: 5)); open.tap()
+        reveal(archive, in: app); archive.tap()
+        let edit = app.buttons["editChapter"]
+        reveal(edit, in: app); edit.tap()
+        XCTAssertTrue(title.waitForExistence(timeout: 5)); title.tap(); title.typeText(" day")
+        app.buttons["saveChapter"].tap()
+        app.terminate(); app.launch()
+        app.buttons["tab.development"].tap(); app.buttons["manageChapters"].tap()
+        XCTAssertTrue(app.buttons["chapter.open.My graduation day"].waitForExistence(timeout: 5))
+    }
+
 }

@@ -84,3 +84,27 @@ struct SchemaThreeState: Decodable {
         return result
     }
 }
+
+struct SchemaFourEnvelope: Decodable {
+    let schemaVersion: Int
+    let state: SchemaFourState
+}
+struct SchemaFourState: Decodable {
+    let habits: [Habit]
+    let modes: [LifeMode]
+    let completions: [HabitCompletion]
+    let activations: [ModeActivation]
+    let activeModeID: UUID?
+    let widgets: [HomeWidgetPreference]
+    let settings: AppSettings
+    let routines: [Routine]
+    let routineSessions: [RoutineSession]
+    let paths: [LifePath]
+    let pathEntries: [PathEntry]
+    let adaptivePlans: [DailyAdaptivePlan]
+    func migrated() -> LifeState {
+        LifeState(habits: habits, modes: modes, completions: completions, activations: activations,
+                  activeModeID: activeModeID, widgets: widgets, settings: settings, routines: routines,
+                  routineSessions: routineSessions, paths: paths, pathEntries: pathEntries, adaptivePlans: adaptivePlans)
+    }
+}

@@ -12,7 +12,7 @@ Remote-Commit anschließend überprüft. Keine Änderungen an Pace Social oder S
 | Life Modes | Bestehendes CRUD/manuelle Aktivierung/Habit-Auswahl erhalten. Eigenständige Routinen mit Mode-Zuordnung, Wochentagen, optionaler Uhrzeit, sortierbaren Schritten/Dauer, Teilabschluss, Pause/Fortsetzen, Tages-Snapshots, Archiv/Wiederherstellen und Home-Widget. | Automatische wiederkehrende Mode-Wechsel, Mode-Duplikation/Archiv, Tagesprioritäten und vollständige historische Habit-Planrevisionen. |
 | Life Paths | Mehrere Paths, Lebensbereich/Beschreibung/Zieldatum, binäre/Zähler/Minuten-Meilensteine, Tagesbeiträge oder Habit-Verknüpfung, nachvollziehbarer Fortschritt, Statuswechsel/Archiv, Verlauf und Home-Widget. | Routine-Beiträge, Titelbilder, historisch versionierte Änderungen einer Beitragsregel und umfassende Fortschrittsdiagramme. |
 | Pace Adaptive | Lokale deterministische Vorschläge aus Zeit/Energie/Belastung, geschützten Habits, Routine-Dauern und aktiven Paths; ausdrückliche Annahme/Ablehnung, individuelle Ziele, Rückgängig, Tageshistorie und Home-Widget. | Neuplanung eines schon eingefrorenen Tages, flexible Routine-Schritte, freie Prioritäten/Zeitfenster. |
-| Life Chapters | Noch nicht implementiert; Oberfläche kennzeichnet den Bereich als nicht verfügbar. | Private Chronik, Fotos/Dateiverwaltung, Erinnerungen und Path-Verknüpfungen. |
+| Life Chapters | Private Timeline, Titel/Text/Kategorie/Zeitraum, Path-Verknüpfung, Erinnerungen und persönliche Meilensteine, Bearbeiten/Archiv/Wiederherstellen/Löschen, native Fotoauswahl und separate lokale JPEG-Dateien; DE/EN/RU. | Simulator-Abnahme des neuen UI-Ablaufs und Fotoauswahl, Export. |
 | Life Experiments | Noch nicht implementiert; Oberfläche kennzeichnet den Bereich als nicht verfügbar. | Messgrößen, Check-ins, fehlende Daten, Diagramme und Auswertungen. |
 | Pace Circles | Vorhandener Unavailable-Service und ehrlicher Leerzustand. | Noch keine Gruppen/Challenges, auch kein lokaler Demo-Modus. |
 | Pace Connect | Vorhandene Capability-Protokolle melden nicht verfügbar; keine Netzwerkverbindung oder Identität wird vorgetäuscht. | Vollständige Adapter-/Berechtigungsarchitektur nach freigegebenem externen Vertrag. |
@@ -40,7 +40,7 @@ Die neuen Funktionen verwenden echte lokale Daten und DE/EN/RU-Texte.
 
 ## Persistenz und Migration
 
-Aktueller Writer: **Schema 4**. Separate DTOs lesen Schema 1, 2 und 3. Alle alten
+Aktueller Writer: **Schema 5** (Chapters). Separate DTOs lesen Schema 1, 2, 3 und 4. Alle alten
 UUIDs, Habits, Ziel-Snapshots, Erfüllungen, Modes/Aktivierungen, Widgets und
 Einstellungen bleiben erhalten. Neue Widgets werden bei Migration hinten und
 zunächst verborgen ergänzt. Lesen migriert ausschließlich im Speicher; erst ein
@@ -55,7 +55,7 @@ Abschlussdatum, das auch in den Path-Details angezeigt wird. Entkräftet eine
 spätere Korrektur diesen historischen Abschluss, wird das Datum entfernt, der
 Path bleibt aber archiviert. Einzelner MainActor-Writer,
 kein Mehrprozess-/Mehrgeräte-Sync. Große Datenmengen benötigen später einen
-Hintergrund- oder Datenbankadapter; Fotos sind noch nicht eingeführt.
+Hintergrund- oder Datenbankadapter; Fotos liegen als begrenzte, geschützte JPEG-Dateien außerhalb des JSON.
 
 ## Nachgewiesene Tests und CI
 
@@ -149,3 +149,23 @@ Lokale Umgebung: Linux, kein Xcode/Simulator. Die neuen UI-Tests und Screenshots
 sind bis zum Abschluss der commitbezogenen macOS-CI **nicht verifiziert**.
 Die 37 zuvor bestätigten Core- und acht UI-Tests gelten weiterhin nur für den
 oben genannten alten Code-Commit. Visueller Videoabgleich ausstehend.
+
+### Life Chapters – implementiert, iOS-Abnahme läuft
+
+42 Core-XCTest-Tests unter Swift 6.0.3/Linux bestanden (0 Fehler), darunter fünf
+neue Chapter-/Medien-/Schema-4-Migrationstests. Alle bisherigen Tests bleiben
+aktiv. Projektgenerator und Swift-Syntaxprüfung bestanden; kein lokaler SDK-Build.
+Schema 5 verlangt `chapters`; ältere Daten bekommen ausschließlich eine leere
+Chronik. Historie und Widget-Reihenfolge bleiben unverändert.
+
+Fotos werden über PhotosPicker ausgewählt, auf maximal 1600 Pixel heruntergerechnet
+und ohne originale EXIF-/GPS-Metadaten als JPEG gespeichert (maximal 12 MiB/Datei).
+Ein abgebrochener Picker erzeugt keinen Eintrag. Dateien werden vor JSON-Referenzen
+atomar geschrieben. Bei fehlgeschlagenem JSON-Schreiben wird nur die neue Datei
+entfernt. Löschen von Referenzen erfolgt vor Dateibereinigung; Archive und weitere
+Kapitel behalten ihre Fotos. Fehlende/defekte Bilder erscheinen als nicht verfügbar.
+Ein Dateibereinigungsfehler wird sichtbar und kann erneut versucht werden.
+
+Neuer UI-Test: Kapitel → Erinnerung → Neustart → Archiv → Neustart →
+Wiederherstellen → Bearbeiten → Neustart. Die native Auswahl echter Fotos und
+Photo-Library-Abbruch sind noch nicht durch einen Simulatorlauf nachgewiesen.

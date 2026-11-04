@@ -127,3 +127,17 @@ trennt gespeicherte Fakten von Planung: vergangene Pläne sind `nil` (unbekannt)
 heutige Pläne verwenden den aktuellen Mode, Zukunft ist eine gekennzeichnete
 Vorschau. Routine-Sessions und Adaptive-Originale bleiben historisch nachvollziehbar.
 Diese Ansicht ersetzt keine noch ausstehenden Habit-Planrevisionen.
+
+### Schema 5: Life Chapters und private Fotodateien
+
+`LifeChapter` enthält Zeitraum, Kategorie, Path-IDs (einschließlich archivierter
+Paths), Erinnerungen/Meilensteine, Zeitstempel und Foto-UUIDs. Es gibt kein öffentliches
+Sichtbarkeitsfeld. `SchemaFourState` erhält alle alten Felder und ergänzt eine leere
+Chronik; aktuelle Pflichtfelder werden streng gelesen.
+`ChapterPhotoRepository` trennt Medien vom JSON. Der File-Adapter akzeptiert nur
+UUID-Dateinamen, begrenzt Dateigrößen, prüft reguläre Dateien und verwendet atomare
+Writes mit vollständigem iOS-Dateischutz. Import speichert die Datei vor der
+Referenz; Fehler entfernen nur die gerade erzeugte Datei. Nach erfolgreicher
+Mutation bereinigt AppModel nicht mehr referenzierte Fotos, unter Einschluss aller
+Archive. Fehlende Fotos verhindern nicht das Laden der Chronik. Der iOS-Adapter
+verkleinert Bilder und entfernt Originalmetadaten durch erneutes JPEG-Encoding.

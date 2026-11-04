@@ -9,11 +9,14 @@ final class AppModel {
     private(set) var state = LifeState()
     private(set) var loaded = false
     var saveFailed = false
+    var photoFailed = false
+    @ObservationIgnored let photos: any ChapterPhotoRepository
     var today = Date()
     @ObservationIgnored private var store: LifeStore?
     @ObservationIgnored private let repository: any StateRepository
 
-    init(repository: any StateRepository) {
+    init(repository: any StateRepository, photos: any ChapterPhotoRepository) {
+        self.photos = photos
         self.repository = repository
         reload()
     }
