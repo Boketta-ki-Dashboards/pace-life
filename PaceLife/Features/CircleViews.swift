@@ -126,7 +126,7 @@ struct CircleChallengeDetail: View {
                     Label(model.circleText(.localDemo), systemImage: "iphone").font(.footnote)
                     PaceProgressRing(progress: progress.total / challenge.target, value: model.number(progress.total) + " / " + model.number(challenge.target), label: challenge.kind == .duration ? model.text(.minutes) : challenge.unit)
                     HStack(alignment: .firstTextBaseline) {
-                        Text(model.text(.progress))
+                        Text(model.circleText(.total))
                         Spacer()
                         Text(model.number(progress.total)).accessibilityIdentifier("circleTotal")
                     }

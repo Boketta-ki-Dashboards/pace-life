@@ -603,6 +603,7 @@ final class PaceLifeUITests: XCTestCase {
         app.buttons["saveChallenge"].tap()
         let challenge = app.buttons["challenge.open.Study together"]
         XCTAssertTrue(challenge.waitForExistence(timeout: 5)); challenge.tap()
+        XCTAssertTrue(app.staticTexts["Gemeinsamer Fortschritt"].exists, "The total covers the shared challenge, not a personal daily goal")
         let record = app.buttons["recordCircleContribution"]
         reveal(record, in: app); record.tap()
         let value = app.textFields["circleContributionValue"]

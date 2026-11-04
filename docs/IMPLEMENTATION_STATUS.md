@@ -163,3 +163,13 @@ Der existierende Freigabe-/Widerrufstest prüft weiterhin genau denselben Wert;
 kein Test-Identifier oder erwarteter Beitrag wurde verändert. Syntax-/Diff-Prüfung
 bestanden, vollständiger iOS-Nachlauf folgt. Die bisherige Circle-Aufnahme bleibt
 bis zum neuen echten Export ausdrücklich dem älteren Quell-Commit zugeordnet.
+
+Die echte Nachaufnahme von `531286e` zeigte, dass der wiederverwendete Home-Text
+„Dein Tagesfortschritt“ für die Challenge-Gesamtsumme sachlich falsch ist. Die
+Beschriftung erhält deshalb einen eigenen Circle-Schlüssel: „Gemeinsamer
+Fortschritt“ / „Shared progress“ / „Общий прогресс“. Der bestehende Circle-UI-Test
+prüft diese Bedeutung zusätzlich zu Privat/Freigabe/Widerruf und Neustart.
+Die fehlerhaft beschriftete Zwischenaufnahme wird nicht in die Galerie übernommen.
+`531286e` besteht auf Apple Silicon mit 54 Core-/15 UI-Tests und Debug/Release;
+Intel scheiterte im vorgezogenen Navigation-/Foto-Schritt. Dessen vollständige
+Jobdiagnose steht noch aus; keine neue grüne Intel-Abnahme wird behauptet.
