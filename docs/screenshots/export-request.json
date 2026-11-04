@@ -1,8 +1,8 @@
 {
-  "run_id": 41837583213,
-  "source_commit": "dfd03d707bb2e02b2cc6788493f8046443d81407",
+  "run_id": 41844363838,
+  "source_commit": "531286eabb42ecd6844a375330727d7c8604e0a7",
   "artifact_name": "ios-evidence-macos-15",
   "screenshots": [
-    "pace-profile-accessibility-xxxl-light"
+    "pace-circle-challenge-light"
   ]
 }
