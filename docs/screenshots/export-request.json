@@ -1,0 +1,18 @@
+{
+  "run_id": 41829938956,
+  "source_commit": "b6e87808a0704108e83db402bfb38d33f429aa80",
+  "artifact_name": "ios-evidence-macos-15",
+  "screenshots": [
+    "pace-today-light",
+    "pace-today-dark",
+    "pace-modes-light",
+    "pace-paths-light",
+    "pace-adaptive-light",
+    "pace-chapters-detail-light",
+    "pace-experiments-detail-light",
+    "pace-circle-challenge-light",
+    "pace-profile-light",
+    "pace-profile-dark",
+    "pace-profile-accessibility-xxxl-light"
+  ]
+}
