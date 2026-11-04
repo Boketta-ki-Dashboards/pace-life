@@ -50,3 +50,21 @@ mit weiteren Fotoformaten bleibt offen.
 Die [eingecheckten Simulatoraufnahmen](screenshots/README.md) wurden tatsächlich
 visuell geöffnet und geprüft. Das ersetzt keine vollständige Abnahme von
 VoiceOver, sämtlichen Displaygrößen/Sprachen, Originalvideos und echten iPhones.
+
+## Beobachteter Intel-Simulatorfehler
+
+Im Intel-Job `126623892131` von [Lauf 41844363838](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41844363838)
+blieb der native Fotodialog nach Abbruch und erneutem Öffnen in
+`PUPickerUnavailableView` mit ActivityIndicator „Laden …“. Der Test scheiterte an
+der fehlenden „Hinzufügen“-Schaltfläche, bevor ein Foto ausgewählt/importiert wurde.
+Das Accessibility-Protokoll zeigte zuvor auch einen vorübergehend ungültigen
+Hit-Point des nativen Abbrechen-Buttons. Zurückgeste, Core und Debug/Release bestanden;
+die vollständige UI-Suite wurde nach dem fehlgeschlagenen Vorabtest nicht gestartet.
+
+Dieser Befund ist keine bestandene Fotoabnahme für den betroffenen Job und kein
+Nachweis eines JSON-/Foto-Dateifehlers. Vorherige vollständige Läufe bestanden auf
+beiden Architekturen. Der unveränderte Foto-Test wird auf einem frischen Runner
+wiederholt; keine Dummy-Auswahl, kein Überspringen und keine gelockerte Assertion.
+Bei erneuter Reproduktion Simulator-/Photos-Dienstprotokolle und anschließend ein
+physisches Gerät prüfen. Einen allgemeinen iPhone-Fotofehler oder dessen Behebung
+nicht allein aus einem Simulatorlauf ableiten.
