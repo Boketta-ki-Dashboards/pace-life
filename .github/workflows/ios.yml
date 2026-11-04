@@ -1,6 +1,11 @@
 name: Pace Life checks
 on:
   push:
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+      - '.github/workflows/screenshot-evidence.yml'
+      - 'scripts/export-screenshot-evidence.py'
   pull_request:
 permissions:
   contents: read

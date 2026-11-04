@@ -1,0 +1,31 @@
+name: Simulator screenshot evidence
+on:
+  push:
+    branches: [codex/pace-life-offline-beta]
+    paths: [docs/screenshots/export-request.json]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  export:
+    if: github.repository == 'Boketta-ki-Dashboards/pace-life'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Verify source run
+        id: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/export-screenshot-evidence.py --request docs/screenshots/export-request.json --github-output "$GITHUB_OUTPUT"
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ steps.source.outputs.run_id }}
+          name: ${{ steps.source.outputs.artifact_name }}
+          path: ${{ runner.temp }}/pace-screenshot-source
+      - name: Export selected unmodified simulator PNGs
+        run: python3 scripts/export-screenshot-evidence.py --request docs/screenshots/export-request.json --artifacts "$RUNNER_TEMP/pace-screenshot-source"
