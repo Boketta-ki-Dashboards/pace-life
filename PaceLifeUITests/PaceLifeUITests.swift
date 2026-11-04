@@ -302,4 +302,61 @@ final class PaceLifeUITests: XCTestCase {
         XCTAssertEqual(app.staticTexts["adaptive.progress.Study"].label, "30 / 30")
     }
 
+    @MainActor
+    private func assertTab(_ name: String, in app: XCUIApplication,
+                           file: StaticString = #filePath, line: UInt = #line) {
+        let selected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "isSelected == true"),
+                                                 object: app.buttons["tab.\(name)"])
+        XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 5), .completed, file: file, line: line)
+    }
+
+    @MainActor
+    func testNativePagingDirectionCancellationAndVerticalScroll() {
+        let app = launchFreshApp()
+        let dockFrame = app.buttons["tab.today"].frame
+        app.swipeLeft(velocity: .slow)
+        assertTab("development", in: app)
+        XCTAssertTrue(app.buttons["managePaths"].isHittable)
+        app.swipeLeft(velocity: .fast)
+        assertTab("circles", in: app)
+        app.swipeRight(velocity: .slow)
+        assertTab("development", in: app)
+        // A short, slowly released drag must settle back to the current page.
+        let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.7, dy: 0.45))
+        let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.66, dy: 0.45))
+        start.press(forDuration: 0.05, thenDragTo: end, withVelocity: .slow, thenHoldForDuration: 0.5)
+        assertTab("development", in: app)
+        app.swipeUp()
+        assertTab("development", in: app)
+        XCTAssertEqual(app.buttons["tab.today"].frame.minY, dockFrame.minY, accuracy: 1)
+        app.buttons["tab.today"].tap()
+        assertTab("today", in: app)
+        reveal(app.buttons["addHabit"], in: app)
+        app.buttons["addHabit"].tap()
+        let field = app.textFields["habitTitle"]
+        XCTAssertTrue(field.waitForExistence(timeout: 5))
+        field.tap(); field.typeText("Paging editor")
+        app.swipeLeft()
+        XCTAssertTrue(app.buttons["cancelHabit"].exists)
+        app.buttons["cancelHabit"].tap()
+        assertTab("today", in: app)
+    }
+
+    @MainActor
+    func testReferenceScreenshotsLightAndDark() {
+        let app = launchFreshApp()
+        for theme in ["Hell", "Dunkel"] {
+            app.buttons["tab.profile"].tap()
+            let picker = app.buttons["theme"]
+            reveal(picker, in: app); picker.tap(); app.buttons[theme].tap()
+            for tab in ["today", "development", "circles", "profile"] {
+                app.buttons["tab.\(tab)"].tap(); assertTab(tab, in: app)
+                let attachment = XCTAttachment(screenshot: app.screenshot())
+                attachment.name = "pace-\(tab)-\(theme == "Hell" ? "light" : "dark")"
+                attachment.lifetime = .keepAlways
+                add(attachment)
+            }
+        }
+    }
+
 }

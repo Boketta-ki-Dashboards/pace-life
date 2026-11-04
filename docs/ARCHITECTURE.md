@@ -67,7 +67,7 @@ Ein aktiver Life Mode filtert seine ausgewählten Habits zusätzlich nach deren 
 
 ### Navigation
 
-Vier Root-Tabs mit festem, Safe-Area-geschütztem Dock; Editieren in nativen Sheets/Formularen. Im ersten Abschnitt kein horizontales Root-Paging, damit Widget-Reordering, vertikales Scrollen und Texteingabe nicht mit einer eigenen Root-Geste konkurrieren. Der spätere Paging-Ausbau benötigt die Abnahme aus VIDEO_REFERENCE.md. Kein Backend-Listener und kein externes Auth-Lifecycle.
+Vier Root-Tabs mit festem, Safe-Area-geschütztem Dock; Editieren in nativen Sheets/Formularen. Der native SwiftUI-`TabView` mit Page-Stil übernimmt interaktives Root-Paging, Abbrechen und geschwindigkeitsabhängiges Einrasten. Die Auswahl bindet Seiten und Dock an denselben Zustand. Ein einzelner Root-NavigationStack enthält den Pager; Editor- und Detail-Sheets besitzen getrennte modale Navigation und empfangen keine Root-Gesten. Der Dock liegt außerhalb des Pagers im unteren Safe-Area-Inset. Die visuelle Abnahme aus VIDEO_REFERENCE.md bleibt erforderlich. Kein Backend-Listener und kein externes Auth-Lifecycle.
 
 ### Schema 2 und Routine-Sessions
 

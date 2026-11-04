@@ -1,6 +1,6 @@
 # Pace Life – Implementierungs- und Prüfstand
 
-Stand: **3. November 2026**. Entwicklungsbranch: `codex/pace-life-offline-beta`.
+Stand: **4. November 2026**. Entwicklungsbranch: `codex/pace-life-offline-beta`.
 Ausgangspunkt dieses Durchlaufs war der auf GitHub verifizierte Commit `232cd520`.
 Alle abgeschlossenen Abschnitte wurden einzeln committet, sofort gepusht und der
 Remote-Commit anschließend überprüft. Keine Änderungen an Pace Social oder Supabase.
@@ -106,8 +106,7 @@ im Widget-Editor gezielt aktiviert, statt dauerhaft aktiv zu sein.
    Habit-Wochenplan und ist keine historische Rekonstruktion.
 3. Chapters/Fotos, Experiments und lokale Circles als nächste echte Module bauen;
    danach Connect gemäß freigegebenem Vertrag. Keine produktive Auth-Anbindung.
-4. Backup/Export/Import, lokale Benachrichtigungen und horizontales Root-Paging
-   fehlen. Der Kalender ist eine Ansicht, kein Drag-and-drop-Planer.
+4. Backup/Export/Import und lokale Benachrichtigungen fehlen. Der Kalender ist eine Ansicht, kein Drag-and-drop-Planer.
 5. Klein/groß, Light/Dark, größte Dynamic-Type-Stufen, VoiceOver, Tastatur,
    Safe Areas, Swipe-Back und Widget-Reordering auf Gerät visuell abnehmen.
 
@@ -136,3 +135,17 @@ Formular bestätigt und zurück zum Habit gescrollt: Die Home-Scrollposition ble
 beim Schließen eines Sheets erhalten, und außerhalb des sichtbaren Bereichs können
 Elemente auch im Accessibility-Baum fehlen. Alle acht UI-Tests bestehen mit
 `76e0572` auf beiden Mac-Architekturen.
+
+## Entwicklung am 4. November: natives Root-Paging
+
+Ausgangspunkt: Remote-HEAD `74931679`. Die vier bestehenden Tabs verwenden jetzt
+natives interaktives SwiftUI-Page-Paging mit gemeinsamem Auswahlzustand und festem
+Safe-Area-Dock. Tippen berücksichtigt Reduce Motion. Keine manuelle Root-Drag-Geste.
+Neue UI-Tests prüfen Richtung, schnelle/langsame Swipes, kurzen abgebrochenen Swipe,
+vertikales Scrollen, feste Dock-Position und Texteingabe im modalen Editor.
+Light-/Dark-Screenshots werden als echte XCTAttachments erzeugt.
+
+Lokale Umgebung: Linux, kein Xcode/Simulator. Die neuen UI-Tests und Screenshots
+sind bis zum Abschluss der commitbezogenen macOS-CI **nicht verifiziert**.
+Die 37 zuvor bestätigten Core- und acht UI-Tests gelten weiterhin nur für den
+oben genannten alten Code-Commit. Visueller Videoabgleich ausstehend.

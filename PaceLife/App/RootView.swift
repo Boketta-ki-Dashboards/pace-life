@@ -10,6 +10,7 @@ private enum RootTab: String, CaseIterable {
 struct RootView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ScaledMetric(relativeTo: .caption) private var tabFont: CGFloat = 13
     @State private var tab: RootTab = .today
 
@@ -17,14 +18,16 @@ struct RootView: View {
         Group {
             if model.loaded {
                 NavigationStack {
-                    Group {
-                        switch tab {
-                        case .today: HomeView()
-                        case .development: DevelopmentView()
-                        case .circles: CirclesView()
-                        case .profile: ProfileView()
-                        }
+                    // Native page gestures provide interactive tracking, cancellation,
+                    // velocity-aware settling and vertical scroll arbitration. Editors
+                    // and detail stacks are presented above this root in sheets.
+                    TabView(selection: $tab) {
+                        HomeView().tag(RootTab.today)
+                        DevelopmentView().tag(RootTab.development)
+                        CirclesView().tag(RootTab.circles)
+                        ProfileView().tag(RootTab.profile)
                     }
+                    .tabViewStyle(.page(indexDisplayMode: .never))
                     .background(PaceColor.background)
                     .safeAreaInset(edge: .bottom, spacing: 0) { dock }
                 }
@@ -44,7 +47,9 @@ struct RootView: View {
     private var dock: some View {
         HStack(alignment: .center, spacing: 4) {
             ForEach(RootTab.allCases, id: \.self) { item in
-                Button { tab = item } label: {
+                Button {
+                    withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.25)) { tab = item }
+                } label: {
                     VStack(spacing: 4) {
                         Image(systemName: item.icon).font(.system(size: 20))
                         Text(model.text(item.copy)).font(.system(size: tabFont, weight: tab == item ? .semibold : .regular))
