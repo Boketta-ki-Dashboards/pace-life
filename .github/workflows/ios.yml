@@ -40,8 +40,8 @@ jobs:
       - name: iOS simulator build
         id: simulator_build
         run: scripts/test-ios.sh build-for-testing
-      - name: Native back navigation regression
-        run: scripts/test-ios.sh test-navigation
+      - name: Native navigation and photo regressions
+        run: scripts/test-ios.sh test-regressions
       - name: iOS UI tests
         run: scripts/test-ios.sh test-without-building
       - name: Export actual simulator screenshots

@@ -26,6 +26,12 @@ xcodebuild -project PaceLife.xcodeproj -scheme PaceLife \
 scripts/test-ios.sh
 ```
 
+Das Testskript fügt ein ausdrücklich synthetisches Testbild zur gewählten
+Simulator-Fotomediathek hinzu, damit der native Foto-Picker automatisiert geprüft
+werden kann. Bestehende Fotos bleiben erhalten. Für direkt in Xcode gestartete
+UI-Tests zuerst die [Foto-Testdatei](PaceLifeUITests/Fixtures/README.md) im gewählten
+Simulator bereitstellen. Die normale App benötigt diese Datei nicht.
+
 Das Xcode-Projekt ist eingecheckt. Nach Hinzufügen/Entfernen von Swift-Dateien lässt es sich mit `python3 scripts/generate_project.py` reproduzierbar aktualisieren. [GitHub Actions](.github/workflows/ios.yml) enthält Core-Tests sowie einen macOS-Simulator-Build mit UI-Tests. Ein angelegter Workflow ist noch kein bestandener Lauf. Tatsächliche Ergebnisse und offene Gerätetests stehen in [IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md).
 
 ## Architektur und Datenschutz

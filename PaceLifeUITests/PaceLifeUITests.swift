@@ -504,6 +504,56 @@ final class PaceLifeUITests: XCTestCase {
     }
 
     @MainActor
+    func testChapterPhotoPickerCancelImportRemovalAndRelaunch() {
+        let app = launchFreshApp()
+        app.buttons["tab.development"].tap(); app.buttons["manageChapters"].tap()
+        app.buttons["addChapter"].tap()
+        let title = app.textFields["chapterTitle"]
+        XCTAssertTrue(title.waitForExistence(timeout: 5)); title.tap(); title.typeText("Photo test")
+        app.buttons["saveChapter"].tap()
+        let open = app.buttons["chapter.open.Photo test"]
+        XCTAssertTrue(open.waitForExistence(timeout: 5)); open.tap()
+        let picker = app.buttons["addChapterPhotos"]
+        reveal(picker, in: app); picker.tap()
+        let cancel = app.navigationBars.buttons.matching(NSPredicate(format: "label IN %@", ["Cancel", "Abbrechen", "Отменить", "Отмена"] as NSArray)).firstMatch
+        XCTAssertTrue(cancel.waitForExistence(timeout: 10), app.debugDescription); cancel.tap()
+        let cancelled = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: cancel)
+        XCTAssertEqual(XCTWaiter.wait(for: [cancelled], timeout: 10), .completed, app.debugDescription)
+        let photo = app.images.matching(NSPredicate(format: "identifier BEGINSWITH %@", "chapter.photo.")).firstMatch
+        let remove = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "chapter.removePhoto.")).firstMatch
+        XCTAssertTrue(picker.waitForExistence(timeout: 5)); XCTAssertFalse(remove.exists)
+
+        picker.tap()
+        let add = app.navigationBars.buttons.matching(NSPredicate(format: "label BEGINSWITH %@ OR label BEGINSWITH %@ OR label BEGINSWITH %@", "Add", "Hinzufügen", "Добавить")).firstMatch
+        XCTAssertTrue(add.waitForExistence(timeout: 10), app.debugDescription)
+        // scripts/test-ios.sh adds an explicitly synthetic PNG fixture to the
+        // simulator's Photos library. No private or remote photos are required.
+        let cell = app.collectionViews.cells.firstMatch
+        XCTAssertTrue(cell.waitForExistence(timeout: 10), app.debugDescription); cell.tap()
+        let selected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "enabled == true"), object: add)
+        XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 10), .completed, app.debugDescription)
+        add.tap()
+        XCTAssertTrue(photo.waitForExistence(timeout: 10), app.debugDescription)
+        XCTAssertTrue(remove.exists)
+        app.terminate(); app.launch()
+        app.buttons["tab.development"].tap(); app.buttons["manageChapters"].tap()
+        XCTAssertTrue(open.waitForExistence(timeout: 5)); open.tap()
+        XCTAssertTrue(photo.waitForExistence(timeout: 10), app.debugDescription)
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = "pace-chapters-photo-test-fixture-light"
+        attachment.lifetime = .keepAlways; self.add(attachment)
+        reveal(remove, in: app); remove.tap()
+        let removed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: remove)
+        XCTAssertEqual(XCTWaiter.wait(for: [removed], timeout: 10), .completed, app.debugDescription)
+        XCTAssertFalse(photo.exists)
+        app.terminate(); app.launch()
+        app.buttons["tab.development"].tap(); app.buttons["manageChapters"].tap()
+        XCTAssertTrue(open.waitForExistence(timeout: 5)); open.tap()
+        XCTAssertTrue(picker.waitForExistence(timeout: 5))
+        XCTAssertFalse(remove.exists); XCTAssertFalse(photo.exists)
+    }
+
+    @MainActor
     func testExperimentMeasurementCorrectionAndRelaunch() {
         let app = launchFreshApp()
         app.buttons["tab.development"].tap(); app.buttons["manageExperiments"].tap(); app.buttons["addExperiment"].tap()

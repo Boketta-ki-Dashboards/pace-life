@@ -124,10 +124,11 @@ struct ChapterDetail: View {
                         if let image = model.chapterPhoto(id) {
                             Image(uiImage: image).resizable().scaledToFit().frame(maxHeight: 280)
                                 .accessibilityLabel(model.chapterText(.photos))
+                                .accessibilityIdentifier("chapter.photo." + id.uuidString)
                         } else { Label(model.chapterText(.missingPhoto), systemImage: "photo.badge.exclamationmark") }
                         Button(model.chapterText(.removePhoto), role: .destructive) {
                             var updated = chapter; updated.photoIDs.removeAll { $0 == id }; _ = model.saveChapter(updated)
-                        }
+                        }.accessibilityIdentifier("chapter.removePhoto." + id.uuidString)
                     }
                 }
             }

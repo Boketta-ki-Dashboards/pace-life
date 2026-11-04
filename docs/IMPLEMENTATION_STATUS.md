@@ -90,8 +90,8 @@ bestanden. Linux ersetzt keine iOS-SDK-Typprüfung.
 | `161cecb` | Lokale Circles. [CI 41810190437](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41810190437): 50 Core und Simulator-Builds beider Architekturen bestanden. Apple Silicon: 12/13 UI; neuer Back-Swipe-Test fehlgeschlagen, Circle-Test und Screenshot-Test bestanden. |
 | `50dd2dd` | Routine-Paths, Schema 8. [CI 41810514373](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41810514373): Beide Architekturen vollständig bestanden: 53 Core, 13 UI, Debug/Release und Screenshot-Export. |
 
-Die Suite enthält inzwischen 14 UI-Tests: bestehende acht Regressionen plus Paging,
-Screenshots, Chapters, Experiments, lokale Circles und größte Dynamic-Type-Stufe. Der Routine-Test umfasst
+Die Suite enthält inzwischen 15 UI-Tests: bestehende acht Regressionen plus Paging,
+Screenshots, Chapters, Experiments, lokale Circles, größte Dynamic-Type-Stufe und native Fotoauswahl. Der Routine-Test umfasst
 jetzt auch die Path-Quellenauswahl und Wiederherstellung. Die neuen Abläufe werden
 nicht allein aufgrund bestandener Core-Tests als simulatorverifiziert bezeichnet.
 
@@ -186,3 +186,15 @@ Suite läuft. Für den folgenden Nachlauf werden die erfolglosen UIKit-Delegate-
 Eingriffe vollständig entfernt, ebenso die seit Entfernen des äußeren Stacks
 unnötige Root-Toolbar-Ausblendung. Die native SwiftUI-Zurücknavigation muss dieselben
 unveränderten Ergebnis-Assertions bestehen. Kein neuer Gesamt-Erfolg vor diesem Nachweis.
+
+`b6e8780`, [CI 41829938956](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41829938956):
+Der vorgezogene Back-Test besteht auf Apple Silicon auch ohne UIKit-Anbindung;
+die vollständige Suite läuft. Native Stacks und ein kurzer realer Testkontakt
+bleiben erhalten, kein Delegate-Override wurde wieder eingeführt.
+
+Der nächste kleine QA-Abschnitt ergänzt einen 15. UI-Test für native PhotosPicker-
+Auswahl, Abbruch, Import, Neustart und Entfernen mit erneutem Neustart. Das Bild ist
+eine ausdrücklich synthetische, metadatenfreie Simulator-Testdatei, kein Mockup der
+App. Es werden keine privaten Fotos benötigt und keine vorhandenen Simulatorfotos
+gelöscht. Die App erhält lediglich stabile Test-Identifier an vorhandenen Bildern
+und Entfernen-Buttons. Ein bestandener nativer Foto-Test wird erst nach CI behauptet.
