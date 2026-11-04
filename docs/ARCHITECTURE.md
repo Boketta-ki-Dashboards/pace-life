@@ -1,33 +1,23 @@
 # Pace Life – Architektur
-## Zielstack
-Native SwiftUI iOS17+, Swift 6 wenn unterstützt, `@Observable`, strukturierte Concurrency, Dependency Injection und lokale Persistenz (SwiftData oder klar begründete Alternative). Keine direkte Backendlogik in Views.
+## Implementierter Stack und Struktur
+Native SwiftUI, iOS 17+, Swift 6, `@MainActor @Observable AppModel`, Dependency
+Injection und versionierter atomarer JSON-Store. Keine direkte Backendlogik in Views.
 
-Mögliche Struktur:
 ```
 PaceLife/
-  PaceLifeApp.swift
-  AppDependencies.swift
-  Packages/PaceLifeKit/
-    Sources/PaceLifeCore/
-    Sources/PaceLifeDesignSystem/
-    Sources/PaceLifeBackend/
-    Sources/AppFeature/
-    Sources/HomeFeature/
-    Sources/HabitsFeature/
-    Sources/RoutinesFeature/
-    Sources/ModesFeature/
-    Sources/PathsFeature/
-    Sources/AdaptiveFeature/
-    Sources/ChaptersFeature/
-    Sources/ExperimentsFeature/
-    Sources/CirclesFeature/
-    Sources/ConnectFeature/
-    Sources/ProfileFeature/
-    Tests/
+  App/                 # Composition Root, AppModel, RootView, Foto-Adapter
+  Features/            # Native Screens und Formulare
+  DesignSystem/        # Semantische Pace-Farben und Komponenten
+  Localization/        # Typisierte DE/EN/RU-Texte
+Packages/PaceLifeCore/
+  Sources/PaceLifeCore/ # Domain, Use Cases, Repository, explizite Migrationen
+  Tests/               # Domain-/Persistenz-/Integrationstests und Legacy-Fixture
+PaceLifeUITests/        # Isolierte echte Simulatorabläufe
 ```
-An Struktur bestehender, im neuen Repository vorhandener Komponenten anpassen.
 
-Views -> ViewModels/Use Cases -> Domain-Repository-Protokolle -> lokale / spätere Supabase-Adapter. Composition Root für Services. Test-Doubles ohne Netz. Die lokale Dateimigration ist implementiert. Backend-Schemata und Supabase-Migrationen bleiben ausschließlich Vorschläge und werden nicht produktiv ausgeführt.
+SwiftUI → AppModel → LifeStore → StateRepository. Composition Root injiziert lokale
+Adapter; Tests verwenden Memory-/Datei-/Fehleradapter ohne Netz. Keine externen
+Laufzeitabhängigkeiten und keine produktiven Backend-Schemata oder Migrationen.
 
 ## Mindest-Domainmodelle
 Habit(id, title, goalType, schedule, createdAt, isArchived), HabitCompletion(id, habitID, date, actualValue, targetSnapshot), LifeMode(id, title, recurringSchedule, activeRules), ModeActivation(start, end?, modeID), HomeWidgetPreference(id, kind, position, isVisible). Datumsoperationen mit explizitem lokalem Tagesbezug, stabiler Wiederholung und Tests für Sommer-/Winterzeit.
