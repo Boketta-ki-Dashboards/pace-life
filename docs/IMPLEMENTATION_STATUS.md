@@ -12,8 +12,8 @@ Keine Merges nach main, kein Force-Push, keine anderen Repositories oder Backend
 | Life Modes | Bestehendes CRUD/manuelle Aktivierung/Habit-Auswahl erhalten. Eigenständige Routinen mit Mode-Zuordnung, Wochentagen, optionaler Uhrzeit, sortierbaren Schritten/Dauer, Teilabschluss, Pause/Fortsetzen, Tages-Snapshots, Archiv/Wiederherstellen und Home-Widget. | Automatische wiederkehrende Mode-Wechsel, Mode-Duplikation/Archiv, Tagesprioritäten und vollständige historische Habit-Planrevisionen. |
 | Life Paths | Mehrere Paths, Lebensbereich/Beschreibung/Zieldatum, binäre/Zähler/Minuten-Meilensteine, Tagesbeiträge, Habit-Verknüpfung oder vollständige Routine-Sessions, nachvollziehbarer Fortschritt, Statuswechsel/Archiv, Verlauf und Home-Widget. | Titelbilder, historisch versionierte Änderungen einer Beitragsregel und umfassende Fortschrittsdiagramme. |
 | Pace Adaptive | Lokale deterministische Vorschläge aus Zeit/Energie/Belastung, geschützten Habits, Routine-Dauern und aktiven Paths; ausdrückliche Annahme/Ablehnung, individuelle Ziele, Rückgängig, Tageshistorie und Home-Widget. | Neuplanung eines schon eingefrorenen Tages, flexible Routine-Schritte, freie Prioritäten/Zeitfenster. |
-| Life Chapters | Private Timeline, Titel/Text/Kategorie/Zeitraum, Path-Verknüpfung, Erinnerungen und persönliche Meilensteine, Bearbeiten/Archiv/Wiederherstellen/Löschen, native Fotoauswahl und separate lokale JPEG-Dateien; DE/EN/RU. | Chapter-Neustart/Archiv/Editieren im Simulator bestanden; native Fotoauswahl, visuelle Abnahme und Export offen. |
-| Life Experiments | 7/14/30 Tage und frei wählbarer Zeitraum; individuelle numerische, Minuten-, Skalen- und Ja/Nein-Messgrößen; Ausgangswerte, tägliche Check-ins/Korrekturen, Punktdiagramme, ehrliche Vergleiche, Reflexion, Abschluss/Wiederholung/Archiv, Habit-Links. | Experiment-Neustart/Korrektur auf beiden Simulator-Architekturen bestanden; visuelle Abnahme und automatischer Datenimport offen. |
+| Life Chapters | Private Timeline, Titel/Text/Kategorie/Zeitraum, Path-Verknüpfung, Erinnerungen und persönliche Meilensteine, Bearbeiten/Archiv/Wiederherstellen/Löschen, native Fotoauswahl und separate lokale JPEG-Dateien; DE/EN/RU. | Neustart/Archiv/Editieren und nativer Fotoablauf im Simulator bestanden; Export und vollständige Geräte-/Designabnahme offen. |
+| Life Experiments | 7/14/30 Tage und frei wählbarer Zeitraum; individuelle numerische, Minuten-, Skalen- und Ja/Nein-Messgrößen; Ausgangswerte, tägliche Check-ins/Korrekturen, Punktdiagramme, ehrliche Vergleiche, Reflexion, Abschluss/Wiederholung/Archiv, Habit-Links. | Neustart/Korrektur auf beiden Simulator-Architekturen bestanden; vollständige Geräte-/Designabnahme und automatischer Datenimport offen. |
 | Pace Circles | Lokale Circles mit bearbeitbaren Demo-Mitgliedern/Rollen, Gruppenzielen, datierten Challenges, Beiträgen, Verlauf, Abschluss/Archiv und ausdrücklicher widerruflicher Freigabe. | Freigabe/Widerruf/Neustart auf beiden Simulator-Architekturen bestanden; keine echten Mitglieder oder Synchronisierung. |
 | Pace Connect | Vorhandene Capability-Protokolle melden nicht verfügbar; keine Netzwerkverbindung oder Identität wird vorgetäuscht. | Vollständige Adapter-/Berechtigungsarchitektur nach freigegebenem externen Vertrag. |
 
@@ -32,13 +32,20 @@ Root-Pager ohne ungenutzten äußeren Stack, separate modale Detail-/Editor-Navi
 Root-Drag-Geste, keine globale Toolbar-Ausblendung und keine UIKit-Delegate-Overrides. Schrift, Farben und Komponenten verwenden das bestehende Designsystem.
 
 Nachgewiesene UI-Tests prüfen schnelle/langsame Swipes, Abbrechen, vertikales
-Scrollen, Dock-Position/-Höhe und Editorisolation. Die größte Dynamic-Type-Stufe
-besteht mit `0c88d9a` auf Apple Silicon einschließlich Dock, Scrollen und
-Formular/Tastatur. Die native Detail-Zurückgeste bleibt nach intermittierenden
-Ergebnissen offen; Auch `34dff1e` besteht auf Apple Silicon mit 13/14 UI-Tests; die native Zurückgeste bleibt offen. Keine Assertion wurde
-entfernt oder abgeschwächt. Kleinere/größere Displays und VoiceOver bleiben offen.
-Originalvideos und Wordmark liegen nicht auswertbar vor; visuelle 1:1-Übereinstimmung
-ist nicht verifiziert.
+Scrollen, Dock-Position/-Höhe und Editorisolation. Die native Detail-Zurückgeste
+besteht mit einem echten 50-ms-Testkontakt und unveränderten Ergebnis-Assertions,
+auch nach Entfernen aller UIKit-Overrides. Inaktive Seiten werden aus dem
+Accessibility-Baum ausgeschlossen.
+
+Die echte Screenshot-Sichtprüfung fand bei größter Accessibility-Schrift unleserlich
+umgebrochene Dock-Texte. Korrektur `dfd03d7`: einzeilige kompakte Tab-Beschriftungen
+mit nativem Large Content Viewer; Seiteninhalte skalieren weiterhin. Der Nachtest
+verlangt kompakte Dock-Geometrie **und** tatsächlich vergrößerte Seiteninhalte sowie
+alle bisherigen Touch-/Scroll-/Tastaturbedingungen. Sein vollständiger CI-Nachlauf
+steht noch aus. Zehn Standardansichten wurden geöffnet, geprüft und unverändert
+unter [screenshots](screenshots/README.md) mit Herkunft eingecheckt.
+Originalvideos/Wordmark fehlen; visuelle 1:1-Übereinstimmung, VoiceOver, weitere
+Displaygrößen und reale iPhones sind nicht verifiziert.
 
 ## Verbundene Daten und Persistenz
 
@@ -77,46 +84,45 @@ Dies ist ein Domain-Integrationstest, kein behaupteter durchgehender Geräte-UI-
 
 ## Commitgenauer Prüfstand
 
-**Aktueller lokaler Nachweis:** `50dd2dd`, Swift 6.0.3/Linux, **53 Core-XCTest-Tests,
-0 Fehler**; Projektgenerator reproduzierbar, SwiftUI-Syntaxprüfung und Diff-Prüfung
-bestanden. Linux ersetzt keine iOS-SDK-Typprüfung.
+Die unveränderte lokale Core-Domäne besteht mit Swift 6.0.3/Linux: **53 XCTest-Fälle,
+0 Fehler**. Projektgenerator, Swift-Syntax- und Diff-Prüfung bestanden. Linux ist
+kein Ersatz für die tatsächliche iOS-SDK-Prüfung in den folgenden macOS-Läufen.
 
-| Code | Nachweis |
+| Code | Tatsächlicher Nachweis |
 |---|---|
-| `76e0572` (vor diesem Auftrag) | 37 Core-Tests, acht UI-Tests, Debug/Release auf Apple Silicon und Intel bestanden, [CI 41631877527](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41631877527). |
-| `9d8a140` | Apple Silicon: 42 Core, 11 UI, Debug/Release und echte Screenshot-Exporte bestanden; Intel bei UI nach Jobbudget abgebrochen. [CI 41805696013](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41805696013). |
-| `00de43d` | Apple Silicon vollständig bestanden: 46 Core, 12 UI, Debug/Release, Screenshot-Export. Intel-UI scheiterte vor Teststart an „Timed out waiting for AX loaded notification“. [CI 41807623995](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41807623995). |
-| `cd7f521` | Bootstatus abwarten und UI seriell starten; keine Tests entfernt. [CI 41809158539](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41809158539): Beide Architekturen vollständig bestanden: 46 Core, zwölf UI, Debug/Release und Screenshot-Export. |
-| `161cecb` | Lokale Circles. [CI 41810190437](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41810190437): 50 Core und Simulator-Builds beider Architekturen bestanden. Apple Silicon: 12/13 UI; neuer Back-Swipe-Test fehlgeschlagen, Circle-Test und Screenshot-Test bestanden. |
-| `50dd2dd` | Routine-Paths, Schema 8. [CI 41810514373](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41810514373): Beide Architekturen vollständig bestanden: 53 Core, 13 UI, Debug/Release und Screenshot-Export. |
+| `76e0572` vor diesem Auftrag | 37 Core, acht UI, Debug/Release auf Apple Silicon und Intel; [CI 41631877527](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41631877527). |
+| `50dd2dd` | Alle drei neuen Module und Routine-Paths/Schema 8: beide Architekturen 53 Core, 13 UI, Debug/Release bestanden; [CI 41810514373](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41810514373). |
+| `d2b17e4` | Beide Architekturen 53 Core, 14 UI plus vorgezogene Back-Regression, Debug/Release bestanden; [CI 41828056482](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41828056482). |
+| `b6e8780` | Vereinfachte reine SwiftUI-Navigation ohne UIKit-Overrides: Apple 53 Core, 14 UI, Back-Regression und Debug/Release bestanden; Quelle der eingecheckten Standard-Screenshots. Intel-Nachlauf noch offen; [CI 41829938956](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41829938956). |
+| `7ee521e` | Nativer Fotoablauf auf beiden Architekturen bestanden. Apple vollständig 53 Core, 15 UI, Debug/Release; Intel 53 Core, 14/15 UI, Debug/Release. Ein Screenshot-Sheet öffnete nach Tabwechsel nicht; [CI 41832182819](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41832182819). |
+| `dfd03d7` | Kompakte Accessibility-Tabbar und endlicher 50-ms-Touch für einmaliges Öffnen der Screenshot-Sheets. Keine Wiederholungen maskieren Fehler, die Sheet-/Persistenz-Assertions bleiben verbindlich. Vollständiger Nachlauf ausstehend; [CI 41837583213](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41837583213). |
 
-Die Suite enthält inzwischen 15 UI-Tests: bestehende acht Regressionen plus Paging,
-Screenshots, Chapters, Experiments, lokale Circles, größte Dynamic-Type-Stufe und native Fotoauswahl. Der Routine-Test umfasst
-jetzt auch die Path-Quellenauswahl und Wiederherstellung. Die neuen Abläufe werden
-nicht allein aufgrund bestandener Core-Tests als simulatorverifiziert bezeichnet.
+Die Suite enthält **15 UI-Tests**: die bestehenden acht Regressionen plus Paging,
+Screenshots, Chapters, Experiments, lokale Circles, größte Dynamic-Type-Stufe und
+native Fotoauswahl. Der Routine-Test prüft zusätzlich Path-Quellenauswahl und
+Wiederherstellung. Der Foto-Test prüft Picker-Abbruch, echten Import, dekodiertes
+Bild nach Neustart, Entfernen und einen weiteren Neustart. Die künstliche
+Foto-Testdatei ist ausdrücklich als Eingabe gekennzeichnet, kein App-Mockup.
 
-Echte Simulatoraufnahmen und Downloadhinweise: [screenshots/README.md](screenshots/README.md).
-Bisher bestätigtes Gerät: **iPhone 16 Pro, iOS 18.5, Xcode 16.4** im Apple-Silicon-
-CI-Lauf. Keine echten iPhone-Tests. Keine visuelle Sichtprüfung der PNGs: der
-Artefakt-Download ist in dieser Cloud mit HTTP 403 blockiert. Eine automatische
-CI-Commit-Lösung wurde wegen zusätzlicher Schreibrechte abgelehnt; CI behält
-`contents: read`. Deshalb sind hier noch keine neuen PNG-Dateien eingecheckt.
+Bestätigter Simulator: **iPhone 16 Pro, iOS 18.5, Xcode 16.4**. Keine physischen
+Gerätetests. [Zehn echte PNGs samt Sichtprüfungsgrenzen](screenshots/README.md) sind
+im Repository. Die reine Lese-Exportpipeline benötigt keine CI-Schreibrechte.
 
 ## Nächste Arbeiten für Claude Code
 
-1. Aktuellen CI-Lauf vollständig prüfen; eventuelle Fehler anhand der Joblogs und
-   xcresult-Artefakte beheben. Keine Assertions entfernen oder abschwächen.
-2. Auf Mac/Simulator echte Fotoauswahl, Auswahlabbruch, Import/Neustart/Löschen und
-   fehlende Dateien abnehmen. Core-Dateitests ersetzen diesen nativen UI-Ablauf nicht.
-3. Die echten Screenshots visuell prüfen, repräsentative PNGs unter docs/screenshots
-   mit Commit/Gerät benennen. Safe Areas, lange DE/EN/RU-Texte, Dynamic Type,
-   VoiceOver, kleine/große iPhones und horizontale Gestenkonflikte abnehmen.
-4. Automatische wiederkehrende Life Modes und historische Habit-Planrevisionen
+1. Den aktuellen Nachlauf vollständig prüfen und die korrigierte Accessibility-
+   Aufnahme exportieren/ansehen. Ein Build allein ist keine Designabnahme.
+2. Auf kleinem/großem iPhone und physischem Gerät lange DE/EN/RU-Texte, VoiceOver,
+   Large Content Viewer sowie Kalender-/Chart-/Back-Gesten abnehmen. Die native
+   Fotoauswahl ist automatisiert getestet; weitere Fotoformate und große Bestände
+   brauchen noch gezielte Gerätetests.
+3. Automatische wiederkehrende Life Modes und historische Habit-Planrevisionen
    umsetzen. Aktuelle Streaks verwenden weiterhin den heutigen Wochenplan; frühere
    Planänderungen sind nicht rekonstruierbar und dürfen nicht erfunden werden.
-5. Adaptive-Neuplanung, Prioritäten/Zeitfenster, lokale Erinnerungen mit Zustimmung,
+4. Tages-/Wochenroutinen vertiefen, Meilenstein-/Fortschrittsdiagramme ausbauen,
+   Adaptive-Neuplanung, Prioritäten/Zeitfenster, lokale Erinnerungen mit Zustimmung,
    Export/Backup und weitere frei konfigurierbare Home-Widgets ergänzen.
-6. Connect/echte Circles erst nach freigegebenem Backend-/Identitätsvertrag.
+5. Connect/echte Circles erst nach freigegebenem Backend-/Identitätsvertrag.
 
 Technische Einstiegspunkte: AppModel/Composition Root unter `PaceLife/App`, neue
 Feature-Views und typisierte Übersetzungen unter Features/Localization; Domain und
@@ -134,80 +140,3 @@ Ausführliche Testabläufe für alle lokalen Module stehen in [README.md](../REA
 Bei Migration ggf. verborgene neue Home-Widgets unter „Home anpassen“ aktivieren.
 Nach dem Schreiben von Schema 8 keine ältere Beta über denselben Datencontainer
 installieren: ältere Writer lehnen das neue Schema absichtlich ab.
-
-### Aktueller Navigations-Nachtest
-
-`50dd2dd` besteht mit 53 Core- und 13 UI-Tests auf beiden Architekturen. Strengere
-Nachtests reproduzieren eine ignorierte Path-Randgeste trotz sichtbarem Back-Button.
-`0c88d9a` besteht auf Apple Silicon mit 13/14 UI-Tests; allein die Zurückgeste bleibt
-offen. Die Scroll-Testhilfe erreicht große Controls nun mit begrenzten Drags;
-Viewport-Containment und zwölf Versuche bleiben unverändert.
-
-`34dff1e` entfernt den ungenutzten äußeren NavigationStack und bindet den vorhandenen
-nativen Interactive-Pop-Erkenner erst bei sichtbarem, angehängtem Controller im
-Fenster an. Der ursprüngliche Delegate wird beim Verlassen wiederhergestellt.
-Testkoordinaten sind direkt an der modalen NavigationBar verankert; eine zusätzliche
-Assertion kontrolliert den tatsächlichen ScreenPoint am linken Rand. Rückkehr zur
-Path-Liste und unveränderte Root-Auswahl bleiben die Abnahmebedingungen.
-
-[CI 41820926314](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41820926314):
-`34dff1e` besteht auf Apple Silicon mit 53 Core-Tests, Debug/Release und 13/14 UI-Tests.
-Der Diagnose-Identifier bestätigt die Anbindung am korrekten nativen Controller;
-die Randgeste bleibt erfolglos. Die übrigen UI-Tests einschließlich größter Schrift
-und aller Screenshotansichten bestehen. Intel läuft noch.
-
-Die nächste Korrektur gibt dem vorhandenen nativen Edge-Pop-Erkenner Vorrang vor
-Scroll-Pans und lässt vertikale Bewegungen weiterhin scrollen. Sein Begin-Entscheid
-wird ausschließlich im UI-Test-Modus diagnostizierbar. Noch kein grüner Nachweis.
-CI startet den Simulator parallel zur Kompilierung, wartet vor XCTest weiterhin
-auf Bootbereitschaft und prüft die Back-Regression zuerst. Erst danach läuft die
-unveränderte vollständige 14-Test-Suite. Das Budget beträgt wegen tatsächlich
-beobachteter Intel-Zeitabbrüche jetzt 60 Minuten; keine Tests werden entfernt.
-Die bisherigen grünen Modulnachweise bleiben oben separat.
-
-`6f7429d`, [CI 41825468558](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41825468558):
-Der vorgezogene Back-Test schlägt auf beiden Architekturen fehl; die vollständige
-Suite wird deshalb nicht gestartet. Apple-Silicon-Diagnose: `Ready; depth=2`, kein
-Aufruf der Begin-Prüfung beim synthetischen Nullzeit-Kontakt. Der nächste Nachlauf
-stellt den 50-ms-Kontakt des ursprünglich bestandenen Tests wieder her; Randkoordinaten,
-Rückkehr-/Tab-Assertions bleiben erhalten, der Back-Button muss zusätzlich hittable sein.
-
-Der Pager schließt inaktive Seiten explizit aus dem Accessibility-Baum aus. Der
-Screenshot-Test wartet auf Sheet-Dismissal und prüft vor jeder Modulöffnung den
-aktiven Tab. Die Schalterprüfung wartet auf denselben Sollwert bis zu zehn statt
-drei Sekunden, da Intel-AX-Abfragen allein bereits mehrere Sekunden benötigten;
-kein erneutes Umschalten, keine ersetzte Zustands- oder Persistenzprüfung.
-`34dff1e` auf Intel: 11/14 UI, zusätzlich Schalter-/Screenshot-Timeout, anschließender
-45-Minuten-Abbruch. Diese Ergebnisse sind keine grüne Gesamtabnahme.
-
-`d2b17e4`, [CI 41828056482](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41828056482):
-Der vorgezogene Back-Test besteht auf Apple Silicon mit 50-ms-Kontakt; die komplette
-Suite läuft. Für den folgenden Nachlauf werden die erfolglosen UIKit-Delegate-
-Eingriffe vollständig entfernt, ebenso die seit Entfernen des äußeren Stacks
-unnötige Root-Toolbar-Ausblendung. Die native SwiftUI-Zurücknavigation muss dieselben
-unveränderten Ergebnis-Assertions bestehen. Kein neuer Gesamt-Erfolg vor diesem Nachweis.
-
-`b6e8780`, [CI 41829938956](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41829938956):
-Der vorgezogene Back-Test besteht auf Apple Silicon auch ohne UIKit-Anbindung;
-die vollständige Suite läuft. Native Stacks und ein kurzer realer Testkontakt
-bleiben erhalten, kein Delegate-Override wurde wieder eingeführt.
-
-Der nächste kleine QA-Abschnitt ergänzt einen 15. UI-Test für native PhotosPicker-
-Auswahl, Abbruch, Import, Neustart und Entfernen mit erneutem Neustart. Das Bild ist
-eine ausdrücklich synthetische, metadatenfreie Simulator-Testdatei, kein Mockup der
-App. Es werden keine privaten Fotos benötigt und keine vorhandenen Simulatorfotos
-gelöscht. Die App erhält lediglich stabile Test-Identifier an vorhandenen Bildern
-und Entfernen-Buttons. Ein bestandener nativer Foto-Test wird erst nach CI behauptet.
-
-### Sichtprüfung: kompakte Accessibility-Navigation
-Die aus dem echten Apple-Simulator-Lauf `b6e8780` exportierten PNGs konnten nun
-verlustfrei lokal geprüft werden. Bei größter Schrift zerfielen die Dock-Texte in
-Silben; die bisherigen Touch-Flächentests hatten das nicht erkannt. Die Tabbar
-verwendet deshalb einzeilige 13-pt-Texte plus nativen Large Content Viewer.
-Der Dynamic-Type-Test verlangt jetzt einen kompakten Dock und zugleich tatsächlich
-vergrößerte Seiteninhalte; alle Erreichbarkeits-/Tastaturprüfungen bleiben erhalten.
-Der neue Fotoablauf besteht mit `7ee521e` auf beiden Architekturen, einschließlich
-Neustarts. Apple besteht die gesamte 15er-Suite; Intel scheiterte beim einmaligen
-Öffnen eines Screenshot-Sheets nach dem Tabwechsel. Der sichtbare/hittable Opener
-erhält nun einen endlichen 50-ms-Touch ohne Wiederholung; die Sheet-Erwartung bleibt
-verbindlich. Vollständiger Nachlauf für diese UI-Korrekturen ausstehend.

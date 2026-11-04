@@ -186,5 +186,9 @@ Der UI-Test beginnt direkt am linken Rand der modalen Leiste, prüft den tatsäc
 ScreenPoint, verwendet einen kurzen Fingerkontakt von 50 ms und verlangt danach
 die Rückkehr zur Liste sowie den unveränderten Root-Tab. Ein Nullzeit-Kontakt hatte
 in wiederholten Läufen den nativen Begin-Check nicht erreicht. Der Test bestand
-nach Wiederherstellen des kurzen Kontakts wieder; die vereinfachte Navigation
-benötigt ihren eigenen Nachlauf. Commitgenaue Ergebnisse im Implementierungsstatus.
+nach Wiederherstellen des kurzen Kontakts wieder, auch ohne UIKit-Anbindung
+(`b6e8780`/`7ee521e`). Commitgenaue Gesamtergebnisse im Implementierungsstatus.
+
+Der feste Dock verwendet kompakte einzeilige Beschriftungen und SwiftUIs nativen
+Large Content Viewer. Dynamic Type bleibt für Seiteninhalte aktiv. Die Auswahl
+bleibt eine gemeinsame RootTab-Bindung; keine zweite Gesten-Zustandsmaschine.

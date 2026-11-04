@@ -81,7 +81,7 @@ Ein erneuter Check-in am selben Tag korrigiert die Werte. Diagramm und Vergleich
 zeigen nur eingegebene Beobachtungen. Abschließen, Reflexion bearbeiten oder als
 neues Experiment ohne alte Messwerte wiederholen. Neustart erhält alle Einträge.
 
-Pace Circles testen: **Circles → Circle erstellen**, optional ausdrücklich lokale
+Pace Circles testen: **Kreise → Circle erstellen**, optional ausdrücklich lokale
 Demo-Mitglieder und Rollen hinzufügen. Eine Challenge mit Zeitraum und Ziel anlegen.
 Eigene oder simulierte Tagesbeiträge erfassen; ohne aktive Freigabe bleibt der
 Beitrag privat und fehlt in der Gruppensumme. Einen Habit-Beitrag gezielt auswählen
@@ -89,11 +89,27 @@ und freigeben; spätere Korrekturen aktualisieren dieselbe Quelle. Neustart prü
 Freigabe widerrufen und erneut starten. Auch archivierte Challenges erlauben den
 Widerruf. Es gibt keine Online-Mitglieder, Nachrichten oder Synchronisierung.
 
-Echte Simulator-Screenshots werden in den CI-Artefakten bereitgestellt; Download
-und verbleibende visuelle Prüfungen: [docs/screenshots](docs/screenshots/README.md).
+Eine ausgewählte Galerie echter, visuell geprüfter Simulator-PNGs ist samt
+Quell-Commit und Prüfsummen eingecheckt. Aufnahmen und Grenzen: [docs/screenshots](docs/screenshots/README.md).
 
 Routine mit Path verbinden: Im neuen Meilenstein unter **Beitragsquelle** eine
 Routine wählen (binär oder Anzahl). Nur vollständig erledigte gespeicherte
 Sessions ab Path-Start zählen. Teilfortschritt bleibt in der Routine erhalten.
 Korrekturen aktualisieren denselben Path-Beitrag; geplante Minuten werden nicht
 als tatsächliche Arbeitszeit verbucht.
+
+
+## Übergabe an Claude Code
+
+Zuerst [Implementierungs- und Prüfstand](docs/IMPLEMENTATION_STATUS.md), dann
+[Architektur/Migrationen](docs/ARCHITECTURE.md) und [Roadmap](docs/ROADMAP.md) lesen.
+Writer ist Schema 8; ältere Versionen 1–7 werden explizit übernommen. Kein Reset
+bei Lesefehlern, keine erfundene Historie. Nach Schema-8-Speicherung keine ältere
+Beta über denselben Datencontainer installieren. Neue Home-Widgets können bei
+Migration verborgen sein und unter „Home anpassen“ aktiviert werden.
+
+Ausschließlich auf dem bestehenden Beta-Branch arbeiten; jeden getesteten Abschnitt
+committen, pushen und Remote-HEAD prüfen. CI-/Foto-/Screenshot-Anleitungen stehen
+in [TEST_AND_RELEASE.md](docs/TEST_AND_RELEASE.md). Vollständige Geräteabnahme,
+automatische Modes, historische Habit-Planrevisionen, flexible Neuplanung, lokale
+Erinnerungen und Export/Backup sind noch offen. Keine produktive Onlineanbindung.

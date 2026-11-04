@@ -21,27 +21,30 @@ Vor Abschluss der UI-Feinabstimmung Originalaufnahmen aus dem aktiven Codex-Chat
 - Aktuelles Prüfprotokoll und nicht ausgeführte Prüfungen: [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md).
 
 Die UI-Suite wartet auf einen vollständig gebooteten Simulator und läuft seriell.
-Sie enthält zusätzlich interaktives Root-Paging/Abbruch/Dock-Geometrie,
+Sie enthält interaktives Root-Paging/Abbruch/Dock-Geometrie, native Detail-Back-Geste,
 Chapter-/Experiment-Neustarts, lokale Circle-Freigabe/Widerruf sowie echte
-Light-/Dark-Screenshot-Anhänge. Alle drei neuen Module einschließlich Circle-Freigabe
-und Neustart sind mit `50dd2dd` auf Apple Silicon und Intel bestanden. Der verschärfte
-native Back-Swipe-Nachtest ist noch offen; den laufenden Korrekturstand nennt
+Light-/Dark-Screenshot-Anhänge. Ein endlicher Testkontakt bildet eine reale
+Fingerberührung ab; Ergebnis-Assertions dürfen nicht durch Wiederholung oder
+Auslassen umgangen werden. Commitgenaue Nachweise und offene Nachläufe stehen in
 [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md).
-Native Fotoauswahl, VoiceOver, weitere Displaygrößen und echte iPhones brauchen
-weiterhin eine eigene Abnahme.
 
-Zusätzlicher Dynamic-Type-Nachtest: größte Accessibility-Schrift per nativer
-UIKit-Launch-Option; vergrößerter Dock als Voraussetzung, alle vier Tabs erreichbar,
-Touch-Flächen innerhalb des Displays ohne Überlappung, Formular nach Home-Scroll
-erreichbar, Tastatur/Toolbar bedienbar. Ein echter Screenshot wird angehängt.
-Dieser Test besteht mit `0c88d9a` auf Apple Silicon. Das belegt die geprüften
-Touch-Flächen und Eingaben, ersetzt aber keine visuelle Prüfung aller Texte,
-Bildschirmgrößen und Sprachen.
+Dynamic Type: größte Accessibility-Schrift über native UIKit-Launch-Option.
+Der Test verlangt vergrößerte Seiteninhalte, einen kompakten einzeiligen Dock,
+vier erreichbare Tabs, mindestens 44 × 48 pt Touch-Flächen innerhalb des Displays,
+keine Überschneidung benachbarter Targets, Scrollen bis zum Editor und bedienbare
+Tastatur/Toolbar. Der frühere Test prüfte lediglich einen vergrößerten Dock; erst
+die echte Sichtprüfung deckte dessen unleserliche Zeilenumbrüche auf. Die neue
+Geometriebedingung ergänzt diese Prüfung. Der native Large Content Viewer braucht
+zusätzlich eine manuelle Prüfung auf dem Gerät.
 
-Native Foto-Regression: `scripts/test-ios.sh test-regressions` führt den Path-Back-
-Test und den neuen PhotoPicker-Test vor der vollständigen Suite aus. Das Skript
-fügt dem gewählten Simulator das ausdrücklich synthetische Testbild unter
-`PaceLifeUITests/Fixtures` hinzu; keine vorhandenen Fotos werden gelöscht. Der neue
-Test verlangt Picker-Abbruch ohne Referenz, echten Import, sichtbares dekodiertes
-Bild nach Neustart sowie Entfernen und einen weiteren Neustart. Nachweis bis zum
-zugehörigen grünen CI-Lauf noch ausstehend. Ein Foto-Testbild ist keine Designreferenz.
+Native Foto-Regression: `scripts/test-ios.sh test-regressions` führt Path-Back und
+PhotoPicker vor der vollständigen Suite aus. Das Skript fügt dem Simulator die
+synthetische Datei unter `PaceLifeUITests/Fixtures` hinzu; keine vorhandenen Fotos
+werden gelöscht. Der Test verlangt Picker-Abbruch ohne Referenz, echten Import,
+sichtbares dekodiertes Bild nach Neustart sowie Entfernen und weiteren Neustart.
+Mit `7ee521e` auf Apple Silicon und Intel bestanden. Core-Dateitests prüfen
+zusätzlich fehlende Dateien, Grenzen, Bereinigung und fehlgeschlagene Speicherung.
+
+Die [eingecheckten Simulatoraufnahmen](screenshots/README.md) wurden tatsächlich
+visuell geöffnet und geprüft. Das ersetzt keine vollständige Abnahme von
+VoiceOver, sämtlichen Displaygrößen/Sprachen, Originalvideos und echten iPhones.
