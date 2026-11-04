@@ -23,13 +23,17 @@ Vor Abschluss der UI-Feinabstimmung Originalaufnahmen aus dem aktiven Codex-Chat
 Die UI-Suite wartet auf einen vollständig gebooteten Simulator und läuft seriell.
 Sie enthält zusätzlich interaktives Root-Paging/Abbruch/Dock-Geometrie,
 Chapter-/Experiment-Neustarts, lokale Circle-Freigabe/Widerruf sowie echte
-Light-/Dark-Screenshot-Anhänge. Der neue Circle-Test und die erweiterten Screenshots
-sind bis zum zugehörigen CI-Ergebnis vorbereitet, nicht bereits bestanden.
-Native Fotoauswahl, VoiceOver, größte Dynamic-Type-Stufen, weitere Displaygrößen
-und echte iPhones brauchen weiterhin eine eigene Abnahme.
+Light-/Dark-Screenshot-Anhänge. Alle drei neuen Module einschließlich Circle-Freigabe
+und Neustart sind mit `50dd2dd` auf Apple Silicon und Intel bestanden. Der verschärfte
+native Back-Swipe-Nachtest ist noch offen; den laufenden Korrekturstand nennt
+[IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md).
+Native Fotoauswahl, VoiceOver, weitere Displaygrößen und echte iPhones brauchen
+weiterhin eine eigene Abnahme.
 
 Zusätzlicher Dynamic-Type-Nachtest: größte Accessibility-Schrift per nativer
 UIKit-Launch-Option; vergrößerter Dock als Voraussetzung, alle vier Tabs erreichbar,
 Touch-Flächen innerhalb des Displays ohne Überlappung, Formular nach Home-Scroll
 erreichbar, Tastatur/Toolbar bedienbar. Ein echter Screenshot wird angehängt.
-Dieser neue Test benötigt seinen eigenen grünen CI-Nachweis.
+Dieser Test besteht mit `0c88d9a` auf Apple Silicon. Das belegt die geprüften
+Touch-Flächen und Eingaben, ersetzt aber keine visuelle Prüfung aller Texte,
+Bildschirmgrößen und Sprachen.

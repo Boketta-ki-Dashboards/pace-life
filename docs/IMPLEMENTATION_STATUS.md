@@ -13,8 +13,8 @@ Keine Merges nach main, kein Force-Push, keine anderen Repositories oder Backend
 | Life Paths | Mehrere Paths, Lebensbereich/Beschreibung/Zieldatum, binäre/Zähler/Minuten-Meilensteine, Tagesbeiträge, Habit-Verknüpfung oder vollständige Routine-Sessions, nachvollziehbarer Fortschritt, Statuswechsel/Archiv, Verlauf und Home-Widget. | Titelbilder, historisch versionierte Änderungen einer Beitragsregel und umfassende Fortschrittsdiagramme. |
 | Pace Adaptive | Lokale deterministische Vorschläge aus Zeit/Energie/Belastung, geschützten Habits, Routine-Dauern und aktiven Paths; ausdrückliche Annahme/Ablehnung, individuelle Ziele, Rückgängig, Tageshistorie und Home-Widget. | Neuplanung eines schon eingefrorenen Tages, flexible Routine-Schritte, freie Prioritäten/Zeitfenster. |
 | Life Chapters | Private Timeline, Titel/Text/Kategorie/Zeitraum, Path-Verknüpfung, Erinnerungen und persönliche Meilensteine, Bearbeiten/Archiv/Wiederherstellen/Löschen, native Fotoauswahl und separate lokale JPEG-Dateien; DE/EN/RU. | Chapter-Neustart/Archiv/Editieren im Simulator bestanden; native Fotoauswahl, visuelle Abnahme und Export offen. |
-| Life Experiments | 7/14/30 Tage und frei wählbarer Zeitraum; individuelle numerische, Minuten-, Skalen- und Ja/Nein-Messgrößen; Ausgangswerte, tägliche Check-ins/Korrekturen, Punktdiagramme, ehrliche Vergleiche, Reflexion, Abschluss/Wiederholung/Archiv, Habit-Links. | Experiment-Neustart/Korrektur im Apple-Silicon-Simulator bestanden; neuere Regression/visuelle Abnahme läuft, kein automatischer Datenimport. |
-| Pace Circles | Lokale Circles mit bearbeitbaren Demo-Mitgliedern/Rollen, Gruppenzielen, datierten Challenges, Beiträgen, Verlauf, Abschluss/Archiv und ausdrücklicher widerruflicher Freigabe. | Freigabe/Widerruf/Neustart auf Apple Silicon bestanden; keine echten Mitglieder oder Synchronisierung. |
+| Life Experiments | 7/14/30 Tage und frei wählbarer Zeitraum; individuelle numerische, Minuten-, Skalen- und Ja/Nein-Messgrößen; Ausgangswerte, tägliche Check-ins/Korrekturen, Punktdiagramme, ehrliche Vergleiche, Reflexion, Abschluss/Wiederholung/Archiv, Habit-Links. | Experiment-Neustart/Korrektur auf beiden Simulator-Architekturen bestanden; visuelle Abnahme und automatischer Datenimport offen. |
+| Pace Circles | Lokale Circles mit bearbeitbaren Demo-Mitgliedern/Rollen, Gruppenzielen, datierten Challenges, Beiträgen, Verlauf, Abschluss/Archiv und ausdrücklicher widerruflicher Freigabe. | Freigabe/Widerruf/Neustart auf beiden Simulator-Architekturen bestanden; keine echten Mitglieder oder Synchronisierung. |
 | Pace Connect | Vorhandene Capability-Protokolle melden nicht verfügbar; keine Netzwerkverbindung oder Identität wird vorgetäuscht. | Vollständige Adapter-/Berechtigungsarchitektur nach freigegebenem externen Vertrag. |
 
 Die drei neuen lokalen Module haben echte Eingaben, Persistenz, Fehlerbehandlung
@@ -32,12 +32,13 @@ Root-Pager ohne ungenutzten äußeren Stack, separate modale Detail-/Editor-Navi
 Root-Drag-Geste. Schrift, Farben und Komponenten verwenden das bestehende Designsystem.
 
 Nachgewiesene UI-Tests prüfen schnelle/langsame Swipes, Abbrechen, vertikales
-Scrollen, Dock-Position/-Höhe und Editorisolation. Der Detail-Back-Swipe-Test
-und weitere Screenshotansichten sind im Lauf von `50dd2dd` bestanden; präzisierter
-Gesten-Nachtest von `536b4cd` noch ausstehend. Ergebnisse
-siehe den commitbezogenen Prüfstand unten. Kleinere/größere Displays, größte
-Dynamic-Type-Stufen und VoiceOver bleiben offen. Originalvideos und Wordmark
-liegen nicht auswertbar vor; visuelle 1:1-Übereinstimmung ist nicht verifiziert.
+Scrollen, Dock-Position/-Höhe und Editorisolation. Die größte Dynamic-Type-Stufe
+besteht mit `0c88d9a` auf Apple Silicon einschließlich Dock, Scrollen und
+Formular/Tastatur. Die native Detail-Zurückgeste bleibt nach intermittierenden
+Ergebnissen offen; Korrektur `34dff1e` wird gerade geprüft. Keine Assertion wurde
+entfernt oder abgeschwächt. Kleinere/größere Displays und VoiceOver bleiben offen.
+Originalvideos und Wordmark liegen nicht auswertbar vor; visuelle 1:1-Übereinstimmung
+ist nicht verifiziert.
 
 ## Verbundene Daten und Persistenz
 
@@ -134,41 +135,21 @@ Bei Migration ggf. verborgene neue Home-Widgets unter „Home anpassen“ aktivi
 Nach dem Schreiben von Schema 8 keine ältere Beta über denselben Datencontainer
 installieren: ältere Writer lehnen das neue Schema absichtlich ab.
 
-### Aktueller Navigations- und Dynamic-Type-Nachtest
+### Aktueller Navigations-Nachtest
 
-Der ursprüngliche Edge-Swipe-Test besteht mit `50dd2dd` auf beiden Architekturen,
-schlug aber in anderen Läufen intermittierend fehl. `536b4cd` hält die native
-Detailleiste sichtbar, prüft zusätzlich den Back-Button und verankert die Geste
-am Navigationsbereich. Der neue Accessibility-Baum zeigt trotz Back-Button eine
-ignorierte Randgeste (12/13 UI bestanden). Keine Assertion wurde entfernt.
+`50dd2dd` besteht mit 53 Core- und 13 UI-Tests auf beiden Architekturen. Strengere
+Nachtests reproduzieren eine ignorierte Path-Randgeste trotz sichtbarem Back-Button.
+`0c88d9a` besteht auf Apple Silicon mit 13/14 UI-Tests; allein die Zurückgeste bleibt
+offen. Die Scroll-Testhilfe erreicht große Controls nun mit begrenzten Drags;
+Viewport-Containment und zwölf Versuche bleiben unverändert.
 
-`2128371` ergänzt einen 14. Test: größte native Accessibility-Schrift, vergrößerter
-Dock, erreichbare und überlappungsfreie Tabflächen sowie Formular/Tastatur nach
-Home-Scroll. `d809b70` ergänzt eine begrenzte Anbindung an den vorhandenen nativen
-Interactive-Pop-Erkenner des Path-Details. Nur eine tatsächlich zurücknavigierbare
-Ansicht darf beginnen; laufende Übergänge sind gesperrt. Originalkonfiguration
-wird beim Verlassen restauriert. Root-Paging bleibt SwiftUI-nativ.
+`34dff1e` entfernt den ungenutzten äußeren NavigationStack und bindet den vorhandenen
+nativen Interactive-Pop-Erkenner erst bei sichtbarem, angehängtem Controller im
+Fenster an. Der ursprüngliche Delegate wird beim Verlassen wiederhergestellt.
+Testkoordinaten sind direkt an der modalen NavigationBar verankert; eine zusätzliche
+Assertion kontrolliert den tatsächlichen ScreenPoint am linken Rand. Rückkehr zur
+Path-Liste und unveränderte Root-Auswahl bleiben die Abnahmebedingungen.
 
-[CI 41814758999](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41814758999)
-prüft `d809b70` mit allen 14 UI-Tests. Core und Simulator-Builds beider
-Architekturen bestanden; vollständiger UI-/Release-Nachweis noch ausstehend.
-
-Die Swipe-Testkoordinaten beziehen sich unmittelbar auf die NavigationBar.
-Der AX-Baum zeigt den hinter dem Sheet verkleinerten Root-Bereich bei x=16 und
-die modale Leiste bei x=0. Deshalb keine Mischung absoluter Leistenkoordinaten
-mit dem Anwendungsursprung. Eine zusätzliche Assertion prüft den tatsächlichen
-ScreenPoint des Gestenstarts, bevor die unveränderte Rückkehrprüfung erfolgt.
-
-Dynamic-Type-Lauf `2128371`: Dock-Vergrößerung, alle Tab-Taps, Mindest-Touchflächen,
-Displaygrenzen und fehlende Überlappungen bestehen. Die Scroll-Testhilfe springt
-mit ganzen Swipes über den 187 pt hohen Home-Button hinweg (AX-Protokoll: oben
-angeschnitten bei y=37, sichtbarer Bereich ab y=62). Für nahe Ziele verwendet sie
-jetzt einen begrenzten langsamen Drag statt eines weiteren weiten Swipes. Die
-vollständige Viewport-Containment-Assertion und zwölf Versuche bleiben unverändert.
-Das ist eine Korrektur der Teststeuerung, kein bestandener Nachweis vor dem Nachlauf.
-
-`0c88d9a` auf Apple Silicon: 13/14 UI-Tests bestanden; größte Dynamic-Type-Stufe
-inklusive Scrollen/Formular/Tastatur jetzt erfolgreich. Back-Swipe bleibt offen.
-Der äußere Root-NavigationStack ohne eigene Push-Ziele wird entfernt; modale
-Stacks bleiben. Die native Back-Anbindung berücksichtigt nun Attachment und Layout
-im Fenster. Die bestehenden Randgesten-/Root-Auswahl-Assertions bleiben unverändert.
+Aktueller Nachlauf: [CI 41820926314](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41820926314).
+Sein vollständiges Ergebnis steht noch aus; `34dff1e` ist noch kein als grün
+bestätigter Gesamtstand. Die bisherigen grünen Modulnachweise bleiben oben separat.
