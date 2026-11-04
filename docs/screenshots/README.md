@@ -1,35 +1,56 @@
 # Echte Simulatoraufnahmen
 
-Die UI-Tests erzeugen echte `XCTAttachment(screenshot: app.screenshot())`-Aufnahmen
-in isolierten Test-App-Containern. Keine Mockups, keine originalen Nutzerfotos und
-keine Referenzvideos. `Export actual simulator screenshots` exportiert die PNGs
-und das Xcode-Manifest in das jeweilige `ios-evidence-*`-Artefakt.
+Zehn unveränderte PNGs aus `XCTAttachment(screenshot: app.screenshot())`, aufgenommen
+am 4. November 2026 auf **iPhone 16 Pro, iOS 18.5, Xcode 16.4, Apple Silicon**.
+Nur isolierte Testdaten, keine Nutzerfotos, Mockups oder Originalreferenzvideos.
+Auflösung jeweils 1206 × 2622 Pixel. Die englischen Titel in den neuen Modulen
+sind bewusst eingegebene Testdaten; die App-Oberfläche ist deutsch.
 
-Nachgewiesener Export für `9d8a140` auf Apple Silicon:
-[CI 41805696013](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41805696013),
-[Artefakt ios-evidence-macos-15](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41805696013/artifacts/13309863817).
-Enthält Home/Entwicklung/Kreise/Profil jeweils Light und Dark sowie einen
-Chapter-Detail-Screenshot nach echter Eingabe und Neustart.
+Quelle: Code `b6e87808a0704108e83db402bfb38d33f429aa80`,
+[CI 41829938956](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41829938956),
+[Apple-Artefakt 13325150588](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41829938956/artifacts/13325150588).
+Dieser Apple-Job besteht mit 53 Core- und 14 UI-Tests sowie Debug-/Release-Builds.
+Das ist ein commitgenauer Bildnachweis, keine Behauptung zum jeweiligen Branch-HEAD.
 
-Nachgewiesene erweiterte Aufnahmen für `161cecb` auf Apple Silicon:
-[CI 41810190437](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41810190437),
-[Artefakt ios-evidence-macos-15](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41810190437/artifacts/13313410919).
-Der Screenshot-Test besteht und exportiert 18 benannte Referenzbilder: vier
-Haupttabs plus Life Modes, Life Paths, Pace Adaptive, Life Chapters und
-Life Experiments jeweils Light/Dark. Hinzu kommen drei Detailbilder nach echten
-Eingaben für Chapters, Experiments und Circle-Challenge. Die Testnamen beginnen
-mit `pace-`; das exportierte Manifest ordnet sie den PNG-Dateien zu.
+| Ansicht | Original-PNG |
+|---|---|
+| Home, hell | [Heute](pace-today-light-b6e8780.png) |
+| Home, dunkel | [Heute](pace-today-dark-b6e8780.png) |
+| Life Modes, leerer Startzustand | [Modes](pace-modes-light-b6e8780.png) |
+| Life Paths, leerer Startzustand | [Paths](pace-paths-light-b6e8780.png) |
+| Pace Adaptive | [Adaptive](pace-adaptive-light-b6e8780.png) |
+| Life Chapters, gespeicherte Erinnerung nach Neustart | [Chapter](pace-chapters-detail-light-b6e8780.png) |
+| Life Experiments, gespeicherter Messwert | [Experiment](pace-experiments-detail-light-b6e8780.png) |
+| Pace Circles, ausdrücklich freigegebener Beitrag | [Challenge](pace-circle-challenge-light-b6e8780.png) |
+| Einstellungen, hell | [Profil](pace-profile-light-b6e8780.png) |
+| Einstellungen, dunkel | [Profil](pace-profile-dark-b6e8780.png) |
 
-Der gesamte Lauf hat zusätzlich einen fehlgeschlagenen Path-Back-Swipe-Test und
-enthält dessen Diagnoseanhänge. Diese sind keine bestandene Navigationsabnahme.
-Die Referenz-Screenshots wurden unabhängig davon erfolgreich aufgenommen.
+## Sichtprüfung und Grenzen
 
-**Noch keine PNGs hier eingecheckt und noch keine visuelle Abnahme:** Der direkte
-Artefakt-Download aus dieser Cloud war durch den Proxy gesperrt (HTTP 403).
-Eine automatische CI-Commit-Lösung wurde wegen zusätzlicher permanenter
-Schreibrechte von der automatischen Freigabeprüfung abgelehnt. Die CI behält reine
-Leserechte. Die Artefakte lassen sich auf dem Mac über den obigen Lauf herunterladen;
-ausgewählte PNGs können danach hier mit ihrer Commit-/Geräteherkunft eingecheckt
-werden. Ein erfolgreicher Screenshot-Test ist keine visuelle Designabnahme.
+Alle zehn Bilder wurden tatsächlich geöffnet und visuell geprüft. In diesen
+Ansichten sind Safe Areas, Kartenbreiten, Abstände, Textumbrüche und Light-/Dark-
+Kontraste plausibel; der feste Dock hebt Icon und Text gemeinsam mintfarben hervor.
+Unterhalb des sichtbaren Ausschnitts liegender Inhalt bleibt scrollbar. Die
+zugehörigen UI-Tests prüfen zusätzlich Scrollen, Paging und erreichbare Eingaben.
+Die leeren Modes-/Paths-Aufnahmen sind keine Prüfung langer Listen oder Titel.
 
-Originalvideos/Wordmark fehlen weiterhin. Visueller 1:1-Videoabgleich ausstehend.
+Die zusätzliche Aufnahme mit größter Accessibility-Schrift zeigte zerrissene
+mehrzeilige Dock-Beschriftungen. Deshalb wurde `dfd03d7` umgesetzt: kompakte
+Tab-Texte und nativer Large Content Viewer, während Seiteninhalte weiter skalieren.
+Die korrigierte Accessibility-Aufnahme und deren Nachprüfung stehen noch aus;
+das fehlerhafte Vorher-Bild wird nicht als freigegebene Referenz eingecheckt.
+
+Dies ist eine begrenzte Sichtprüfung, keine vollständige Designabnahme. VoiceOver,
+kleinere/größere Displays, sämtliche langen DE/EN/RU-Texte und reale iPhones bleiben
+zu prüfen. Originalvideos und Wordmark fehlen weiterhin; visuelle
+1:1-Übereinstimmung ist nicht verifiziert. Der beschriftete Logo-Platzhalter folgt
+der verbindlichen Vorgabe im Designsystem.
+
+## Reproduzierbare Herkunft
+
+`provenance.json` enthält Quell-Commit, CI-Lauf, Dateigröße und SHA-256 je PNG.
+Die Dateien wurden ohne Skalierung oder Bildbearbeitung aus Xcode-Anhängen übernommen.
+Der reine Lese-Workflow `screenshot-evidence.yml` prüft Repository/Branch/Commit,
+liest das freigegebene Artefakt und gibt nur die in `export-request.json` genannten
+Bilder mit Prüfsummen aus. Er besitzt keine Repository-Schreibrechte. Erst nach
+lokaler Hash- und Sichtprüfung werden Bilder regulär auf den Beta-Branch gepusht.
