@@ -74,6 +74,8 @@ struct PathDetail: View {
             }.padding(16)
         }
         .background(PaceColor.background).navigationTitle(path?.title ?? "Life Paths").navigationBarTitleDisplayMode(.inline)
+        .toolbar(.visible, for: .navigationBar)
+        .navigationBarBackButtonHidden(false)
         .sheet(isPresented: $editing) { if let path { PathEditor(path: path) } }
         .sheet(item: $recording) { PathEntryEditor(milestone: $0) }
     }

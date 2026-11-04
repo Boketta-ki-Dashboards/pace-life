@@ -132,3 +132,14 @@ Ausführliche Testabläufe für alle lokalen Module stehen in [README.md](../REA
 Bei Migration ggf. verborgene neue Home-Widgets unter „Home anpassen“ aktivieren.
 Nach dem Schreiben von Schema 8 keine ältere Beta über denselben Datencontainer
 installieren: ältere Writer lehnen das neue Schema absichtlich ab.
+
+### Offener Navigationsnachtest
+
+Circle-CI `41810190437` auf Apple Silicon: 50 Core, Debug/Release und 12 von
+13 UI-Tests bestanden. Der neue Circle-Freigabe-/Widerruf-Ablauf und alle erweiterten
+Screenshotansichten bestehen. Die neue Edge-Swipe-Assertion im Path-Detail schlägt
+fehl. Die Detail-Navigationsleiste wird deshalb ausdrücklich sichtbar gehalten;
+der Nachtest prüft zusätzlich den nativen Back-Button und startet die Wischgeste
+am tatsächlichen modalen Navigationsbereich statt am gesamten App-Rahmen.
+Die Rückkehr zur Path-Liste und zum unveränderten Root-Tab bleibt verpflichtend.
+Dieser Nachtest ist noch nicht bestanden; keine abgeschlossene Designabnahme.

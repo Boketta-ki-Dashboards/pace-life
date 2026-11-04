@@ -285,10 +285,16 @@ final class PaceLifeUITests: XCTestCase {
         XCTAssertTrue(open.waitForExistence(timeout: 5)); open.tap()
         XCTAssertEqual(app.staticTexts["milestone.value.Take exam"].label, "1 / 1")
         // A native detail edge-swipe must pop the modal detail, not page the root.
-        let edge = app.coordinate(withNormalizedOffset: CGVector(dx: 0.01, dy: 0.5))
-        let center = app.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.5))
-        edge.press(forDuration: 0.05, thenDragTo: center)
-        XCTAssertTrue(app.buttons["addPath"].waitForExistence(timeout: 5))
+        let bar = app.navigationBars["Learn Russian"]
+        XCTAssertTrue(bar.waitForExistence(timeout: 5), app.debugDescription)
+        XCTAssertTrue(bar.buttons["Life Paths"].exists, app.debugDescription)
+        // The modal navigation controller can be inset from the application frame.
+        // Start at its own leading edge, below the bar, with an actual swipe.
+        let origin = app.coordinate(withNormalizedOffset: .zero)
+        let edge = origin.withOffset(CGVector(dx: bar.frame.minX + 2, dy: bar.frame.maxY + 80))
+        let center = origin.withOffset(CGVector(dx: bar.frame.minX + bar.frame.width * 0.8, dy: bar.frame.maxY + 80))
+        edge.press(forDuration: 0, thenDragTo: center, withVelocity: .default, thenHoldForDuration: 0)
+        XCTAssertTrue(app.buttons["addPath"].waitForExistence(timeout: 5), app.debugDescription)
         app.buttons["closePaths"].tap()
         assertTab("development", in: app)
     }
