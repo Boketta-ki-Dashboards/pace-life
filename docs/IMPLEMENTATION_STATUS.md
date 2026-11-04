@@ -10,7 +10,7 @@ Remote-Commit anschließend überprüft. Keine Änderungen an Pace Social oder S
 | Modul | Implementierter Stand | Verbleibender Umfang |
 |---|---|---|
 | Life Modes | Bestehendes CRUD/manuelle Aktivierung/Habit-Auswahl erhalten. Eigenständige Routinen mit Mode-Zuordnung, Wochentagen, optionaler Uhrzeit, sortierbaren Schritten/Dauer, Teilabschluss, Pause/Fortsetzen, Tages-Snapshots, Archiv/Wiederherstellen und Home-Widget. | Automatische wiederkehrende Mode-Wechsel, Mode-Duplikation/Archiv, Tagesprioritäten und vollständige historische Habit-Planrevisionen. |
-| Life Paths | Mehrere Paths, Lebensbereich/Beschreibung/Zieldatum, binäre/Zähler/Minuten-Meilensteine, Tagesbeiträge oder Habit-Verknüpfung, nachvollziehbarer Fortschritt, Statuswechsel/Archiv, Verlauf und Home-Widget. | Routine-Beiträge, Titelbilder, historisch versionierte Änderungen einer Beitragsregel und umfassende Fortschrittsdiagramme. |
+| Life Paths | Mehrere Paths, Lebensbereich/Beschreibung/Zieldatum, binäre/Zähler/Minuten-Meilensteine, Tagesbeiträge, Habit-Verknüpfung oder vollständige Routine-Sessions, nachvollziehbarer Fortschritt, Statuswechsel/Archiv, Verlauf und Home-Widget. | Titelbilder, historisch versionierte Änderungen einer Beitragsregel und umfassende Fortschrittsdiagramme. |
 | Pace Adaptive | Lokale deterministische Vorschläge aus Zeit/Energie/Belastung, geschützten Habits, Routine-Dauern und aktiven Paths; ausdrückliche Annahme/Ablehnung, individuelle Ziele, Rückgängig, Tageshistorie und Home-Widget. | Neuplanung eines schon eingefrorenen Tages, flexible Routine-Schritte, freie Prioritäten/Zeitfenster. |
 | Life Chapters | Private Timeline, Titel/Text/Kategorie/Zeitraum, Path-Verknüpfung, Erinnerungen und persönliche Meilensteine, Bearbeiten/Archiv/Wiederherstellen/Löschen, native Fotoauswahl und separate lokale JPEG-Dateien; DE/EN/RU. | Chapter-Neustart/Archiv/Editieren im Simulator bestanden; native Fotoauswahl, visuelle Abnahme und Export offen. |
 | Life Experiments | 7/14/30 Tage und frei wählbarer Zeitraum; individuelle numerische, Minuten-, Skalen- und Ja/Nein-Messgrößen; Ausgangswerte, tägliche Check-ins/Korrekturen, Punktdiagramme, ehrliche Vergleiche, Reflexion, Abschluss/Wiederholung/Archiv, Habit-Links. | Neue Simulator- und visuelle Abnahme läuft; kein automatischer Datenimport. |
@@ -40,7 +40,7 @@ Die neuen Funktionen verwenden echte lokale Daten und DE/EN/RU-Texte.
 
 ## Persistenz und Migration
 
-Aktueller Writer: **Schema 7** (Chapters, Experiments und lokale Circles). Separate DTOs lesen Schema 1 bis 6. Alle alten
+Aktueller Writer: **Schema 8** (zusätzlich Routine-Path-Quellen). Separate DTOs lesen Schema 1 bis 7. Alle alten
 UUIDs, Habits, Ziel-Snapshots, Erfüllungen, Modes/Aktivierungen, Widgets und
 Einstellungen bleiben erhalten. Neue Widgets werden bei Migration hinten und
 zunächst verborgen ergänzt. Lesen migriert ausschließlich im Speicher; erst ein
@@ -105,7 +105,7 @@ im Widget-Editor gezielt aktiviert, statt dauerhaft aktiv zu sein.
    Neuplanung ausbauen. Aktuelle Streak-Berechnung verwendet weiterhin den heutigen
    Habit-Wochenplan und ist keine historische Rekonstruktion.
 3. Neue Experiment-/Circle-Simulatorabläufe und native Fotoauswahl abnehmen;
-   danach Routine-Path-Beiträge. Connect erst gemäß freigegebenem Vertrag.
+   Routine-Path-Auswahl ebenfalls im Simulator prüfen. Connect erst gemäß freigegebenem Vertrag.
 4. Backup/Export/Import und lokale Benachrichtigungen fehlen. Der Kalender ist eine Ansicht, kein Drag-and-drop-Planer.
 5. Klein/groß, Light/Dark, größte Dynamic-Type-Stufen, VoiceOver, Tastatur,
    Safe Areas, Swipe-Back und Widget-Reordering auf Gerät visuell abnehmen.
@@ -231,7 +231,7 @@ prüfen Mitglieder/Challenge-Verwaltung, private gegenüber freigegebenen Beitr�
 Widerruf nach Archivierung, Korrekturen, Neustart, fehlerhafte Writes und Schema 6→7.
 Ein verbundener Test kombiniert Habit/Mode/Routine, Path, bestätigtes Adaptive-Ziel,
 Experiment-Messung, Chapter-Meilenstein und explizit freigegebenen Habit-Beitrag.
-Die Routine ist in diesem Stand vorhanden, zählt aber noch nicht zum Path.
+Die Routine besitzt jetzt einen eigenen Meilenstein und zählt genau einmal zum Path.
 
 Circles sind ausschließlich lokale Testdaten. Jedes weitere Mitglied ist als Demo
 gekennzeichnet; Namen und Rollen sind keine Online-Identitäten oder Berechtigungen.
@@ -247,3 +247,15 @@ Neuer UI-Test: Circle/Challenge erstellen → privaten Wert speichern → Gesamt
 Zusätzliche echte Light-/Dark-XCTAttachments für Modes, Paths, Adaptive, Chapters
 und Experiments sowie nativer Zurück-Swipe im Path-Detail sind vorbereitet. Diese
 neuen UI-Prüfungen sind erst nach dem zugehörigen CI-Lauf bestätigt.
+
+### Routine-Beiträge zu Life Paths
+
+53 Core-XCTest-Tests unter Swift 6.0.3/Linux bestanden (0 Fehler). Drei neue Tests
+prüfen komplette gegenüber partiellen Sessions, Deduplikation, Templateänderung,
+Archiv/Neustart, Korrekturen und historische Path-Abschlüsse. Routine-Quellen sind
+ausschließlich binär oder als Session-Anzahl zulässig; geplante Minuten sind keine
+gemessene Arbeit. Die Quelle bleibt nach Erstellung fest. Schema 7→8 erhält die
+vorhandenen Daten; ältere Meilensteine erhalten keine erfundene Routine-Verknüpfung.
+Der verbundene Circle-Test deckt jetzt alle zehn Schritte des beauftragten Ablaufs
+auf Domain-/Persistenzebene ab. Der bestehende Routine-UI-Test wählt zusätzlich
+eine Routine als Path-Quelle und prüft deren Wert nach Neustart; CI ausstehend.

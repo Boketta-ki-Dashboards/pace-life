@@ -7,10 +7,12 @@ public struct PathMilestone: Identifiable, Codable, Equatable, Sendable {
     public let goalType: GoalType
     public var target: Double
     /// A linked milestone counts actual values with the same frozen unit from startDay onward.
-    /// Manual and habit contributions are mutually exclusive to avoid counting work twice.
+    /// Manual, habit and routine contributions are mutually exclusive to avoid counting work twice.
     public let habitID: UUID?
-    public init(id: UUID = UUID(), title: String, goalType: GoalType = .binary, target: Double = 1, habitID: UUID? = nil) {
-        self.id = id; self.title = title; self.goalType = goalType; self.target = target; self.habitID = habitID
+    /// Counts fully completed stored sessions, never planned minutes as measured work.
+    public let routineID: UUID?
+    public init(id: UUID = UUID(), title: String, goalType: GoalType = .binary, target: Double = 1, habitID: UUID? = nil, routineID: UUID? = nil) {
+        self.id = id; self.title = title; self.goalType = goalType; self.target = target; self.habitID = habitID; self.routineID = routineID
     }
 }
 public struct LifePath: Identifiable, Codable, Equatable, Sendable {
@@ -44,6 +46,10 @@ extension LifeState {
             return completions.filter { $0.habitID == habitID && $0.goalTypeSnapshot == milestone.goalType
                 && $0.day >= path.startDay && (day == nil || $0.day <= day!) }.reduce(0) { $0 + $1.actualValue }
         }
+        if let routineID = milestone.routineID {
+            return Double(routineSessions.filter { $0.routineID == routineID && $0.isComplete
+                && $0.day >= path.startDay && (day == nil || $0.day <= day!) }.count)
+        }
         return pathEntries.filter { $0.milestoneID == milestone.id && (day == nil || $0.day <= day!) }.reduce(0) { $0 + $1.value }
     }
     public func pathProgress(_ path: LifePath, through day: DayKey? = nil) -> Double {
@@ -62,14 +68,16 @@ extension LifeState {
                   path.completedDay.map({ $0.isValid && $0 >= path.startDay && pathProgress(path, through: $0) >= 1 }) ?? true else { throw LifeError.invalidValue }
             for milestone in path.milestones {
                 try Habit(title: milestone.title, goalType: milestone.goalType, target: milestone.target).validate()
-                guard milestone.habitID == nil || habits.contains(where: { $0.id == milestone.habitID }),
+                guard milestone.habitID == nil || milestone.routineID == nil,
+                      milestone.routineID == nil || (milestone.goalType != .duration && routines.contains(where: { $0.id == milestone.routineID })),
+                      milestone.habitID == nil || habits.contains(where: { $0.id == milestone.habitID }),
                       milestoneValue(milestone, in: path).isFinite else { throw LifeError.invalidValue }
             }
         }
         var keys: Set<String> = []
         for entry in pathEntries {
             guard let path = paths.first(where: { $0.milestones.contains(where: { $0.id == entry.milestoneID }) }),
-                  let milestone = path.milestones.first(where: { $0.id == entry.milestoneID }), milestone.habitID == nil,
+                  let milestone = path.milestones.first(where: { $0.id == entry.milestoneID }), milestone.habitID == nil, milestone.routineID == nil,
                   entry.day.isValid, entry.day >= path.startDay, entry.value.isFinite, entry.value >= 0,
                   milestone.goalType != .binary || [0, 1].contains(entry.value),
                   milestone.goalType != .count || entry.value.rounded() == entry.value,
@@ -84,10 +92,13 @@ extension LifeStore {
         if let existing = state.paths.first(where: { $0.id == path.id }) {
             // The source/unit/start date is a contribution contract. Preserve it when editing.
             guard clean.startDay == existing.startDay, clean.status == existing.status, clean.completedDay == existing.completedDay,
-                  existing.milestones.allSatisfy({ old in clean.milestones.contains { $0.id == old.id && $0.habitID == old.habitID && $0.goalType == old.goalType } }) else { throw LifeError.invalidValue }
+                  existing.milestones.allSatisfy({ old in clean.milestones.contains { $0.id == old.id && $0.habitID == old.habitID && $0.routineID == old.routineID && $0.goalType == old.goalType } }) else { throw LifeError.invalidValue }
         }
         for milestone in clean.milestones {
             let alreadyLinked = state.paths.flatMap(\.milestones).contains { $0.id == milestone.id }
+            if !alreadyLinked, let routineID = milestone.routineID {
+                guard milestone.goalType != .duration, state.routines.contains(where: { $0.id == routineID && !$0.isArchived }) else { throw LifeError.invalidValue }
+            }
             if !alreadyLinked, let habitID = milestone.habitID {
                 guard state.habits.contains(where: { $0.id == habitID && $0.goalType == milestone.goalType && !$0.isArchived }) else { throw LifeError.invalidValue }
             }
@@ -112,7 +123,7 @@ extension LifeStore {
         }
     }
     public func recordPathEntry(milestoneID: UUID, value: Double, on date: Date = Date(), calendar: Calendar = .current) throws {
-        guard let path = state.paths.first(where: { $0.milestones.contains(where: { $0.id == milestoneID && $0.habitID == nil }) }),
+        guard let path = state.paths.first(where: { $0.milestones.contains(where: { $0.id == milestoneID && $0.habitID == nil && $0.routineID == nil }) }),
               path.status == .active else { throw LifeError.invalidValue }
         let day = DayKey(date: date, calendar: calendar)
         try transaction { state in

@@ -1,10 +1,12 @@
 import PaceLifeCore
 
 enum PathCopy {
-    case paths, newPath, editPath, milestones, addMilestone, linkedHabit, manual, category, targetDate, noPaths, contributionRule, status, active, paused, completed, archived, finish, resume, todayValue, startDate, completedDate
+    case source, routineRule, paths, newPath, editPath, milestones, addMilestone, linkedHabit, manual, category, targetDate, noPaths, contributionRule, status, active, paused, completed, archived, finish, resume, todayValue, startDate, completedDate
     func text(_ language: AppLanguage) -> String {
         let v: (String, String, String)
         switch self {
+        case .source: v = ("Beitragsquelle", "Contribution source", "Источник вклада")
+        case .routineRule: v = ("Routinen zählen vollständig erledigte gespeicherte Sessions ab dem Path-Start. Eine Session zählt einmal; Teilfortschritt und geplante Minuten werden nicht als erledigte Arbeit gebucht. Korrekturen aktualisieren den Beitrag auch nach Archivierung.", "Routines count fully completed stored sessions from the path start. Each session counts once; partial progress and planned minutes are not recorded as completed work. Corrections update the contribution even after archiving.", "Рутины учитывают полностью выполненные сохранённые сессии с начала пути. Каждая сессия считается один раз; частичный прогресс и запланированные минуты не считаются выполненной работой. Исправления обновляют вклад и после архивации.")
         case .paths: v = ("Life Paths", "Life Paths", "Life Paths")
         case .newPath: v = ("Neuer Life Path", "New Life Path", "Новый Life Path")
         case .editPath: v = ("Life Path bearbeiten", "Edit Life Path", "Изменить Life Path")

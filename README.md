@@ -85,3 +85,9 @@ Widerruf. Es gibt keine Online-Mitglieder, Nachrichten oder Synchronisierung.
 
 Echte Simulator-Screenshots werden in den CI-Artefakten bereitgestellt; Download
 und verbleibende visuelle Prüfungen: [docs/screenshots](docs/screenshots/README.md).
+
+Routine mit Path verbinden: Im neuen Meilenstein unter **Beitragsquelle** eine
+Routine wählen (binär oder Anzahl). Nur vollständig erledigte gespeicherte
+Sessions ab Path-Start zählen. Teilfortschritt bleibt in der Routine erhalten.
+Korrekturen aktualisieren denselben Path-Beitrag; geplante Minuten werden nicht
+als tatsächliche Arbeitszeit verbucht.

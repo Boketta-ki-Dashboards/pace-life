@@ -59,7 +59,8 @@ struct PathDetail: View {
                     LabeledContent(model.pathText(.status), value: model.pathStatusName(path.status))
                     if let day = path.completedDay { LabeledContent(model.pathText(.completedDate), value: model.dayLabel(day)) }
                     ForEach(path.milestones) { milestone in milestoneCard(milestone, in: path) }
-                    Text(model.pathText(.contributionRule)).font(.footnote).foregroundStyle(PaceColor.textSecondary)
+                    Text(model.pathText(.contributionRule)).font(.footnote)
+                    Text(model.pathText(.routineRule)).font(.footnote).foregroundStyle(PaceColor.textSecondary)
                     Button(model.text(.edit)) { editing = true }.buttonStyle(PaceButtonStyle(kind: .secondary))
                     if path.status == .active {
                         Button(model.pathText(.finish)) { model.setPathStatus(pathID, .completed) }
@@ -86,12 +87,15 @@ struct PathDetail: View {
                 ProgressView(value: min(1, actual / milestone.target)).tint(PaceColor.accent)
                 if let id = milestone.habitID, let habit = model.state.habits.first(where: { $0.id == id }) {
                     NavigationLink { HabitDetailContent(habitID: id) } label: { Label(habit.title, systemImage: "link") }
+                } else if let id = milestone.routineID, let routine = model.state.routines.first(where: { $0.id == id }) {
+                    NavigationLink { RoutineDetail(routineID: id) } label: { Label(routine.title, systemImage: "list.bullet.rectangle") }
                 } else {
                     Button(model.text(.recordProgress)) { recording = milestone }.disabled(path.status != .active)
                         .accessibilityIdentifier("recordMilestone." + milestone.title)
                 }
                 let days = Set(model.state.pathEntries.filter { $0.milestoneID == milestone.id }.map(\.day)
-                    + model.state.completions.filter { $0.habitID == milestone.habitID && $0.goalTypeSnapshot == milestone.goalType && $0.day >= path.startDay }.map(\.day)).sorted(by: >)
+                    + model.state.completions.filter { $0.habitID == milestone.habitID && $0.goalTypeSnapshot == milestone.goalType && $0.day >= path.startDay }.map(\.day)
+                    + model.state.routineSessions.filter { $0.routineID == milestone.routineID && $0.day >= path.startDay }.map(\.day)).sorted(by: >)
                 ForEach(days, id: \.self) { day in
                     LabeledContent(model.dayLabel(day), value: model.number(model.state.milestoneValue(milestone, in: path, through: day)))
                         .font(.footnote).foregroundStyle(PaceColor.textSecondary)
@@ -107,10 +111,11 @@ private struct MilestoneDraft: Identifiable {
     var kind: GoalType
     var target: String
     var habitID: UUID?
+    var routineID: UUID?
     let isExisting: Bool
     init(_ source: PathMilestone? = nil) {
         id = source?.id ?? UUID(); title = source?.title ?? ""; kind = source?.goalType ?? .binary
-        target = source.map { String($0.target) } ?? "1"; habitID = source?.habitID; isExisting = source != nil
+        target = source.map { String($0.target) } ?? "1"; habitID = source?.habitID; routineID = source?.routineID; isExisting = source != nil
     }
 }
 struct PathEditor: View {
@@ -153,6 +158,7 @@ struct PathEditor: View {
                 }
                 milestonesSection
                 Text(model.pathText(.contributionRule)).font(.footnote)
+                Text(model.pathText(.routineRule)).font(.footnote)
             }
             .environment(\.editMode, $editMode)
             .scrollContentBackground(.hidden).background(PaceColor.background)
@@ -182,11 +188,25 @@ struct PathEditor: View {
                     if !draft.isExisting {
                         Picker(model.text(.goal), selection: $draft.kind) {
                             ForEach(GoalType.allCases, id: \.self) { Text(model.goalName($0)).tag($0) }
-                        }.onChange(of: draft.kind) { _, _ in draft.habitID = nil; draft.target = "1" }
-                        Picker(model.pathText(.linkedHabit), selection: $draft.habitID) {
-                            Text(model.pathText(.manual)).tag(UUID?.none)
-                            ForEach(model.activeHabits.filter { $0.goalType == draft.kind }) { Text($0.title).tag(Optional($0.id)) }
-                        }
+                        }.onChange(of: draft.kind) { _, _ in draft.habitID = nil; draft.routineID = nil; draft.target = "1" }
+                        Picker(model.pathText(.source), selection: Binding(get: {
+                            if let id = draft.habitID { return "habit:" + id.uuidString }
+                            if let id = draft.routineID { return "routine:" + id.uuidString }
+                            return "manual"
+                        }, set: { selection in
+                            draft.habitID = selection.hasPrefix("habit:") ? UUID(uuidString: String(selection.dropFirst(6))) : nil
+                            draft.routineID = selection.hasPrefix("routine:") ? UUID(uuidString: String(selection.dropFirst(8))) : nil
+                        })) {
+                            Text(model.pathText(.manual)).tag("manual")
+                            ForEach(model.activeHabits.filter { $0.goalType == draft.kind }) {
+                                Text($0.title + " · " + model.text(.habits)).tag("habit:" + $0.id.uuidString)
+                            }
+                            if draft.kind != .duration {
+                                ForEach(model.state.routines.filter { !$0.isArchived }) {
+                                    Text($0.title + " · " + model.text(.routines)).tag("routine:" + $0.id.uuidString)
+                                }
+                            }
+                        }.accessibilityIdentifier("milestoneSource")
                     } else { Text(model.goalName(draft.kind)).font(.footnote) }
                     if draft.kind != .binary {
                         TextField(model.text(.target), text: $draft.target).keyboardType(.decimalPad)
@@ -202,7 +222,7 @@ struct PathEditor: View {
     }
     private func save() {
         guard valid else { return }
-        let items = milestones.map { PathMilestone(id: $0.id, title: $0.title, goalType: $0.kind, target: model.parseNumber($0.target) ?? 1, habitID: $0.habitID) }
+        let items = milestones.map { PathMilestone(id: $0.id, title: $0.title, goalType: $0.kind, target: model.parseNumber($0.target) ?? 1, habitID: $0.habitID, routineID: $0.routineID) }
         var path = existing ?? LifePath(title: title, milestones: items)
         path.title = title; path.notes = notes; path.category = category; path.milestones = items
         path.targetDay = targetEnabled ? DayKey(date: targetDate) : nil

@@ -243,6 +243,23 @@ final class PaceLifeUITests: XCTestCase {
         XCTAssertTrue(step.isEnabled)
         setSwitch(app.switches["routine.step.Read"], to: true)
         XCTAssertEqual(app.staticTexts["routine.progress"].label, "2 / 2")
+        app.terminate(); app.launch()
+        app.buttons["tab.development"].tap(); app.buttons["managePaths"].tap(); app.buttons["addPath"].tap()
+        let pathTitle = app.textFields["pathTitle"]
+        XCTAssertTrue(pathTitle.waitForExistence(timeout: 5)); pathTitle.tap(); pathTitle.typeText("Routine path")
+        let milestone = app.textFields["milestoneTitle"]
+        reveal(milestone, in: app); milestone.tap(); milestone.typeText("Complete a morning")
+        let source = app.buttons["milestoneSource"]
+        reveal(source, in: app); source.tap()
+        app.buttons["Morning routine · Routinen"].tap()
+        app.buttons["savePath"].tap()
+        let openPath = app.buttons["path.open.Routine path"]
+        XCTAssertTrue(openPath.waitForExistence(timeout: 5)); openPath.tap()
+        XCTAssertEqual(app.staticTexts["milestone.value.Complete a morning"].label, "1 / 1")
+        app.terminate(); app.launch()
+        app.buttons["tab.development"].tap(); app.buttons["managePaths"].tap()
+        XCTAssertTrue(openPath.waitForExistence(timeout: 5)); openPath.tap()
+        XCTAssertEqual(app.staticTexts["milestone.value.Complete a morning"].label, "1 / 1")
     }
 
     @MainActor

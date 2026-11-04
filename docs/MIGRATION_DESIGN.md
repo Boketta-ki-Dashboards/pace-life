@@ -1,10 +1,10 @@
 # Versionierte Datenmigration und Dateninvarianten
 
-Status: Schema 7 ist aktiviert. Explizite DTOs für Schema 1 bis 6 erhalten die bisherigen Daten; 50 Core-Tests bestanden. Die Simulator-Buildgrundlage ist auf Apple Silicon und Intel nachgewiesen. Die eingefrorene Datei `Packages/PaceLifeCore/Tests/PaceLifeCoreTests/Fixtures/schema-one.json` wurde mit dem originalen Schema-1-Serializer aus `c2299e5` erstellt. Ihre Originalfelder werden vor Änderungen an Domain und Repository geprüft.
+Status: Schema 8 ist aktiviert. Explizite DTOs für Schema 1 bis 7 erhalten die bisherigen Daten; 53 Core-Tests bestanden. Die Simulator-Buildgrundlage ist auf Apple Silicon und Intel nachgewiesen. Die eingefrorene Datei `Packages/PaceLifeCore/Tests/PaceLifeCoreTests/Fixtures/schema-one.json` wurde mit dem originalen Schema-1-Serializer aus `c2299e5` erstellt. Ihre Originalfelder werden vor Änderungen an Domain und Repository geprüft.
 
 ## Übergang
 
-Schema 1 explizit als altes DTO lesen und validieren, anschließend deterministisch auf das aktuelle Schema 7 abbilden. Neue Felder dürfen für Schema 1 kontrollierte Defaults bekommen, während das aktuelle Schema vollständig und streng decodiert werden muss. Beschädigte oder unbekannte neuere Versionen bleiben unverändert. Kein Fehlerpfad darf eine leere Datenbank über eine vorhandene schreiben. Der erste erfolgreiche Schreibvorgang ersetzt den vollständigen validierten Snapshot atomar; fehlgeschlagene Änderungen übernehmen keinen neuen UI-State.
+Schema 1 explizit als altes DTO lesen und validieren, anschließend deterministisch auf das aktuelle Schema 8 abbilden. Neue Felder dürfen für Schema 1 kontrollierte Defaults bekommen, während das aktuelle Schema vollständig und streng decodiert werden muss. Beschädigte oder unbekannte neuere Versionen bleiben unverändert. Kein Fehlerpfad darf eine leere Datenbank über eine vorhandene schreiben. Der erste erfolgreiche Schreibvorgang ersetzt den vollständigen validierten Snapshot atomar; fehlgeschlagene Änderungen übernehmen keinen neuen UI-State.
 
 Alle bisherigen UUIDs, Habits, Ziele, Erfüllungs-Snapshots, Mode-Aktivierungen, Widgets und Einstellungen werden exakt übernommen. Neue Widgets werden hinten und zunächst ausgeblendet ergänzt. Bilder liegen in separaten lokalen Dateien mit referenzgezählter Verwendung; nur Medienmetadaten und stabile IDs gehören ins JSON.
 
@@ -53,3 +53,7 @@ Schema 6 ergänzt `experiments`/`experimentCheckIns`. Schema 7 ergänzt `circles
 DTO. Neue Arrays bleiben leer: weder Messungen noch Demo-Mitglieder oder Freigaben
 werden bei der Migration erfunden. Lesen verändert keine Datei. Bei einem
 Downgrade muss der ältere Writer die neuere Schemaversion ablehnen.
+
+Schema 8 ergänzt die optionale Routine-Quelle eines Path-Meilensteins. Bestehende
+Meilensteine behalten ihre manuelle/Habit-Quelle. Keine alten Sessions werden
+verändert, keine Minuten umgedeutet. Ein Schema-7-Roundtrip prüft alle alten Felder.

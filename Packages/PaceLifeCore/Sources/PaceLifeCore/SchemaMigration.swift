@@ -145,3 +145,27 @@ struct SchemaSixState: Decodable {
         var state = base.migrated(); state.experiments = experiments; state.experimentCheckIns = experimentCheckIns; return state
     }
 }
+
+struct SchemaSevenEnvelope: Decodable {
+    let schemaVersion: Int
+    let state: SchemaSevenState
+}
+struct SchemaSevenState: Decodable {
+    let base: SchemaSixState
+    let circles: [LocalCircle]
+    let circleChallenges: [CircleChallenge]
+    let circleContributions: [CircleContribution]
+    enum CodingKeys: String, CodingKey { case circles, circleChallenges, circleContributions }
+    init(from decoder: Decoder) throws {
+        base = try SchemaSixState(from: decoder)
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        circles = try container.decode([LocalCircle].self, forKey: .circles)
+        circleChallenges = try container.decode([CircleChallenge].self, forKey: .circleChallenges)
+        circleContributions = try container.decode([CircleContribution].self, forKey: .circleContributions)
+    }
+    func migrated() -> LifeState {
+        var state = base.migrated()
+        state.circles = circles; state.circleChallenges = circleChallenges; state.circleContributions = circleContributions
+        return state
+    }
+}

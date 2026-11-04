@@ -20,7 +20,7 @@ final class MigrationTests: XCTestCase {
             try repo.save(first)
             let saved = try Data(contentsOf: url)
             var json = try XCTUnwrap(JSONSerialization.jsonObject(with: saved) as? [String: Any])
-            XCTAssertEqual(json["schemaVersion"] as? Int, 7)
+            XCTAssertEqual(json["schemaVersion"] as? Int, 8)
             XCTAssertEqual(first, try JSONStateRepository(url: url).load())
             var state = try XCTUnwrap(json["state"] as? [String: Any])
             state.removeValue(forKey: "routineSessions"); json["state"] = state

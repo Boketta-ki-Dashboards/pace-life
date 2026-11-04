@@ -55,7 +55,7 @@ CircleContribution. Später: serverseitige Memberships, ShareGrants und External
 
 ### Persistenzentscheidung
 
-Ein versionierter Codable-JSON-Store ersetzt in Phase 1 SwiftData. Damit werden dieselben Domain-/Persistenzpfade unter Linux und macOS getestet, ohne Apple-Persistenztypen an die Domäne zu koppeln. Das kleine lokale MVP verwendet einen einzelnen MainActor-Writer und atomaren Dateiersatz. Ursprünglich `schemaVersion = 1`, aktuell Schema 7 mit expliziten Migrationen (siehe unten); unbekannte neuere Versionen und beschädigte Daten führen zum sichtbaren Ladefehler, niemals zum stillen Reset. Ein fehlgeschlagener Schreibvorgang verwirft den vorgeschlagenen Zustand. iOS-Dateischutz ist aktiviert. Keine Mehrfensterbearbeitung und keine mehreren Store-Instanzen auf dieselbe Datei.
+Ein versionierter Codable-JSON-Store ersetzt in Phase 1 SwiftData. Damit werden dieselben Domain-/Persistenzpfade unter Linux und macOS getestet, ohne Apple-Persistenztypen an die Domäne zu koppeln. Das kleine lokale MVP verwendet einen einzelnen MainActor-Writer und atomaren Dateiersatz. Ursprünglich `schemaVersion = 1`, aktuell Schema 8 mit expliziten Migrationen (siehe unten); unbekannte neuere Versionen und beschädigte Daten führen zum sichtbaren Ladefehler, niemals zum stillen Reset. Ein fehlgeschlagener Schreibvorgang verwirft den vorgeschlagenen Zustand. iOS-Dateischutz ist aktiviert. Keine Mehrfensterbearbeitung und keine mehreren Store-Instanzen auf dieselbe Datei.
 
 Der vollständige Snapshot wird synchron gespeichert. Bei stark wachsender Historie ist ein Hintergrund-Actor/SQLite-Adapter hinter demselben Protokoll erforderlich; dies ist kein Mehrgeräte-Sync-Konzept. Archive erhalten Habit-Historie. Die App synchronisiert oder veröffentlicht keine Daten; Gerätesicherungen unterliegen den Systemeinstellungen.
 
@@ -71,7 +71,7 @@ Vier Root-Tabs mit festem, Safe-Area-geschütztem Dock; Editieren in nativen She
 
 ### Schema 2 und Routine-Sessions
 
-Schema 2 führte Routinen ein. Der aktuelle Writer schreibt Schema 7.
+Schema 2 führte Routinen ein. Der aktuelle Writer schreibt Schema 8.
 `SchemaMigration.swift` liest Schema 1 explizit und ergänzt unter anderem leere
 Routinen-/Session-Arrays sowie das zunächst verborgene Routinen-Widget.
 Alle aktuellen Pflichtfelder werden streng decodiert. Laden
@@ -173,3 +173,14 @@ braucht getrennte echte Identitäten, serverseitige Autorisierung und einen
 freigegebenen Vertrag; Demo-Rollen sind dafür niemals Berechtigungen. Schema 6
 wird explizit übernommen, mit drei leeren Circle-Arrays und unveränderter Historie.
 Schema 7 verlangt alle drei Arrays, beschädigte Daten werden nicht als leer geladen.
+
+### Schema 8: Routine-Sessions als Path-Quelle
+
+`PathMilestone.routineID` ist eine optionale, nach Erstellung feste Alternative
+zu Habit oder manueller Quelle. Nur komplett erledigte gespeicherte Sessions ab
+Path-Start zählen, jede höchstens einmal. Binär bedeutet mindestens eine Session,
+Zähler eine Anzahl. Dauer ist ausgeschlossen: geplante Schrittminuten sind keine
+Messwerte. Korrekturen verwenden dieselbe Ableitung und können Path-Abschlüsse
+wieder öffnen; archivierte Vorlagen und historische Session-Snapshots bleiben
+erhalten. Schema 7 wird explizit übernommen. Der neue Writer verhindert, dass
+eine ältere App neue Quellen irrtümlich als manuelle Beiträge interpretiert.
