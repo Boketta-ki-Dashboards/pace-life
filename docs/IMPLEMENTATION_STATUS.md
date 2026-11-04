@@ -155,3 +155,11 @@ unverändert. Der neue 54. Core-Test prüft drei Kalendertypen, Sommer-/Winterze
 sowie Berlin, Kiritimati und Los Angeles gegen feste erwartete Zeitpunkte und
 verlustfreien DayKey-Roundtrip. Alle 54 Core-Tests lokal bestanden; eigener
 iOS-Nachlauf für diese kleine Korrektur ausstehend.
+
+Die Screenshot-Sichtprüfung zeigte außerdem eine alleinstehende, unbeschriftete
+Circle-Gesamtsumme unter dem Ring. Sie trägt jetzt die vorhandene DE/EN/RU-
+Beschriftung „Fortschritt“ und ist wie die Eigen-/Demo-Summen ausgerichtet.
+Der existierende Freigabe-/Widerrufstest prüft weiterhin genau denselben Wert;
+kein Test-Identifier oder erwarteter Beitrag wurde verändert. Syntax-/Diff-Prüfung
+bestanden, vollständiger iOS-Nachlauf folgt. Die bisherige Circle-Aufnahme bleibt
+bis zum neuen echten Export ausdrücklich dem älteren Quell-Commit zugeordnet.

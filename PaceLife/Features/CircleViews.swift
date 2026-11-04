@@ -125,7 +125,11 @@ struct CircleChallengeDetail: View {
                     let progress = model.state.circleProgress(challenge)
                     Label(model.circleText(.localDemo), systemImage: "iphone").font(.footnote)
                     PaceProgressRing(progress: progress.total / challenge.target, value: model.number(progress.total) + " / " + model.number(challenge.target), label: challenge.kind == .duration ? model.text(.minutes) : challenge.unit)
-                    Text(model.number(progress.total)).accessibilityIdentifier("circleTotal")
+                    HStack(alignment: .firstTextBaseline) {
+                        Text(model.text(.progress))
+                        Spacer()
+                        Text(model.number(progress.total)).accessibilityIdentifier("circleTotal")
+                    }
                     LabeledContent(model.circleText(.own), value: model.number(progress.own))
                     LabeledContent(model.circleText(.simulated), value: model.number(progress.demo))
                     Text(challenge.notes)
