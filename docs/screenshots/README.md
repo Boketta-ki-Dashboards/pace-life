@@ -46,6 +46,21 @@ zu prüfen. Originalvideos und Wordmark fehlen weiterhin; visuelle
 1:1-Übereinstimmung ist nicht verifiziert. Der beschriftete Logo-Platzhalter folgt
 der verbindlichen Vorgabe im Designsystem.
 
+## Ergänzende Token-Kontrastprüfung
+
+Aus den dokumentierten sRGB-Farbwerten berechnete Kontrastverhältnisse (relative
+Luminanz, keine Schätzung aus komprimierten Bildschirmbildern):
+
+| Vordergrund / Hintergrund | Hell | Dunkel |
+|---|---:|---:|
+| textPrimary / background | 17,95:1 | 17,38:1 |
+| textSecondary / surface | 5,64:1 | 7,82:1 |
+| onSelection / selectionFill | 10,84:1 | 13,39:1 |
+| onAccent / actionFill | 5,60:1 | 13,18:1 |
+
+Diese vier Textkombinationen überschreiten 4,5:1. Das ist keine vollständige
+Barrierefreiheitsprüfung aller Zustände, Charts, Transparenzen oder Systemelemente.
+
 ## Reproduzierbare Herkunft
 
 `provenance.json` enthält Quell-Commit, CI-Lauf, Dateigröße und SHA-256 je PNG.

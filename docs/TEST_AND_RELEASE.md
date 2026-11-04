@@ -43,7 +43,9 @@ synthetische Datei unter `PaceLifeUITests/Fixtures` hinzu; keine vorhandenen Fot
 werden gelöscht. Der Test verlangt Picker-Abbruch ohne Referenz, echten Import,
 sichtbares dekodiertes Bild nach Neustart sowie Entfernen und weiteren Neustart.
 Mit `7ee521e` auf Apple Silicon und Intel bestanden. Core-Dateitests prüfen
-zusätzlich fehlende Dateien, Grenzen, Bereinigung und fehlgeschlagene Speicherung.
+zusätzlich fehlende Dateien, Referenzerhalt, Bereinigung und fehlgeschlagene Speicherung.
+Dateigrößen-/Formatgrenzen sind implementiert; deren vollständige iOS-Randfallprüfung
+mit weiteren Fotoformaten bleibt offen.
 
 Die [eingecheckten Simulatoraufnahmen](screenshots/README.md) wurden tatsächlich
 visuell geöffnet und geprüft. Das ersetzt keine vollständige Abnahme von
