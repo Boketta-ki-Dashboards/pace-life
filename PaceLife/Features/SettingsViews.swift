@@ -65,6 +65,7 @@ struct ProfileView: View {
             PaceCard {
                 VStack(spacing: 8) {
                     settingsButton(.modes, icon: "circle.hexagongrid") { modes = true }
+                        .accessibilityIdentifier("profile.modes")
                     Divider()
                     settingsButton(.habits, icon: "checklist") { habits = true }
                     Divider()

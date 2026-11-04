@@ -43,6 +43,7 @@ Farben zentral als dynamische Assets/semantische SwiftUI-Tokens bereitstellen. K
 - PaceRootHeader: PaceWordmark links (28pt Standard, 33pt Haupttab), rechts optionale Aktionen; erste Headerzeile mindestens 44pt, darunter großer Seitentitel mindestens 44pt; 8pt Top-Abstand. Beim Page-Swipe kein vertikaler Titelsprung.
 - PaceSubpageHeader: zurück mit Chevron/Seitenname; PaceWordmark/Aktionen; großer Titel; optional Untertitel. Native Edge-Swipe-Back-Geste.
 - PaceTabBar: Symbol ca. 20pt, Text ca. 13pt, Mindest-Touch-Höhe 48pt, aktiver mintfarbener Hintergrund mit dunklem Text, Badges.
+- Die feste Tabbar behält auch bei Accessibility-Schrift einzeilige 13-pt-Beschriftungen und bietet den nativen Large Content Viewer beim langen Drücken. Seiteninhalte skalieren weiterhin vollständig mit Dynamic Type. Die Simulator-Sichtprüfung zeigte, dass skalierte mehrzeilige Dock-Texte die Navigation unleserlich machten.
 - Falls Root-Paging implementiert: Swipe links zeigt nächsten Tab rechts; Swipe rechts vorherigen; interaktives Abbrechen; kein Root-Swipe in Editier- oder Texteingabe-Modus.
 - Für Pace Life: Tabs `Heute`, `Entwicklung`, `Kreise`, `Profil`; Zahl der Tabs darf sich fachlich ändern.
 - Sichere Status-/Home-Indicator-Areas, tastaturfreundliche Inputs, durchgängige Scrollbarkeit.

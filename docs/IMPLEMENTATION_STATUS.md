@@ -198,3 +198,16 @@ eine ausdrücklich synthetische, metadatenfreie Simulator-Testdatei, kein Mockup
 App. Es werden keine privaten Fotos benötigt und keine vorhandenen Simulatorfotos
 gelöscht. Die App erhält lediglich stabile Test-Identifier an vorhandenen Bildern
 und Entfernen-Buttons. Ein bestandener nativer Foto-Test wird erst nach CI behauptet.
+
+### Sichtprüfung: kompakte Accessibility-Navigation
+Die aus dem echten Apple-Simulator-Lauf `b6e8780` exportierten PNGs konnten nun
+verlustfrei lokal geprüft werden. Bei größter Schrift zerfielen die Dock-Texte in
+Silben; die bisherigen Touch-Flächentests hatten das nicht erkannt. Die Tabbar
+verwendet deshalb einzeilige 13-pt-Texte plus nativen Large Content Viewer.
+Der Dynamic-Type-Test verlangt jetzt einen kompakten Dock und zugleich tatsächlich
+vergrößerte Seiteninhalte; alle Erreichbarkeits-/Tastaturprüfungen bleiben erhalten.
+Der neue Fotoablauf besteht mit `7ee521e` auf beiden Architekturen, einschließlich
+Neustarts. Apple besteht die gesamte 15er-Suite; Intel scheiterte beim einmaligen
+Öffnen eines Screenshot-Sheets nach dem Tabwechsel. Der sichtbare/hittable Opener
+erhält nun einen endlichen 50-ms-Touch ohne Wiederholung; die Sheet-Erwartung bleibt
+verbindlich. Vollständiger Nachlauf für diese UI-Korrekturen ausstehend.

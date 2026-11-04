@@ -11,7 +11,6 @@ struct RootView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @ScaledMetric(relativeTo: .caption) private var tabFont: CGFloat = 13
     @State private var tab: RootTab = .today
 
     var body: some View {
@@ -52,8 +51,8 @@ struct RootView: View {
                 } label: {
                     VStack(spacing: 4) {
                         Image(systemName: item.icon).font(.system(size: 20))
-                        Text(model.text(item.copy)).font(.system(size: tabFont, weight: .semibold))
-                            .multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
+                        Text(model.text(item.copy)).font(.system(size: 13, weight: .semibold))
+                            .lineLimit(1).minimumScaleFactor(0.8)
                     }
                     .frame(maxWidth: .infinity, minHeight: 48)
                     .padding(.vertical, 8)
@@ -62,6 +61,9 @@ struct RootView: View {
                     .background(tab == item ? PaceColor.selectionFill : Color.clear, in: RoundedRectangle(cornerRadius: 14))
                 }
                 .buttonStyle(.plain)
+                .accessibilityShowsLargeContentViewer {
+                    Label(model.text(item.copy), systemImage: item.icon)
+                }
                 .accessibilityLabel(model.text(item.copy))
                 .accessibilityIdentifier("tab." + item.rawValue)
                 .accessibilityAddTraits(tab == item ? .isSelected : [])

@@ -398,7 +398,7 @@ final class PaceLifeUITests: XCTestCase {
         let app = launchFreshApp(accessibilityText: true)
         let tabs = ["today", "development", "circles", "profile"]
         let dock = app.otherElements["paceDock"]
-        XCTAssertGreaterThan(dock.frame.height, 100, "The accessibility text-size override must actually enlarge the dock")
+        XCTAssertLessThanOrEqual(dock.frame.height, 100, "The compact dock must not wrap tab captions into several lines")
         for tab in tabs {
             let button = app.buttons["tab." + tab]
             XCTAssertTrue(button.isHittable)
@@ -414,6 +414,9 @@ final class PaceLifeUITests: XCTestCase {
             let right = app.buttons["tab." + tabs[index + 1]].frame
             XCTAssertLessThanOrEqual(left.maxX, right.minX, "Large labels must not overlap adjacent tab targets")
         }
+        let modes = app.buttons["profile.modes"]
+        reveal(modes, in: app)
+        XCTAssertGreaterThan(modes.frame.height, 80, "The accessibility override must enlarge page content, while the dock stays compact")
         let attachment = XCTAttachment(screenshot: app.screenshot())
         attachment.name = "pace-profile-accessibility-xxxl-light"; attachment.lifetime = .keepAlways; add(attachment)
         app.buttons["tab.today"].tap()
@@ -452,8 +455,12 @@ final class PaceLifeUITests: XCTestCase {
                 app.buttons["tab.\(tab)"].tap()
                 assertTab(tab, in: app)
                 let opener = app.buttons[open]
-                reveal(opener, in: app); opener.tap()
-                XCTAssertTrue(app.buttons[close].waitForExistence(timeout: 5), app.debugDescription)
+                reveal(opener, in: app)
+                XCTAssertTrue(opener.isHittable)
+                // Give the synthetic touch a real contact interval, as in the
+                // back-swipe regression. No second tap or retry masks a failure.
+                opener.press(forDuration: 0.05)
+                XCTAssertTrue(app.buttons[close].waitForExistence(timeout: 10), app.debugDescription)
                 let attachment = XCTAttachment(screenshot: app.screenshot())
                 attachment.name = "pace-\(name)-\(theme == "Hell" ? "light" : "dark")"
                 attachment.lifetime = .keepAlways; add(attachment)
