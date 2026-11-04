@@ -11,10 +11,18 @@ Nachgewiesener Export für `9d8a140` auf Apple Silicon:
 Enthält Home/Entwicklung/Kreise/Profil jeweils Light und Dark sowie einen
 Chapter-Detail-Screenshot nach echter Eingabe und Neustart.
 
-Die erweiterte Testsuite erfasst zusätzlich Life Modes, Life Paths, Pace Adaptive,
-Life Chapters und Life Experiments in beiden Darstellungen sowie Experiment- und
-Circle-Details nach gespeicherten Eingaben. Ob diese neueren Aufnahmen vorliegen,
-ist anhand des commitbezogenen CI-Laufs zu prüfen.
+Nachgewiesene erweiterte Aufnahmen für `161cecb` auf Apple Silicon:
+[CI 41810190437](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41810190437),
+[Artefakt ios-evidence-macos-15](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41810190437/artifacts/13313410919).
+Der Screenshot-Test besteht und exportiert 18 benannte Referenzbilder: vier
+Haupttabs plus Life Modes, Life Paths, Pace Adaptive, Life Chapters und
+Life Experiments jeweils Light/Dark. Hinzu kommen drei Detailbilder nach echten
+Eingaben für Chapters, Experiments und Circle-Challenge. Die Testnamen beginnen
+mit `pace-`; das exportierte Manifest ordnet sie den PNG-Dateien zu.
+
+Der gesamte Lauf hat zusätzlich einen fehlgeschlagenen Path-Back-Swipe-Test und
+enthält dessen Diagnoseanhänge. Diese sind keine bestandene Navigationsabnahme.
+Die Referenz-Screenshots wurden unabhängig davon erfolgreich aufgenommen.
 
 **Noch keine PNGs hier eingecheckt und noch keine visuelle Abnahme:** Der direkte
 Artefakt-Download aus dieser Cloud war durch den Proxy gesperrt (HTTP 403).

@@ -14,7 +14,7 @@ Keine Merges nach main, kein Force-Push, keine anderen Repositories oder Backend
 | Pace Adaptive | Lokale deterministische Vorschläge aus Zeit/Energie/Belastung, geschützten Habits, Routine-Dauern und aktiven Paths; ausdrückliche Annahme/Ablehnung, individuelle Ziele, Rückgängig, Tageshistorie und Home-Widget. | Neuplanung eines schon eingefrorenen Tages, flexible Routine-Schritte, freie Prioritäten/Zeitfenster. |
 | Life Chapters | Private Timeline, Titel/Text/Kategorie/Zeitraum, Path-Verknüpfung, Erinnerungen und persönliche Meilensteine, Bearbeiten/Archiv/Wiederherstellen/Löschen, native Fotoauswahl und separate lokale JPEG-Dateien; DE/EN/RU. | Chapter-Neustart/Archiv/Editieren im Simulator bestanden; native Fotoauswahl, visuelle Abnahme und Export offen. |
 | Life Experiments | 7/14/30 Tage und frei wählbarer Zeitraum; individuelle numerische, Minuten-, Skalen- und Ja/Nein-Messgrößen; Ausgangswerte, tägliche Check-ins/Korrekturen, Punktdiagramme, ehrliche Vergleiche, Reflexion, Abschluss/Wiederholung/Archiv, Habit-Links. | Experiment-Neustart/Korrektur im Apple-Silicon-Simulator bestanden; neuere Regression/visuelle Abnahme läuft, kein automatischer Datenimport. |
-| Pace Circles | Lokale Circles mit bearbeitbaren Demo-Mitgliedern/Rollen, Gruppenzielen, datierten Challenges, Beiträgen, Verlauf, Abschluss/Archiv und ausdrücklicher widerruflicher Freigabe. | Neue Simulator-CI erforderlich; keine echten Mitglieder oder Synchronisierung. |
+| Pace Circles | Lokale Circles mit bearbeitbaren Demo-Mitgliedern/Rollen, Gruppenzielen, datierten Challenges, Beiträgen, Verlauf, Abschluss/Archiv und ausdrücklicher widerruflicher Freigabe. | Freigabe/Widerruf/Neustart auf Apple Silicon bestanden; keine echten Mitglieder oder Synchronisierung. |
 | Pace Connect | Vorhandene Capability-Protokolle melden nicht verfügbar; keine Netzwerkverbindung oder Identität wird vorgetäuscht. | Vollständige Adapter-/Berechtigungsarchitektur nach freigegebenem externen Vertrag. |
 
 Die drei neuen lokalen Module haben echte Eingaben, Persistenz, Fehlerbehandlung
@@ -32,8 +32,9 @@ Ein Root-NavigationStack, separate modale Detail-/Editor-Navigation; keine manue
 Root-Drag-Geste. Schrift, Farben und Komponenten verwenden das bestehende Designsystem.
 
 Nachgewiesene UI-Tests prüfen schnelle/langsame Swipes, Abbrechen, vertikales
-Scrollen, Dock-Position/-Höhe und Editorisolation. Der neue Detail-Back-Swipe-Test
-und weitere Screenshotansichten sind in der erweiterten Suite enthalten; Ergebnisse
+Scrollen, Dock-Position/-Höhe und Editorisolation. Der Detail-Back-Swipe-Test
+und weitere Screenshotansichten sind im Lauf von `50dd2dd` bestanden; präzisierter
+Gesten-Nachtest von `536b4cd` noch ausstehend. Ergebnisse
 siehe den commitbezogenen Prüfstand unten. Kleinere/größere Displays, größte
 Dynamic-Type-Stufen und VoiceOver bleiben offen. Originalvideos und Wordmark
 liegen nicht auswertbar vor; visuelle 1:1-Übereinstimmung ist nicht verifiziert.
@@ -84,9 +85,9 @@ bestanden. Linux ersetzt keine iOS-SDK-Typprüfung.
 | `76e0572` (vor diesem Auftrag) | 37 Core-Tests, acht UI-Tests, Debug/Release auf Apple Silicon und Intel bestanden, [CI 41631877527](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41631877527). |
 | `9d8a140` | Apple Silicon: 42 Core, 11 UI, Debug/Release und echte Screenshot-Exporte bestanden; Intel bei UI nach Jobbudget abgebrochen. [CI 41805696013](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41805696013). |
 | `00de43d` | Apple Silicon vollständig bestanden: 46 Core, 12 UI, Debug/Release, Screenshot-Export. Intel-UI scheiterte vor Teststart an „Timed out waiting for AX loaded notification“. [CI 41807623995](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41807623995). |
-| `cd7f521` | Bootstatus abwarten und UI seriell starten; keine Tests entfernt. [CI 41809158539](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41809158539): Core/Debug beider Architekturen und zwölf UI-Tests auf Apple Silicon bestanden; Release/Intel-UI noch laufend. |
-| `161cecb` | Lokale Circles. [CI 41810190437](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41810190437): 50 Core und Simulator-Builds beider Architekturen bestanden, UI noch laufend. |
-| `50dd2dd` | Routine-Paths, Schema 8. [CI 41810514373](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41810514373): Intel-Core/Simulator-Build bestanden, UI laufend; Apple Silicon noch ausstehend. |
+| `cd7f521` | Bootstatus abwarten und UI seriell starten; keine Tests entfernt. [CI 41809158539](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41809158539): Beide Architekturen vollständig bestanden: 46 Core, zwölf UI, Debug/Release und Screenshot-Export. |
+| `161cecb` | Lokale Circles. [CI 41810190437](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41810190437): 50 Core und Simulator-Builds beider Architekturen bestanden. Apple Silicon: 12/13 UI; neuer Back-Swipe-Test fehlgeschlagen, Circle-Test und Screenshot-Test bestanden. |
+| `50dd2dd` | Routine-Paths, Schema 8. [CI 41810514373](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41810514373): Apple Silicon vollständig bestanden: 53 Core, 13 UI, Debug/Release und Screenshot-Export. Intel-Core/Simulator-Build bestanden, UI laufend. |
 
 Die Suite enthält 13 UI-Tests: bestehende acht Regressionen plus Paging,
 Screenshots, Chapters, Experiments und lokale Circles. Der Routine-Test umfasst
@@ -143,3 +144,10 @@ der Nachtest prüft zusätzlich den nativen Back-Button und startet die Wischges
 am tatsächlichen modalen Navigationsbereich statt am gesamten App-Rahmen.
 Die Rückkehr zur Path-Liste und zum unveränderten Root-Tab bleibt verpflichtend.
 Dieser Nachtest ist noch nicht bestanden; keine abgeschlossene Designabnahme.
+
+Nachtrag: `50dd2dd` / `41810514373` hat auf Apple Silicon alle 13 UI-Tests
+inklusive ursprünglichem Back-Swipe, Circle-Widerruf und Routine-Path-Auswahl
+bestanden. 53 Core-Tests sowie Debug/Release ebenfalls erfolgreich.
+`536b4cd` / [Nachtest 41812897844](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41812897844)
+prüft die präzisere Gestenlokalisierung und explizite native Detail-Navigation;
+Core/Debug beider Architekturen bestanden, UI noch laufend.
