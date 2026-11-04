@@ -293,9 +293,11 @@ final class PaceLifeUITests: XCTestCase {
         XCTAssertTrue(bar.buttons["Life Paths"].exists, app.debugDescription)
         // The modal navigation controller can be inset from the application frame.
         // Start at its own leading edge, below the bar, with an actual swipe.
-        let origin = app.coordinate(withNormalizedOffset: .zero)
-        let edge = origin.withOffset(CGVector(dx: bar.frame.minX + 2, dy: bar.frame.maxY + 80))
-        let center = origin.withOffset(CGVector(dx: bar.frame.minX + bar.frame.width * 0.8, dy: bar.frame.maxY + 80))
+        let edge = bar.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 1))
+            .withOffset(CGVector(dx: 2, dy: 80))
+        let center = bar.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 1))
+            .withOffset(CGVector(dx: 0, dy: 80))
+        XCTAssertEqual(edge.screenPoint.x, bar.frame.minX + 2, accuracy: 0.5)
         edge.press(forDuration: 0, thenDragTo: center, withVelocity: .default, thenHoldForDuration: 0)
         XCTAssertTrue(app.buttons["addPath"].waitForExistence(timeout: 5), app.debugDescription)
         app.buttons["closePaths"].tap()

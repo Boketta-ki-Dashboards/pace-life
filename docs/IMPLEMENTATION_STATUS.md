@@ -87,10 +87,10 @@ bestanden. Linux ersetzt keine iOS-SDK-Typprüfung.
 | `00de43d` | Apple Silicon vollständig bestanden: 46 Core, 12 UI, Debug/Release, Screenshot-Export. Intel-UI scheiterte vor Teststart an „Timed out waiting for AX loaded notification“. [CI 41807623995](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41807623995). |
 | `cd7f521` | Bootstatus abwarten und UI seriell starten; keine Tests entfernt. [CI 41809158539](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41809158539): Beide Architekturen vollständig bestanden: 46 Core, zwölf UI, Debug/Release und Screenshot-Export. |
 | `161cecb` | Lokale Circles. [CI 41810190437](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41810190437): 50 Core und Simulator-Builds beider Architekturen bestanden. Apple Silicon: 12/13 UI; neuer Back-Swipe-Test fehlgeschlagen, Circle-Test und Screenshot-Test bestanden. |
-| `50dd2dd` | Routine-Paths, Schema 8. [CI 41810514373](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41810514373): Apple Silicon vollständig bestanden: 53 Core, 13 UI, Debug/Release und Screenshot-Export. Intel-Core/Simulator-Build bestanden, UI laufend. |
+| `50dd2dd` | Routine-Paths, Schema 8. [CI 41810514373](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41810514373): Beide Architekturen vollständig bestanden: 53 Core, 13 UI, Debug/Release und Screenshot-Export. |
 
-Die Suite enthält 13 UI-Tests: bestehende acht Regressionen plus Paging,
-Screenshots, Chapters, Experiments und lokale Circles. Der Routine-Test umfasst
+Die Suite enthält inzwischen 14 UI-Tests: bestehende acht Regressionen plus Paging,
+Screenshots, Chapters, Experiments, lokale Circles und größte Dynamic-Type-Stufe. Der Routine-Test umfasst
 jetzt auch die Path-Quellenauswahl und Wiederherstellung. Die neuen Abläufe werden
 nicht allein aufgrund bestandener Core-Tests als simulatorverifiziert bezeichnet.
 
@@ -134,31 +134,27 @@ Bei Migration ggf. verborgene neue Home-Widgets unter „Home anpassen“ aktivi
 Nach dem Schreiben von Schema 8 keine ältere Beta über denselben Datencontainer
 installieren: ältere Writer lehnen das neue Schema absichtlich ab.
 
-### Offener Navigationsnachtest
+### Aktueller Navigations- und Dynamic-Type-Nachtest
 
-Circle-CI `41810190437` auf Apple Silicon: 50 Core, Debug/Release und 12 von
-13 UI-Tests bestanden. Der neue Circle-Freigabe-/Widerruf-Ablauf und alle erweiterten
-Screenshotansichten bestehen. Die neue Edge-Swipe-Assertion im Path-Detail schlägt
-fehl. Die Detail-Navigationsleiste wird deshalb ausdrücklich sichtbar gehalten;
-der Nachtest prüft zusätzlich den nativen Back-Button und startet die Wischgeste
-am tatsächlichen modalen Navigationsbereich statt am gesamten App-Rahmen.
-Die Rückkehr zur Path-Liste und zum unveränderten Root-Tab bleibt verpflichtend.
-Dieser Nachtest ist noch nicht bestanden; keine abgeschlossene Designabnahme.
+Der ursprüngliche Edge-Swipe-Test besteht mit `50dd2dd` auf beiden Architekturen,
+schlug aber in anderen Läufen intermittierend fehl. `536b4cd` hält die native
+Detailleiste sichtbar, prüft zusätzlich den Back-Button und verankert die Geste
+am Navigationsbereich. Der neue Accessibility-Baum zeigt trotz Back-Button eine
+ignorierte Randgeste (12/13 UI bestanden). Keine Assertion wurde entfernt.
 
-Nachtrag: `50dd2dd` / `41810514373` hat auf Apple Silicon alle 13 UI-Tests
-inklusive ursprünglichem Back-Swipe, Circle-Widerruf und Routine-Path-Auswahl
-bestanden. 53 Core-Tests sowie Debug/Release ebenfalls erfolgreich.
-`536b4cd` / [Nachtest 41812897844](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41812897844)
-prüft die präzisere Gestenlokalisierung und explizite native Detail-Navigation;
-Core/Debug beider Architekturen bestanden, UI noch laufend.
+`2128371` ergänzt einen 14. Test: größte native Accessibility-Schrift, vergrößerter
+Dock, erreichbare und überlappungsfreie Tabflächen sowie Formular/Tastatur nach
+Home-Scroll. `d809b70` ergänzt eine begrenzte Anbindung an den vorhandenen nativen
+Interactive-Pop-Erkenner des Path-Details. Nur eine tatsächlich zurücknavigierbare
+Ansicht darf beginnen; laufende Übergänge sind gesperrt. Originalkonfiguration
+wird beim Verlassen restauriert. Root-Paging bleibt SwiftUI-nativ.
 
-Die UI-Suite wird um einen 14. Test für die größte Dynamic-Type-Stufe erweitert:
-vergrößerter Dock, erreichbare/überlappungsfreie Tabflächen, Scrollen und Formular
-mit Tastatur. Bis zum neuen CI-Ergebnis bleibt diese Abnahme offen.
+[CI 41814758999](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41814758999)
+prüft `d809b70` mit allen 14 UI-Tests. Core und Simulator-Builds beider
+Architekturen bestanden; vollständiger UI-/Release-Nachweis noch ausstehend.
 
-Nachtest `536b4cd`: 12/13 UI-Tests auf Apple Silicon bestanden. Der zusätzliche
-Accessibility-Baum bestätigt den sichtbaren nativen Back-Button; die präzise
-Randgeste bleibt trotzdem wirkungslos. Ein lokal begrenzter UIKit-Adapter stellt
-den nativen Interactive-Pop-Erkenner im Path-Detail bereit und restauriert dessen
-Konfiguration beim Verlassen. Unveränderte Swipe-/Root-Assertions, neuer CI-Lauf
-erforderlich. Dynamic-Type-Test ebenfalls noch in Prüfung.
+Die Swipe-Testkoordinaten beziehen sich unmittelbar auf die NavigationBar.
+Der AX-Baum zeigt den hinter dem Sheet verkleinerten Root-Bereich bei x=16 und
+die modale Leiste bei x=0. Deshalb keine Mischung absoluter Leistenkoordinaten
+mit dem Anwendungsursprung. Eine zusätzliche Assertion prüft den tatsächlichen
+ScreenPoint des Gestenstarts, bevor die unveränderte Rückkehrprüfung erfolgt.

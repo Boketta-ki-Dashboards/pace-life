@@ -24,8 +24,8 @@ Codex muss am Ende jeder Phase dokumentieren: Implementiert, tatsächlich getest
 ## Aktueller Nachweis
 Kein Modul wird wegen eines UI-Platzhalters als `Implemented` oder `Verified`
 geführt. Die lokale Domäne hat jetzt 53 bestandene XCTest-Tests. Commit `50dd2dd`
-besteht auf Apple Silicon mit 53 Core-Tests, 13 UI-Tests, Debug- und Release-
-Simulator-Build. Der Experiment-Zwischenstand `cd7f521` ist auf beiden
+besteht auf Apple Silicon und Intel mit jeweils 53 Core-Tests, 13 UI-Tests,
+Debug- und Release-Simulator-Build. Der Experiment-Zwischenstand `cd7f521` ist auf beiden
 Architekturen vollständig bestanden. Echte Gerätetests und die oben aufgeführten
 Funktionslücken bleiben offen. Commitgenaue Ergebnisse und Grenzen:
 [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md).
