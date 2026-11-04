@@ -33,9 +33,9 @@ Views -> ViewModels/Use Cases -> Domain-Repository-Protokolle -> lokale / späte
 Habit(id, title, goalType, schedule, createdAt, isArchived), HabitCompletion(id, habitID, date, actualValue, targetSnapshot), LifeMode(id, title, recurringSchedule, activeRules), ModeActivation(start, end?, modeID), HomeWidgetPreference(id, kind, position, isVisible). Datumsoperationen mit explizitem lokalem Tagesbezug, stabiler Wiederholung und Tests für Sommer-/Winterzeit.
 
 Implementierte Erweiterungen: Routine, RoutineStep, RoutineSession, LifePath,
-PathMilestone, PathEntry, DailyAdaptivePlan und AdaptiveEntry. Später: LifeChapter,
-LifeExperiment, ExperimentMeasurement, Circle, CircleMembership, CircleGoal,
-ShareGrant und ExternalPaceSource. Private Daten sind ohne Freigabe privat.
+PathMilestone, PathEntry, DailyAdaptivePlan, AdaptiveEntry, LifeChapter,
+LifeExperiment, ExperimentCheckIn, LocalCircle, CircleChallenge und
+CircleContribution. Später: serverseitige Memberships, ShareGrants und ExternalPaceSource. Private Daten sind ohne Freigabe privat.
 
 ## Schutzregeln
 - Pace Social ist exklusiv bei Claude. Kein Repository-Zugriff und keine produktiven Backendänderungen.
@@ -55,7 +55,7 @@ ShareGrant und ExternalPaceSource. Private Daten sind ohne Freigabe privat.
 
 ### Persistenzentscheidung
 
-Ein versionierter Codable-JSON-Store ersetzt in Phase 1 SwiftData. Damit werden dieselben Domain-/Persistenzpfade unter Linux und macOS getestet, ohne Apple-Persistenztypen an die Domäne zu koppeln. Das kleine lokale MVP verwendet einen einzelnen MainActor-Writer und atomaren Dateiersatz. Ursprünglich `schemaVersion = 1`, aktuell Schema 4 mit expliziten Migrationen (siehe unten); unbekannte neuere Versionen und beschädigte Daten führen zum sichtbaren Ladefehler, niemals zum stillen Reset. Ein fehlgeschlagener Schreibvorgang verwirft den vorgeschlagenen Zustand. iOS-Dateischutz ist aktiviert. Keine Mehrfensterbearbeitung und keine mehreren Store-Instanzen auf dieselbe Datei.
+Ein versionierter Codable-JSON-Store ersetzt in Phase 1 SwiftData. Damit werden dieselben Domain-/Persistenzpfade unter Linux und macOS getestet, ohne Apple-Persistenztypen an die Domäne zu koppeln. Das kleine lokale MVP verwendet einen einzelnen MainActor-Writer und atomaren Dateiersatz. Ursprünglich `schemaVersion = 1`, aktuell Schema 7 mit expliziten Migrationen (siehe unten); unbekannte neuere Versionen und beschädigte Daten führen zum sichtbaren Ladefehler, niemals zum stillen Reset. Ein fehlgeschlagener Schreibvorgang verwirft den vorgeschlagenen Zustand. iOS-Dateischutz ist aktiviert. Keine Mehrfensterbearbeitung und keine mehreren Store-Instanzen auf dieselbe Datei.
 
 Der vollständige Snapshot wird synchron gespeichert. Bei stark wachsender Historie ist ein Hintergrund-Actor/SQLite-Adapter hinter demselben Protokoll erforderlich; dies ist kein Mehrgeräte-Sync-Konzept. Archive erhalten Habit-Historie. Die App synchronisiert oder veröffentlicht keine Daten; Gerätesicherungen unterliegen den Systemeinstellungen.
 
@@ -71,7 +71,7 @@ Vier Root-Tabs mit festem, Safe-Area-geschütztem Dock; Editieren in nativen She
 
 ### Schema 2 und Routine-Sessions
 
-Schema 2 führte Routinen ein. Der aktuelle Writer schreibt Schema 4.
+Schema 2 führte Routinen ein. Der aktuelle Writer schreibt Schema 7.
 `SchemaMigration.swift` liest Schema 1 explizit und ergänzt unter anderem leere
 Routinen-/Session-Arrays sowie das zunächst verborgene Routinen-Widget.
 Alle aktuellen Pflichtfelder werden streng decodiert. Laden
@@ -155,3 +155,21 @@ Definition, mit neuen IDs und ohne Werte/Baselines. Habit-Links dienen der
 Navigation, buchen keine fiktiven Messungen. Schema 5 wird explizit gelesen,
 inklusive Chapter-Medienreferenzen; Schema 6 verlangt `experiments` und
 `experimentCheckIns`. Civil-Day-Arithmetik erfolgt gregorianisch ohne DST-Drift.
+
+### Schema 7: lokale Circles und explizite Freigaben
+
+`LocalCircle` enthält ausschließlich lokale Konfiguration und `CircleDemoMember`.
+`CircleChallenge` definiert Zeitraum, feste Einheit und Gruppenziel. Beiträge
+referenzieren entweder einen manuellen Tageswert pro Mitglied oder genau eine
+gespeicherte HabitCompletion; Schlüssel verhindern doppelte Quellen pro Challenge.
+`isShared` ist standardmäßig false. Der widerrufliche Grant auf eine Completion
+folgt deren Korrekturen, ohne den privaten Wert zu kopieren oder zu verändern.
+`CircleProgress` berechnet eigene und simulierte Summen getrennt; Simulationen
+lassen sich in den Einstellungen ausschließen. Abschluss und Archiv stoppen
+neue Eingaben, erlauben aber weiterhin Widerruf/Löschen.
+
+StateRepository bleibt die Persistenzgrenze. Eine spätere Backendintegration
+braucht getrennte echte Identitäten, serverseitige Autorisierung und einen
+freigegebenen Vertrag; Demo-Rollen sind dafür niemals Berechtigungen. Schema 6
+wird explizit übernommen, mit drei leeren Circle-Arrays und unveränderter Historie.
+Schema 7 verlangt alle drei Arrays, beschädigte Daten werden nicht als leer geladen.

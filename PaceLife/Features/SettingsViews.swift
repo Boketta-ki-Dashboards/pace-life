@@ -105,24 +105,4 @@ struct DevelopmentView: View {
             .sheet(isPresented: $experiments) { ExperimentsView() }
             .sheet(isPresented: $adaptive) { AdaptiveView() }
     }
-    private func future(_ title: String, message: Copy, icon: String) -> some View {
-        PaceCard {
-            VStack(alignment: .leading, spacing: 12) {
-                PaceStatus(title: title, message: model.text(message), systemImage: icon)
-                Text(model.text(.unavailable)).font(.caption.weight(.semibold)).foregroundStyle(PaceColor.textSecondary)
-            }
-        }
-    }
-}
-
-struct CirclesView: View {
-    @Environment(AppModel.self) private var model
-    var body: some View {
-        Page(title: model.text(.circles)) {
-            PaceCard {
-                PaceStatus(title: "Pace Circles · " + model.text(.unavailable), message: model.text(.circlesDetail), systemImage: "person.2")
-            }
-            PaceTile { Label(model.text(.privacy), systemImage: "lock.shield").font(.callout) }
-        }
-    }
 }

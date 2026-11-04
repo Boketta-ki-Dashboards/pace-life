@@ -1,6 +1,6 @@
 # Pace Life — iOS
 
-Native, lokale SwiftUI-App für iPhone mit iOS 17+, Swift 6 und Xcode 16 oder neuer. Der Entwicklungsbranch implementiert Life Modes, Habits, eigenständige Routinen, Life Paths, Pace Adaptive, einen Wochen-/Monatskalender, einen modularen Homescreen und private Life Chapters mit Fotos. Die sieben langfristigen Module bleiben in [Roadmap](docs/ROADMAP.md) und [Produktspezifikation](docs/PRODUCT_SPEC.md) verankert.
+Native, lokale SwiftUI-App für iPhone mit iOS 17+, Swift 6 und Xcode 16 oder neuer. Der Entwicklungsbranch implementiert Life Modes, Habits, eigenständige Routinen, Life Paths, Pace Adaptive, einen Wochen-/Monatskalender, einen modularen Homescreen private Life Chapters mit Fotos, Life Experiments und einen lokalen Pace-Circles-Testmodus. Die sieben langfristigen Module bleiben in [Roadmap](docs/ROADMAP.md) und [Produktspezifikation](docs/PRODUCT_SPEC.md) verankert.
 
 ## In Xcode öffnen und auf dem iPhone testen
 
@@ -32,7 +32,7 @@ Das Xcode-Projekt ist eingecheckt. Nach Hinzufügen/Entfernen von Swift-Dateien 
 
 SwiftUI → `@Observable AppModel` → `LifeStore`-Use-Cases → `StateRepository`. Der atomare, versionierte JSON-Store liegt in Application Support im privaten App-Container; unter iOS mit vollständigem Dateischutz. Lokale Gerätedatensicherungen können App-Daten enthalten. Ein Lesefehler überschreibt keine Daten; Schreibfehler übernehmen keine ungespeicherten Änderungen in den angezeigten Zustand. Keine Netzwerk-SDKs, Telemetrie oder Cloud-Synchronisierung. Details: [Architektur](docs/ARCHITECTURE.md).
 
-Pace Social wird ausschließlich von Claude betreut. Kein Zugriff auf dessen Repository, keine produktiven Supabase-Änderungen und keine eigenmächtige Account-Verknüpfung. Circles und Connect melden explizit „noch nicht verfügbar“. Referenzvideos bleiben private Chat-Anhänge und gehören niemals ins Repository.
+Pace Social wird ausschließlich von Claude betreut. Kein Zugriff auf dessen Repository, keine produktiven Supabase-Änderungen und keine eigenmächtige Account-Verknüpfung. Circles ist ausdrücklich ein lokaler Testmodus mit Demo-Mitgliedern; Connect meldet weiterhin „noch nicht verfügbar“. Referenzvideos bleiben private Chat-Anhänge und gehören niemals ins Repository.
 
 ## Projektanforderungen
 
@@ -74,3 +74,14 @@ Experiment tägliche Check-ins eingeben, leere Felder als fehlende Daten belasse
 Ein erneuter Check-in am selben Tag korrigiert die Werte. Diagramm und Vergleich
 zeigen nur eingegebene Beobachtungen. Abschließen, Reflexion bearbeiten oder als
 neues Experiment ohne alte Messwerte wiederholen. Neustart erhält alle Einträge.
+
+Pace Circles testen: **Circles → Circle erstellen**, optional ausdrücklich lokale
+Demo-Mitglieder und Rollen hinzufügen. Eine Challenge mit Zeitraum und Ziel anlegen.
+Eigene oder simulierte Tagesbeiträge erfassen; ohne aktive Freigabe bleibt der
+Beitrag privat und fehlt in der Gruppensumme. Einen Habit-Beitrag gezielt auswählen
+und freigeben; spätere Korrekturen aktualisieren dieselbe Quelle. Neustart prüfen,
+Freigabe widerrufen und erneut starten. Auch archivierte Challenges erlauben den
+Widerruf. Es gibt keine Online-Mitglieder, Nachrichten oder Synchronisierung.
+
+Echte Simulator-Screenshots werden in den CI-Artefakten bereitgestellt; Download
+und verbleibende visuelle Prüfungen: [docs/screenshots](docs/screenshots/README.md).

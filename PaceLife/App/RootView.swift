@@ -57,6 +57,7 @@ struct RootView: View {
                     }
                     .frame(maxWidth: .infinity, minHeight: 48)
                     .padding(.vertical, 8)
+                    .contentShape(Rectangle())
                     .foregroundStyle(tab == item ? PaceColor.onSelection : PaceColor.textSecondary)
                     .background(tab == item ? PaceColor.selectionFill : Color.clear, in: RoundedRectangle(cornerRadius: 14))
                 }

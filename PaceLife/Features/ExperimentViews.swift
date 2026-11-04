@@ -27,7 +27,7 @@ struct ExperimentsView: View {
             .scrollContentBackground(.hidden).background(PaceColor.background)
             .navigationTitle("Life Experiments").navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button(model.text(.done)) { dismiss() } }
+                ToolbarItem(placement: .cancellationAction) { Button(model.text(.done)) { dismiss() }.accessibilityIdentifier("closeExperiments") }
                 ToolbarItem(placement: .primaryAction) {
                     Button { creating = true } label: { Image(systemName: "plus") }
                         .accessibilityLabel(model.experimentText(.newExperiment)).accessibilityIdentifier("addExperiment")
@@ -95,9 +95,10 @@ struct ExperimentDetail: View {
                 else {
                     // Discrete points never bridge or interpolate missing days.
                     Chart(summary.samples) { sample in
-                        PointMark(x: .value(model.experimentText(.days), sample.day.civilDate!), y: .value(metric.title, sample.value))
+                        PointMark(x: .value(model.experimentText(.days), experiment.startDay.distance(to: sample.day) + 1), y: .value(metric.title, sample.value))
                             .foregroundStyle(PaceColor.accent)
                     }
+                    .chartXScale(domain: 1...max(2, experiment.plannedDays))
                     .chartXAxisLabel(model.experimentText(.days)).chartYAxisLabel(model.metricUnit(metric))
                     .frame(height: 180).accessibilityLabel(metric.title)
                     ForEach(summary.samples) { sample in

@@ -1,7 +1,7 @@
 # Pace Life – Implementierungs- und Prüfstand
 
 Stand: **4. November 2026**. Entwicklungsbranch: `codex/pace-life-offline-beta`.
-Ausgangspunkt dieses Durchlaufs war der auf GitHub verifizierte Commit `232cd520`.
+Ausgangspunkt dieses Durchlaufs war der auf GitHub verifizierte Commit `74931679`.
 Alle abgeschlossenen Abschnitte wurden einzeln committet, sofort gepusht und der
 Remote-Commit anschließend überprüft. Keine Änderungen an Pace Social oder Supabase.
 
@@ -12,9 +12,9 @@ Remote-Commit anschließend überprüft. Keine Änderungen an Pace Social oder S
 | Life Modes | Bestehendes CRUD/manuelle Aktivierung/Habit-Auswahl erhalten. Eigenständige Routinen mit Mode-Zuordnung, Wochentagen, optionaler Uhrzeit, sortierbaren Schritten/Dauer, Teilabschluss, Pause/Fortsetzen, Tages-Snapshots, Archiv/Wiederherstellen und Home-Widget. | Automatische wiederkehrende Mode-Wechsel, Mode-Duplikation/Archiv, Tagesprioritäten und vollständige historische Habit-Planrevisionen. |
 | Life Paths | Mehrere Paths, Lebensbereich/Beschreibung/Zieldatum, binäre/Zähler/Minuten-Meilensteine, Tagesbeiträge oder Habit-Verknüpfung, nachvollziehbarer Fortschritt, Statuswechsel/Archiv, Verlauf und Home-Widget. | Routine-Beiträge, Titelbilder, historisch versionierte Änderungen einer Beitragsregel und umfassende Fortschrittsdiagramme. |
 | Pace Adaptive | Lokale deterministische Vorschläge aus Zeit/Energie/Belastung, geschützten Habits, Routine-Dauern und aktiven Paths; ausdrückliche Annahme/Ablehnung, individuelle Ziele, Rückgängig, Tageshistorie und Home-Widget. | Neuplanung eines schon eingefrorenen Tages, flexible Routine-Schritte, freie Prioritäten/Zeitfenster. |
-| Life Chapters | Private Timeline, Titel/Text/Kategorie/Zeitraum, Path-Verknüpfung, Erinnerungen und persönliche Meilensteine, Bearbeiten/Archiv/Wiederherstellen/Löschen, native Fotoauswahl und separate lokale JPEG-Dateien; DE/EN/RU. | Simulator-Abnahme des neuen UI-Ablaufs und Fotoauswahl, Export. |
+| Life Chapters | Private Timeline, Titel/Text/Kategorie/Zeitraum, Path-Verknüpfung, Erinnerungen und persönliche Meilensteine, Bearbeiten/Archiv/Wiederherstellen/Löschen, native Fotoauswahl und separate lokale JPEG-Dateien; DE/EN/RU. | Chapter-Neustart/Archiv/Editieren im Simulator bestanden; native Fotoauswahl, visuelle Abnahme und Export offen. |
 | Life Experiments | 7/14/30 Tage und frei wählbarer Zeitraum; individuelle numerische, Minuten-, Skalen- und Ja/Nein-Messgrößen; Ausgangswerte, tägliche Check-ins/Korrekturen, Punktdiagramme, ehrliche Vergleiche, Reflexion, Abschluss/Wiederholung/Archiv, Habit-Links. | Neue Simulator- und visuelle Abnahme läuft; kein automatischer Datenimport. |
-| Pace Circles | Vorhandener Unavailable-Service und ehrlicher Leerzustand. | Noch keine Gruppen/Challenges, auch kein lokaler Demo-Modus. |
+| Pace Circles | Lokale Circles mit bearbeitbaren Demo-Mitgliedern/Rollen, Gruppenzielen, datierten Challenges, Beiträgen, Verlauf, Abschluss/Archiv und ausdrücklicher widerruflicher Freigabe. | Neue Simulator-CI erforderlich; keine echten Mitglieder oder Synchronisierung. |
 | Pace Connect | Vorhandene Capability-Protokolle melden nicht verfügbar; keine Netzwerkverbindung oder Identität wird vorgetäuscht. | Vollständige Adapter-/Berechtigungsarchitektur nach freigegebenem externen Vertrag. |
 
 Keines der sieben Gesamtmodule wird als vollständig abgenommen deklariert.
@@ -40,7 +40,7 @@ Die neuen Funktionen verwenden echte lokale Daten und DE/EN/RU-Texte.
 
 ## Persistenz und Migration
 
-Aktueller Writer: **Schema 6** (Chapters und Experiments). Separate DTOs lesen Schema 1, 2, 3, 4 und 5. Alle alten
+Aktueller Writer: **Schema 7** (Chapters, Experiments und lokale Circles). Separate DTOs lesen Schema 1 bis 6. Alle alten
 UUIDs, Habits, Ziel-Snapshots, Erfüllungen, Modes/Aktivierungen, Widgets und
 Einstellungen bleiben erhalten. Neue Widgets werden bei Migration hinten und
 zunächst verborgen ergänzt. Lesen migriert ausschließlich im Speicher; erst ein
@@ -104,8 +104,8 @@ im Widget-Editor gezielt aktiviert, statt dauerhaft aktiv zu sein.
 2. Automatische Mode-Pläne, historische Habit-Wochenpläne/Streaks und Adaptive-
    Neuplanung ausbauen. Aktuelle Streak-Berechnung verwendet weiterhin den heutigen
    Habit-Wochenplan und ist keine historische Rekonstruktion.
-3. Chapters/Fotos, Experiments und lokale Circles als nächste echte Module bauen;
-   danach Connect gemäß freigegebenem Vertrag. Keine produktive Auth-Anbindung.
+3. Neue Experiment-/Circle-Simulatorabläufe und native Fotoauswahl abnehmen;
+   danach Routine-Path-Beiträge. Connect erst gemäß freigegebenem Vertrag.
 4. Backup/Export/Import und lokale Benachrichtigungen fehlen. Der Kalender ist eine Ansicht, kein Drag-and-drop-Planer.
 5. Klein/groß, Light/Dark, größte Dynamic-Type-Stufen, VoiceOver, Tastatur,
    Safe Areas, Swipe-Back und Widget-Reordering auf Gerät visuell abnehmen.
@@ -223,3 +223,27 @@ for AX loaded notification`; keine fehlgeschlagene Experiment-Assertion.
 Simulator und deaktiviert parallele UI-Runner/zusätzliche Klone. Alle Testfälle
 bleiben aktiv. Das Jobbudget steigt wegen der erweiterten Suite und der gemessenen
 Intel-Laufzeit (schon zehn UI-Tests ca. 14,5 Minuten plus Builds) auf 45 Minuten.
+
+### Lokale Pace Circles – implementiert, neue iOS-Abnahme ausstehend
+
+50 Core-XCTest-Tests unter Swift 6.0.3/Linux bestanden (0 Fehler). Vier neue Tests
+prüfen Mitglieder/Challenge-Verwaltung, private gegenüber freigegebenen Beiträgen,
+Widerruf nach Archivierung, Korrekturen, Neustart, fehlerhafte Writes und Schema 6→7.
+Ein verbundener Test kombiniert Habit/Mode/Routine, Path, bestätigtes Adaptive-Ziel,
+Experiment-Messung, Chapter-Meilenstein und explizit freigegebenen Habit-Beitrag.
+Die Routine ist in diesem Stand vorhanden, zählt aber noch nicht zum Path.
+
+Circles sind ausschließlich lokale Testdaten. Jedes weitere Mitglied ist als Demo
+gekennzeichnet; Namen und Rollen sind keine Online-Identitäten oder Berechtigungen.
+Gruppenziele gehören zu datierten Challenges. Eigene und simulierte Beiträge werden
+getrennt angezeigt. Persönliche Beiträge bleiben standardmäßig privat. Eine
+Freigabe kann einen einzelnen gespeicherten Habit-Wert einschließlich seiner
+Korrekturen referenzieren; wiederholtes Speichern vervielfacht ihn nicht. Widerruf
+ist auch nach Abschluss/Archiv möglich und verändert die private Quelle nicht.
+Kein Netzwerkadapter oder Backend wurde angebunden.
+
+Neuer UI-Test: Circle/Challenge erstellen → privaten Wert speichern → Gesamtwert 0
+→ bewusst freigeben → Gesamtwert 30 → Neustart → widerrufen → Neustart → 0.
+Zusätzliche echte Light-/Dark-XCTAttachments für Modes, Paths, Adaptive, Chapters
+und Experiments sowie nativer Zurück-Swipe im Path-Detail sind vorbereitet. Diese
+neuen UI-Prüfungen sind erst nach dem zugehörigen CI-Lauf bestätigt.

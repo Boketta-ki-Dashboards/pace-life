@@ -96,6 +96,9 @@ public struct AppSettings: Codable, Equatable, Sendable {
 }
 
 public struct LifeState: Codable, Equatable, Sendable {
+    public var circles: [LocalCircle]
+    public var circleChallenges: [CircleChallenge]
+    public var circleContributions: [CircleContribution]
     public var experiments: [LifeExperiment]
     public var experimentCheckIns: [ExperimentCheckIn]
     public var chapters: [LifeChapter]
@@ -115,7 +118,8 @@ public struct LifeState: Codable, Equatable, Sendable {
     public init(habits: [Habit] = [], modes: [LifeMode] = [], completions: [HabitCompletion] = [],
                 activations: [ModeActivation] = [], activeModeID: UUID? = nil,
                 widgets: [HomeWidgetPreference] = HomeWidgetKind.allCases.map { HomeWidgetPreference(kind: $0) },
-                settings: AppSettings = AppSettings(), routines: [Routine] = [], routineSessions: [RoutineSession] = [], paths: [LifePath] = [], pathEntries: [PathEntry] = [], adaptivePlans: [DailyAdaptivePlan] = [], chapters: [LifeChapter] = [], experiments: [LifeExperiment] = [], experimentCheckIns: [ExperimentCheckIn] = []) {
+                settings: AppSettings = AppSettings(), routines: [Routine] = [], routineSessions: [RoutineSession] = [], paths: [LifePath] = [], pathEntries: [PathEntry] = [], adaptivePlans: [DailyAdaptivePlan] = [], chapters: [LifeChapter] = [], experiments: [LifeExperiment] = [], experimentCheckIns: [ExperimentCheckIn] = [], circles: [LocalCircle] = [], circleChallenges: [CircleChallenge] = [], circleContributions: [CircleContribution] = []) {
+        self.circles = circles; self.circleChallenges = circleChallenges; self.circleContributions = circleContributions
         self.experiments = experiments; self.experimentCheckIns = experimentCheckIns
         self.chapters = chapters
         self.adaptivePlans = adaptivePlans

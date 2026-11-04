@@ -29,7 +29,7 @@ struct PathsView: View {
             .scrollContentBackground(.hidden).background(PaceColor.background)
             .navigationTitle("Life Paths").navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button(model.text(.done)) { dismiss() } }
+                ToolbarItem(placement: .cancellationAction) { Button(model.text(.done)) { dismiss() }.accessibilityIdentifier("closePaths") }
                 ToolbarItem(placement: .primaryAction) {
                     Button { creating = true } label: { Image(systemName: "plus") }
                         .accessibilityLabel(model.pathText(.newPath)).accessibilityIdentifier("addPath")

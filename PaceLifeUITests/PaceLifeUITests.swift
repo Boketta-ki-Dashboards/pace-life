@@ -267,6 +267,13 @@ final class PaceLifeUITests: XCTestCase {
         app.buttons["tab.development"].tap(); app.buttons["managePaths"].tap()
         XCTAssertTrue(open.waitForExistence(timeout: 5)); open.tap()
         XCTAssertEqual(app.staticTexts["milestone.value.Take exam"].label, "1 / 1")
+        // A native detail edge-swipe must pop the modal detail, not page the root.
+        let edge = app.coordinate(withNormalizedOffset: CGVector(dx: 0.01, dy: 0.5))
+        let center = app.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.5))
+        edge.press(forDuration: 0.05, thenDragTo: center)
+        XCTAssertTrue(app.buttons["addPath"].waitForExistence(timeout: 5))
+        app.buttons["closePaths"].tap()
+        assertTab("development", in: app)
     }
 
     @MainActor
@@ -357,6 +364,22 @@ final class PaceLifeUITests: XCTestCase {
                 attachment.lifetime = .keepAlways
                 add(attachment)
             }
+            for (tab, open, close, name) in [
+                ("today", "manageModes", "closeModes", "modes"),
+                ("today", "manageAdaptive", "closeAdaptive", "adaptive"),
+                ("development", "managePaths", "closePaths", "paths"),
+                ("development", "manageChapters", "closeChapters", "chapters"),
+                ("development", "manageExperiments", "closeExperiments", "experiments")
+            ] {
+                app.buttons["tab.\(tab)"].tap()
+                let opener = app.buttons[open]
+                reveal(opener, in: app); opener.tap()
+                XCTAssertTrue(app.buttons[close].waitForExistence(timeout: 5))
+                let attachment = XCTAttachment(screenshot: app.screenshot())
+                attachment.name = "pace-\(name)-\(theme == "Hell" ? "light" : "dark")"
+                attachment.lifetime = .keepAlways; add(attachment)
+                app.buttons[close].tap()
+            }
         }
     }
 
@@ -426,6 +449,45 @@ final class PaceLifeUITests: XCTestCase {
         app.buttons["tab.development"].tap(); app.buttons["manageExperiments"].tap()
         XCTAssertTrue(open.waitForExistence(timeout: 5)); open.tap(); app.buttons["experimentCheckIn"].tap()
         XCTAssertTrue(value.waitForExistence(timeout: 5)); XCTAssertEqual(value.value as? String, "8")
+    }
+
+    @MainActor
+    func testLocalCircleRequiresConsentAndRevocationSurvivesRelaunch() {
+        let app = launchFreshApp()
+        app.buttons["tab.circles"].tap(); app.buttons["addCircle"].tap()
+        let title = app.textFields["circleTitle"]
+        XCTAssertTrue(title.waitForExistence(timeout: 5)); title.tap(); title.typeText("Study group")
+        app.buttons["saveCircle"].tap()
+        let open = app.buttons["circle.open.Study group"]
+        reveal(open, in: app); open.tap(); app.buttons["addChallenge"].tap()
+        let challengeTitle = app.textFields["challengeTitle"]
+        XCTAssertTrue(challengeTitle.waitForExistence(timeout: 5)); challengeTitle.tap(); challengeTitle.typeText("Study together")
+        app.buttons["saveChallenge"].tap()
+        let challenge = app.buttons["challenge.open.Study together"]
+        XCTAssertTrue(challenge.waitForExistence(timeout: 5)); challenge.tap()
+        let record = app.buttons["recordCircleContribution"]
+        reveal(record, in: app); record.tap()
+        let value = app.textFields["circleContributionValue"]
+        XCTAssertTrue(value.waitForExistence(timeout: 5)); value.tap(); value.typeText("30")
+        let share = app.switches["shareContribution"]
+        XCTAssertEqual(share.value as? String, "0", "Sharing must start disabled")
+        app.buttons["saveCircleContribution"].tap()
+        XCTAssertEqual(app.staticTexts["circleTotal"].label, "0")
+        reveal(record, in: app); record.tap()
+        XCTAssertTrue(value.waitForExistence(timeout: 5)); XCTAssertEqual(value.value as? String, "30")
+        reveal(share, in: app); setSwitch(share, to: true)
+        app.buttons["saveCircleContribution"].tap()
+        XCTAssertEqual(app.staticTexts["circleTotal"].label, "30")
+        app.terminate(); app.launch(); app.buttons["tab.circles"].tap()
+        reveal(open, in: app); open.tap(); challenge.tap()
+        XCTAssertEqual(app.staticTexts["circleTotal"].label, "30")
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = "pace-circle-challenge-light"; attachment.lifetime = .keepAlways; add(attachment)
+        let revoke = app.buttons["revokeContribution"]
+        reveal(revoke, in: app); revoke.tap()
+        app.terminate(); app.launch(); app.buttons["tab.circles"].tap()
+        reveal(open, in: app); open.tap(); challenge.tap()
+        XCTAssertEqual(app.staticTexts["circleTotal"].label, "0")
     }
 
 }
