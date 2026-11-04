@@ -158,3 +158,11 @@ Der AX-Baum zeigt den hinter dem Sheet verkleinerten Root-Bereich bei x=16 und
 die modale Leiste bei x=0. Deshalb keine Mischung absoluter Leistenkoordinaten
 mit dem Anwendungsursprung. Eine zusätzliche Assertion prüft den tatsächlichen
 ScreenPoint des Gestenstarts, bevor die unveränderte Rückkehrprüfung erfolgt.
+
+Dynamic-Type-Lauf `2128371`: Dock-Vergrößerung, alle Tab-Taps, Mindest-Touchflächen,
+Displaygrenzen und fehlende Überlappungen bestehen. Die Scroll-Testhilfe springt
+mit ganzen Swipes über den 187 pt hohen Home-Button hinweg (AX-Protokoll: oben
+angeschnitten bei y=37, sichtbarer Bereich ab y=62). Für nahe Ziele verwendet sie
+jetzt einen begrenzten langsamen Drag statt eines weiteren weiten Swipes. Die
+vollständige Viewport-Containment-Assertion und zwölf Versuche bleiben unverändert.
+Das ist eine Korrektur der Teststeuerung, kein bestandener Nachweis vor dem Nachlauf.

@@ -42,7 +42,17 @@ final class PaceLifeUITests: XCTestCase {
             }
             if element.exists && element.isHittable && viewport.contains(element.frame) { return }
             if element.exists {
-                if element.frame.midY < viewport.midY { scroll.swipeDown() }
+                let delta = viewport.midY - element.frame.midY
+                if abs(delta) <= viewport.height {
+                    // Large accessibility controls can be skipped repeatedly by a
+                    // whole-screen fling. Move a nearby target into this viewport
+                    // with a bounded drag and a slow release, keeping containment.
+                    let movement = min(viewport.height * 0.4, max(-viewport.height * 0.4, delta))
+                    let start = scroll.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0))
+                        .withOffset(CGVector(dx: 0, dy: viewport.midY - scroll.frame.minY))
+                    start.press(forDuration: 0.05, thenDragTo: start.withOffset(CGVector(dx: 0, dy: movement)),
+                                withVelocity: .slow, thenHoldForDuration: 0.1)
+                } else if delta > 0 { scroll.swipeDown() }
                 else { scroll.swipeUp() }
             } else if attempt < 6 { scroll.swipeUp() }
             else { scroll.swipeDown() }
