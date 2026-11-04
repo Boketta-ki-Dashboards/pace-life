@@ -78,5 +78,13 @@
     "sha256": "d8ad318e1e59b7b27214f8a5d9d9b1d89557d52b2032e34c0474ffbe867bb237",
     "source_commit": "b6e87808a0704108e83db402bfb38d33f429aa80",
     "file": "pace-profile-dark-b6e8780.png"
+  },
+  {
+    "bytes": 726691,
+    "name": "pace-profile-accessibility-xxxl-light.png",
+    "run_id": 41837583213,
+    "sha256": "4f5ee5d007b1fcacf7aadf1e9604c5da0e9de89fd133d731364490340c38d792",
+    "source_commit": "dfd03d707bb2e02b2cc6788493f8046443d81407",
+    "file": "pace-profile-accessibility-xxxl-light-dfd03d7.png"
   }
 ]

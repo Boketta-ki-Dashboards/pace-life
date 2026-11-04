@@ -28,8 +28,9 @@ Kalender-/Zeitzonen-Roundtrips für Datumseditoren. `50dd2dd` besteht auf Apple 
 und Intel mit 53 Core-/13 UI-Tests und Debug-/Release-Builds; `d2b17e4` mit 14 UI-Tests.
 Die Suite enthält inzwischen 15 UI-Fälle einschließlich nativer Fotoauswahl; Apple
 besteht mit `7ee521e` vollständig, Intel scheiterte nur am Screenshot-Sheet-Öffnen.
-Die aktuelle Korrektur `dfd03d7` wird nachgetestet. Zehn echte Standard-Screenshots
-wurden visuell geprüft und eingecheckt; die korrigierte größte Schrift folgt noch.
+Die Korrektur `dfd03d7` besteht auf Apple Silicon vollständig; Intel läuft noch.
+Elf echte Screenshots einschließlich korrigierter größter Schrift wurden visuell
+geprüft und eingecheckt. Die Datumskorrektur `63df15f` wird zusätzlich nachgetestet.
 Exakte Nachweise: [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md).
 
 1. Aktuelle Navigation-/Accessibility-Korrektur vollständig nachtesten und visuell

@@ -41,9 +41,11 @@ Die echte Screenshot-Sichtprüfung fand bei größter Accessibility-Schrift unle
 umgebrochene Dock-Texte. Korrektur `dfd03d7`: einzeilige kompakte Tab-Beschriftungen
 mit nativem Large Content Viewer; Seiteninhalte skalieren weiterhin. Der Nachtest
 verlangt kompakte Dock-Geometrie **und** tatsächlich vergrößerte Seiteninhalte sowie
-alle bisherigen Touch-/Scroll-/Tastaturbedingungen. Sein vollständiger CI-Nachlauf
-steht noch aus. Zehn Standardansichten wurden geöffnet, geprüft und unverändert
-unter [screenshots](screenshots/README.md) mit Herkunft eingecheckt.
+alle bisherigen Touch-/Scroll-/Tastaturbedingungen. Auf Apple Silicon besteht
+`dfd03d7` mit 53 Core-/15 UI-Tests und Debug-/Release-Build; Intel läuft noch.
+Die korrigierte größte Schrift wurde visuell geprüft: vollständige einzeilige
+Tab-Namen bei weiterhin vergrößertem Seiteninhalt. Elf echte Aufnahmen stehen
+unter [screenshots](screenshots/README.md) mit Herkunft und Prüfsummen.
 Originalvideos/Wordmark fehlen; visuelle 1:1-Übereinstimmung, VoiceOver, weitere
 Displaygrößen und reale iPhones sind nicht verifiziert.
 
@@ -95,7 +97,7 @@ kein Ersatz für die tatsächliche iOS-SDK-Prüfung in den folgenden macOS-Läuf
 | `d2b17e4` | Beide Architekturen 53 Core, 14 UI plus vorgezogene Back-Regression, Debug/Release bestanden; [CI 41828056482](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41828056482). |
 | `b6e8780` | Vereinfachte reine SwiftUI-Navigation ohne UIKit-Overrides: Apple 53 Core, 14 UI, Back-Regression und Debug/Release bestanden; Quelle der eingecheckten Standard-Screenshots. Intel: XCTest-AX-Abfrage hing nach einem Experiment-Tap-Timeout, anschließend Jobabbruch; [CI 41829938956](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41829938956). |
 | `7ee521e` | Nativer Fotoablauf auf beiden Architekturen bestanden. Apple vollständig 53 Core, 15 UI, Debug/Release; Intel 53 Core, 14/15 UI, Debug/Release. Ein Screenshot-Sheet öffnete nach Tabwechsel nicht; [CI 41832182819](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41832182819). |
-| `dfd03d7` | Kompakte Accessibility-Tabbar und endlicher 50-ms-Touch für einmaliges Öffnen der Screenshot-Sheets. Keine Wiederholungen maskieren Fehler, die Sheet-/Persistenz-Assertions bleiben verbindlich. Vollständiger Nachlauf ausstehend; [CI 41837583213](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41837583213). |
+| `dfd03d7` | Kompakte Accessibility-Tabbar und endlicher 50-ms-Touch für einmaliges Öffnen der Screenshot-Sheets. Keine Wiederholungen maskieren Fehler, die Sheet-/Persistenz-Assertions bleiben verbindlich. Apple vollständig 53 Core, 15 UI, Debug/Release bestanden, Intel noch im Nachlauf; [CI 41837583213](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41837583213). |
 
 Die Suite enthält **15 UI-Tests**: die bestehenden acht Regressionen plus Paging,
 Screenshots, Chapters, Experiments, lokale Circles, größte Dynamic-Type-Stufe und
@@ -105,13 +107,13 @@ Bild nach Neustart, Entfernen und einen weiteren Neustart. Die künstliche
 Foto-Testdatei ist ausdrücklich als Eingabe gekennzeichnet, kein App-Mockup.
 
 Bestätigter Simulator: **iPhone 16 Pro, iOS 18.5, Xcode 16.4**. Keine physischen
-Gerätetests. [Zehn echte PNGs samt Sichtprüfungsgrenzen](screenshots/README.md) sind
+Gerätetests. [Elf echte PNGs samt Sichtprüfungsgrenzen](screenshots/README.md) sind
 im Repository. Die reine Lese-Exportpipeline benötigt keine CI-Schreibrechte.
 
 ## Nächste Arbeiten für Claude Code
 
-1. Den aktuellen Nachlauf vollständig prüfen und die korrigierte Accessibility-
-   Aufnahme exportieren/ansehen. Ein Build allein ist keine Designabnahme.
+1. Den aktuellen Nachlauf der Datumskorrektur und die verbleibende Intel-UI-Prüfung
+   vollständig kontrollieren. Ein Build allein ist keine Designabnahme.
 2. Auf kleinem/großem iPhone und physischem Gerät lange DE/EN/RU-Texte, VoiceOver,
    Large Content Viewer sowie Kalender-/Chart-/Back-Gesten abnehmen. Die native
    Fotoauswahl ist automatisiert getestet; weitere Fotoformate und große Bestände
