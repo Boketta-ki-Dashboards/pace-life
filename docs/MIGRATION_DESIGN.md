@@ -1,6 +1,6 @@
 # Versionierte Datenmigration und Dateninvarianten
 
-Status: Schema 8 ist aktiviert. Explizite DTOs für Schema 1 bis 7 erhalten die bisherigen Daten; 53 Core-Tests bestanden. Die Simulator-Buildgrundlage ist auf Apple Silicon und Intel nachgewiesen. Die eingefrorene Datei `Packages/PaceLifeCore/Tests/PaceLifeCoreTests/Fixtures/schema-one.json` wurde mit dem originalen Schema-1-Serializer aus `c2299e5` erstellt. Ihre Originalfelder werden vor Änderungen an Domain und Repository geprüft.
+Status: Schema 9 ist aktiviert. Explizite DTOs für Schema 1 bis 8 erhalten die bisherigen Daten; 62 Core-Tests bestanden (Swift 6.0.3/Linux, 8. November 2026). Die Simulator-Buildgrundlage ist auf Apple Silicon und Intel nachgewiesen. Die eingefrorene Datei `Packages/PaceLifeCore/Tests/PaceLifeCoreTests/Fixtures/schema-one.json` wurde mit dem originalen Schema-1-Serializer aus `c2299e5` erstellt. Ihre Originalfelder werden vor Änderungen an Domain und Repository geprüft.
 
 ## Übergang
 
@@ -57,3 +57,16 @@ Downgrade muss der ältere Writer die neuere Schemaversion ablehnen.
 Schema 8 ergänzt die optionale Routine-Quelle eines Path-Meilensteins. Bestehende
 Meilensteine behalten ihre manuelle/Habit-Quelle. Keine alten Sessions werden
 verändert, keine Minuten umgedeutet. Ein Schema-7-Roundtrip prüft alle alten Felder.
+
+## Schema 9 (8. November 2026)
+
+Schema 8 unterschied sich von Schema 7 nur durch ein optionales Meilensteinfeld;
+beide werden mit demselben expliziten DTO gelesen. Beim Übergang auf Schema 9
+bleiben Reihenfolge, Sichtbarkeit und (neu optionale) Größe aller vorhandenen
+Widgets erhalten. Fehlende Dashboard-Widgets werden an festen Positionen ergänzt:
+Übersicht vor dem Tagesfortschritt, Serie und Woche direkt danach, Kalender am Ende
+(sichtbar), Kreise/Experimente/Chapters am Ende (ausgeblendet). `dayPlans` startet
+leer: es wird keine Vergangenheit erfunden. Ein Schema-9-Dokument ohne `dayPlans`
+gilt als beschädigt. Ältere Apps lehnen Schema 9 bewusst mit „unsupported schema“
+ab; nach dem ersten Schreiben keine ältere Beta über denselben Datencontainer
+installieren.

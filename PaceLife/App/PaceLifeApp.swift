@@ -17,6 +17,11 @@ struct PaceLifeApp: App {
             if ProcessInfo.processInfo.arguments.contains("--uitesting-reset") {
                 try? FileManager.default.removeItem(at: folder)
             }
+            if ProcessInfo.processInfo.arguments.contains("--uitesting-seed-dashboard") {
+                // Synthetic screenshot data in the separate UI-test store only.
+                do { try UITestSeed.writeDashboard(to: folder.appendingPathComponent("life.json")) }
+                catch { print("UI test seed failed:", error) }
+            }
         }
         #endif
         _model = State(initialValue: AppModel(repository: JSONStateRepository(url: folder.appendingPathComponent("life.json")),

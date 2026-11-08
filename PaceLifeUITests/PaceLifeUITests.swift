@@ -9,9 +9,9 @@ final class PaceLifeUITests: XCTestCase {
     }
 
     @MainActor
-    private func launchFreshApp(accessibilityText: Bool = false) -> XCUIApplication {
+    private func launchFreshApp(accessibilityText: Bool = false, seedDashboard: Bool = false) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = ["--uitesting"]
+        app.launchArguments = ["--uitesting"] + (seedDashboard ? ["--uitesting-seed-dashboard"] : [])
         if accessibilityText {
             app.launchArguments += ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"]
         }
@@ -151,12 +151,13 @@ final class PaceLifeUITests: XCTestCase {
     func testHiddenProgressWidgetSurvivesRelaunchAndCanBeRestored() {
         let app = launchFreshApp()
         app.buttons["customizeWidgets"].tap()
-        let progress = app.switches["widget.progress"]
-        XCTAssertTrue(progress.waitForExistence(timeout: 5))
-        XCTAssertEqual(progress.value as? String, "1")
-        setSwitch(progress, to: false)
-        XCTAssertEqual(progress.value as? String, "0", "Visibility must change before saving")
-        app.buttons["saveWidgets"].tap()
+        let remove = app.buttons["widget.remove.progress"]
+        XCTAssertTrue(remove.waitForExistence(timeout: 5))
+        reveal(remove, in: app); remove.tap()
+        let removed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: remove)
+        XCTAssertEqual(XCTWaiter.wait(for: [removed], timeout: 5), .completed, "Removal must update the draft before saving")
+        let save = app.buttons["saveWidgets"]
+        reveal(save, in: app); save.tap()
         XCTAssertTrue(app.buttons["customizeWidgets"].waitForExistence(timeout: 5))
         let hidden = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: app.otherElements["home.progress"])
         XCTAssertEqual(XCTWaiter.wait(for: [hidden], timeout: 5), .completed)
@@ -166,12 +167,93 @@ final class PaceLifeUITests: XCTestCase {
         XCTAssertTrue(app.buttons["customizeWidgets"].waitForExistence(timeout: 10))
         XCTAssertFalse(app.otherElements["home.progress"].exists)
         app.buttons["customizeWidgets"].tap()
-        XCTAssertTrue(progress.waitForExistence(timeout: 5))
-        XCTAssertEqual(progress.value as? String, "0")
-        setSwitch(progress, to: true)
-        XCTAssertEqual(progress.value as? String, "1", "Restoring visibility must update the draft")
-        app.buttons["saveWidgets"].tap()
+        XCTAssertFalse(app.buttons["widget.remove.progress"].exists)
+        app.buttons["addWidget"].tap()
+        let add = app.buttons["widget.add.progress"]
+        XCTAssertTrue(add.waitForExistence(timeout: 5)); add.tap()
+        XCTAssertTrue(app.buttons["widget.remove.progress"].waitForExistence(timeout: 5), "Restoring visibility must update the draft")
+        let saveAgain = app.buttons["saveWidgets"]
+        reveal(saveAgain, in: app); saveAgain.tap()
         XCTAssertTrue(app.otherElements["home.progress"].waitForExistence(timeout: 5))
+    }
+
+    @MainActor
+    func testDashboardSizeAndOrderSurviveRelaunch() {
+        let app = launchFreshApp()
+        app.buttons["customizeWidgets"].tap()
+        let size = app.buttons["widget.size.week"]
+        reveal(size, in: app)
+        XCTAssertEqual(size.value as? String, "Mittel")
+        size.tap()
+        let compact = app.buttons["Klein"]
+        XCTAssertTrue(compact.waitForExistence(timeout: 5)); compact.tap()
+        XCTAssertEqual(size.value as? String, "Klein")
+        let streakMove = app.buttons["widget.move.streak"]
+        reveal(streakMove, in: app); streakMove.tap()
+        let up = app.buttons["Nach oben"]
+        XCTAssertTrue(up.waitForExistence(timeout: 5)); up.tap()
+        let save = app.buttons["saveWidgets"]
+        reveal(save, in: app); save.tap()
+        XCTAssertTrue(app.buttons["customizeWidgets"].waitForExistence(timeout: 5))
+        app.terminate(); app.launch()
+        XCTAssertTrue(app.buttons["customizeWidgets"].waitForExistence(timeout: 10))
+        app.buttons["customizeWidgets"].tap()
+        let streakRemove = app.buttons["widget.remove.streak"], progressRemove = app.buttons["widget.remove.progress"]
+        reveal(streakRemove, in: app)
+        XCTAssertTrue(progressRemove.exists)
+        XCTAssertLessThan(streakRemove.frame.minY, progressRemove.frame.minY, "The moved streak widget must stay above the progress card")
+        let restoredSize = app.buttons["widget.size.week"]
+        reveal(restoredSize, in: app)
+        XCTAssertEqual(restoredSize.value as? String, "Klein", "The chosen widget size must be persisted")
+        let done = app.buttons["saveWidgets"]
+        reveal(done, in: app); done.tap()
+        XCTAssertTrue(app.buttons["customizeWidgets"].waitForExistence(timeout: 5))
+    }
+
+    /// Synthetic data (DEBUG seed) so the real dashboard, statistics and calendar
+    /// can be compared with the Pace reference. Not user data.
+    @MainActor
+    func testDashboardScreenshotsWithSyntheticData() {
+        let app = launchFreshApp(seedDashboard: true)
+        func capture(_ name: String) {
+            let attachment = XCTAttachment(screenshot: app.screenshot())
+            attachment.name = name; attachment.lifetime = .keepAlways; add(attachment)
+        }
+        XCTAssertTrue(app.otherElements["home.progress"].waitForExistence(timeout: 10))
+        XCTAssertEqual(app.staticTexts["hero.completed"].label, "1", "Only the synthetic completed binary habit counts as done")
+        XCTAssertTrue(app.staticTexts["mode.active"].exists)
+        capture("pace-dashboard-light")
+        app.swipeUp()
+        capture("pace-dashboard-scrolled-light")
+        app.swipeUp()
+        capture("pace-dashboard-bottom-light")
+        app.buttons["tab.today"].tap()
+        let customize = app.buttons["customizeWidgets"]
+        reveal(customize, in: app); customize.tap()
+        XCTAssertTrue(app.buttons["addWidget"].waitForExistence(timeout: 5))
+        capture("pace-dashboard-edit-light")
+        app.buttons["saveWidgets"].tap()
+        let statistics = app.buttons["openStatistics"]
+        reveal(statistics, in: app); statistics.tap()
+        XCTAssertTrue(app.staticTexts["statistics.total"].waitForExistence(timeout: 5))
+        capture("pace-statistics-light")
+        app.buttons["tab.today"].tap()
+        let calendar = app.buttons["openCalendar"]
+        reveal(calendar, in: app); calendar.tap()
+        XCTAssertTrue(app.buttons["calendarToday"].waitForExistence(timeout: 5))
+        capture("pace-calendar-light")
+        app.buttons["tab.development"].tap(); app.buttons["managePaths"].tap()
+        let path = app.buttons["path.open.Russisch B2"]
+        XCTAssertTrue(path.waitForExistence(timeout: 5)); path.tap()
+        XCTAssertTrue(app.staticTexts["milestone.value.Grammatik wiederholen"].waitForExistence(timeout: 5))
+        capture("pace-path-detail-light")
+        app.buttons["tab.profile"].tap()
+        let dark = app.buttons["Dunkel"]
+        reveal(dark, in: app); dark.tap()
+        capture("pace-profile-seeded-dark")
+        app.buttons["tab.today"].tap()
+        assertTab("today", in: app)
+        capture("pace-dashboard-dark")
     }
 
 
@@ -211,9 +293,21 @@ final class PaceLifeUITests: XCTestCase {
         }
         reveal(app.buttons["openCalendar"], in: app)
         app.buttons["openCalendar"].tap()
-        XCTAssertTrue(app.buttons["closeCalendar"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["calendarToday"].waitForExistence(timeout: 5))
+        app.buttons["Woche"].tap()
         app.buttons["Monat"].tap()
-        app.buttons["closeCalendar"].tap()
+        XCTAssertTrue(app.buttons["tab.today"].isHittable, "The Pace dock stays visible on pushed pages")
+        // Native back returns to the existing root without a second stack.
+        let back = app.navigationBars.buttons["Heute"]
+        XCTAssertTrue(back.waitForExistence(timeout: 5), app.debugDescription)
+        back.tap()
+        XCTAssertTrue(app.buttons["openCalendar"].waitForExistence(timeout: 5))
+        // Re-selecting the current tab in the dock also returns to its root.
+        app.buttons["openStatistics"].tap()
+        XCTAssertTrue(app.staticTexts["statistics.total"].waitForExistence(timeout: 5))
+        app.buttons["tab.today"].tap()
+        XCTAssertTrue(app.buttons["openCalendar"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.staticTexts["statistics.total"].exists)
         // Opening and closing an editor must return to the existing root, not create another stack.
         reveal(app.buttons["addHabit"], in: app)
         app.buttons["addHabit"].tap()
@@ -299,13 +393,12 @@ final class PaceLifeUITests: XCTestCase {
         app.buttons["tab.development"].tap(); app.buttons["managePaths"].tap()
         XCTAssertTrue(open.waitForExistence(timeout: 5)); open.tap()
         XCTAssertEqual(app.staticTexts["milestone.value.Take exam"].label, "1 / 1")
-        // A native detail edge-swipe must pop the modal detail, not page the root.
-        let bar = app.navigationBars["Learn Russian"]
-        XCTAssertTrue(bar.waitForExistence(timeout: 5), app.debugDescription)
-        XCTAssertTrue(bar.buttons["Life Paths"].exists, app.debugDescription)
-        XCTAssertTrue(bar.buttons["Life Paths"].isHittable, app.debugDescription)
-        // The modal navigation controller can be inset from the application frame.
-        // Start at its own leading edge, below the bar, with an actual swipe.
+        // A native detail edge-swipe must pop the pushed detail, not page the root.
+        let backToList = app.navigationBars.buttons["Life Paths"]
+        XCTAssertTrue(backToList.waitForExistence(timeout: 5), app.debugDescription)
+        XCTAssertTrue(backToList.isHittable, app.debugDescription)
+        let bar = app.navigationBars.firstMatch
+        // Start at the navigation bar's leading edge, below the bar, with an actual swipe.
         let edge = bar.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 1))
             .withOffset(CGVector(dx: 2, dy: 80))
         let center = bar.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 1))
@@ -315,7 +408,9 @@ final class PaceLifeUITests: XCTestCase {
         // zero-duration press did not reach the native recognizer's begin check.
         edge.press(forDuration: 0.05, thenDragTo: center, withVelocity: .default, thenHoldForDuration: 0)
         XCTAssertTrue(app.buttons["addPath"].waitForExistence(timeout: 5), app.debugDescription)
-        app.buttons["closePaths"].tap()
+        assertTab("development", in: app)
+        app.navigationBars.buttons["Entwicklung"].tap()
+        XCTAssertTrue(app.buttons["managePaths"].waitForExistence(timeout: 5))
         assertTab("development", in: app)
     }
 
@@ -342,7 +437,7 @@ final class PaceLifeUITests: XCTestCase {
         actual.typeText(XCUIKeyboardKey.delete.rawValue + "30")
         app.buttons["saveProgress"].tap()
         XCTAssertEqual(app.staticTexts["adaptive.progress.Study"].label, "30 / 30")
-        app.buttons["closeAdaptive"].tap()
+        app.navigationBars.buttons["Heute"].tap()
         let completed = app.buttons["habit.complete.Study"]
         // The home may retain its previous scroll position; relaunch returns to the top.
         app.terminate(); app.launch()
@@ -436,8 +531,8 @@ final class PaceLifeUITests: XCTestCase {
         let app = launchFreshApp()
         for theme in ["Hell", "Dunkel"] {
             app.buttons["tab.profile"].tap()
-            let picker = app.buttons["theme"]
-            reveal(picker, in: app); picker.tap(); app.buttons[theme].tap()
+            let option = app.buttons[theme]
+            reveal(option, in: app); option.tap()
             for tab in ["today", "development", "circles", "profile"] {
                 app.buttons["tab.\(tab)"].tap(); assertTab(tab, in: app)
                 let attachment = XCTAttachment(screenshot: app.screenshot())
@@ -445,12 +540,12 @@ final class PaceLifeUITests: XCTestCase {
                 attachment.lifetime = .keepAlways
                 add(attachment)
             }
-            for (tab, open, close, name) in [
-                ("today", "manageModes", "closeModes", "modes"),
-                ("today", "manageAdaptive", "closeAdaptive", "adaptive"),
-                ("development", "managePaths", "closePaths", "paths"),
-                ("development", "manageChapters", "closeChapters", "chapters"),
-                ("development", "manageExperiments", "closeExperiments", "experiments")
+            for (tab, open, marker, name) in [
+                ("today", "manageModes", "addMode", "modes"),
+                ("today", "manageAdaptive", "proposeAdaptive", "adaptive"),
+                ("development", "managePaths", "addPath", "paths"),
+                ("development", "manageChapters", "addChapter", "chapters"),
+                ("development", "manageExperiments", "addExperiment", "experiments")
             ] {
                 app.buttons["tab.\(tab)"].tap()
                 assertTab(tab, in: app)
@@ -460,12 +555,14 @@ final class PaceLifeUITests: XCTestCase {
                 // Give the synthetic touch a real contact interval, as in the
                 // back-swipe regression. No second tap or retry masks a failure.
                 opener.press(forDuration: 0.05)
-                XCTAssertTrue(app.buttons[close].waitForExistence(timeout: 10), app.debugDescription)
+                XCTAssertTrue(app.buttons[marker].waitForExistence(timeout: 10), app.debugDescription)
+                XCTAssertTrue(app.buttons["tab.\(tab)"].isHittable, "The dock stays visible on pushed pages")
                 let attachment = XCTAttachment(screenshot: app.screenshot())
                 attachment.name = "pace-\(name)-\(theme == "Hell" ? "light" : "dark")"
                 attachment.lifetime = .keepAlways; add(attachment)
-                app.buttons[close].tap()
-                let dismissed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: app.buttons[close])
+                // The dock returns to the tab root; the pushed page disappears.
+                app.buttons["tab.\(tab)"].tap()
+                let dismissed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: app.buttons[marker])
                 XCTAssertEqual(XCTWaiter.wait(for: [dismissed], timeout: 10), .completed, app.debugDescription)
             }
         }

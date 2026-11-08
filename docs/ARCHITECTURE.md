@@ -45,7 +45,7 @@ CircleContribution. Später: serverseitige Memberships, ShareGrants und External
 
 ### Persistenzentscheidung
 
-Ein versionierter Codable-JSON-Store ersetzt in Phase 1 SwiftData. Damit werden dieselben Domain-/Persistenzpfade unter Linux und macOS getestet, ohne Apple-Persistenztypen an die Domäne zu koppeln. Das kleine lokale MVP verwendet einen einzelnen MainActor-Writer und atomaren Dateiersatz. Ursprünglich `schemaVersion = 1`, aktuell Schema 8 mit expliziten Migrationen (siehe unten); unbekannte neuere Versionen und beschädigte Daten führen zum sichtbaren Ladefehler, niemals zum stillen Reset. Ein fehlgeschlagener Schreibvorgang verwirft den vorgeschlagenen Zustand. iOS-Dateischutz ist aktiviert. Keine Mehrfensterbearbeitung und keine mehreren Store-Instanzen auf dieselbe Datei.
+Ein versionierter Codable-JSON-Store ersetzt in Phase 1 SwiftData. Damit werden dieselben Domain-/Persistenzpfade unter Linux und macOS getestet, ohne Apple-Persistenztypen an die Domäne zu koppeln. Das kleine lokale MVP verwendet einen einzelnen MainActor-Writer und atomaren Dateiersatz. Ursprünglich `schemaVersion = 1`, aktuell Schema 9 mit expliziten Migrationen (siehe unten); unbekannte neuere Versionen und beschädigte Daten führen zum sichtbaren Ladefehler, niemals zum stillen Reset. Ein fehlgeschlagener Schreibvorgang verwirft den vorgeschlagenen Zustand. iOS-Dateischutz ist aktiviert. Keine Mehrfensterbearbeitung und keine mehreren Store-Instanzen auf dieselbe Datei.
 
 Der vollständige Snapshot wird synchron gespeichert. Bei stark wachsender Historie ist ein Hintergrund-Actor/SQLite-Adapter hinter demselben Protokoll erforderlich; dies ist kein Mehrgeräte-Sync-Konzept. Archive erhalten Habit-Historie. Die App synchronisiert oder veröffentlicht keine Daten; Gerätesicherungen unterliegen den Systemeinstellungen.
 
@@ -53,11 +53,21 @@ Der vollständige Snapshot wird synchron gespeichert. Bei stark wachsender Histo
 
 Erfüllungen sind pro Habit und lokalem gregorianischen Kalendertag eindeutig. Zeitzonenwechsel benennen bestehende Tage nicht um; derselbe lokale Tag wird dedupliziert. Der ursprüngliche Zielwert und Zieltyp werden beim ersten Eintrag eingefroren. Auch eine heutige Zieländerung ändert diesen Snapshot nicht. Zähler sind ganzzahlig, Dauer wird in Minuten erfasst, binär ist 0/1. Teilfortschritt ist sichtbar, aber erst Zielerreichung zählt als vollständig.
 
-Ein aktiver Life Mode filtert seine ausgewählten Habits zusätzlich nach deren Wochentagen. Ohne aktiven Mode gelten alle fälligen Habits; ein leerer Mode enthält bewusst keine. Aktivierungswechsel werden historisiert und verändern keine Erfüllungen. Eigenständige Routinen sind implementiert (siehe unten); wiederkehrende Mode-Planung bleibt offen. Streaks verwenden den aktuellen Habit-Wochenplan; keine Rekonstruktion früherer Planänderungen.
+Ein aktiver Life Mode filtert seine ausgewählten Habits zusätzlich nach deren Wochentagen. Ohne aktiven Mode gelten alle fälligen Habits; ein leerer Mode enthält bewusst keine. Aktivierungswechsel werden historisiert und verändern keine Erfüllungen. Eigenständige Routinen sind implementiert (siehe unten); wiederkehrende Mode-Planung bleibt offen. Habit-Einzelserien verwenden weiterhin den aktuellen Wochenplan. Die Life-Serie und alle Wochen-/Kalenderauswertungen nutzen ab Schema 9 eingefrorene Tagespläne (siehe unten); frühere Planänderungen werden nicht rekonstruiert.
 
-### Navigation
+### Navigation (seit 8. November 2026)
 
-Vier Root-Tabs mit festem, Safe-Area-geschütztem Dock; Editieren in nativen Sheets/Formularen. Der native SwiftUI-`TabView` mit Page-Stil übernimmt interaktives Root-Paging, Abbrechen und geschwindigkeitsabhängiges Einrasten. Die Auswahl bindet Seiten und Dock an denselben Zustand. Die vier Root-Seiten haben keine Push-Ziele und benötigen keinen äußeren NavigationStack. Editor- und Detail-Sheets besitzen getrennte modale Navigation und empfangen keine Root-Gesten. Der Dock liegt außerhalb des Pagers im unteren Safe-Area-Inset. Die visuelle Abnahme aus VIDEO_REFERENCE.md bleibt erforderlich. Kein Backend-Listener und kein externes Auth-Lifecycle.
+Ein NavigationStack umschließt den nativen SwiftUI-Page-`TabView` der vier Root-Tabs.
+Modulseiten (Paths, Routinen, Adaptive, Kalender, Statistik, Chapters, Experiments,
+Circles, Gewohnheiten, Modes, Home-Layout, Connect) werden über typisierte
+`AppRoute`-Werte gepusht und überdecken den Pager vollständig. Dadurch konkurriert
+die native Edge-Swipe-Zurückgeste nie mit dem horizontalen Root-Paging. Root-Seiten
+blenden die Leiste aus und zeigen den Pace-Header; Unterseiten zeigen die native
+Leiste nur mit dem Zurück-Link („‹ Heute“) und darunter Wortmarke plus großen Titel.
+Der Dock liegt als `safeAreaInset` am NavigationStack und bleibt auf allen
+Unterseiten sichtbar; ein Tab-Tap kehrt zur Wurzel des Tabs zurück (`Navigator`).
+Editoren bleiben native Sheets mit eigener NavigationStack und empfangen keine
+Root-Gesten. Keine UIKit-Delegate-Overrides und keine eigene Gestenmaschine.
 
 ### Schema 2 und Routine-Sessions
 
@@ -192,3 +202,21 @@ nach Wiederherstellen des kurzen Kontakts wieder, auch ohne UIKit-Anbindung
 Der feste Dock verwendet kompakte einzeilige Beschriftungen und SwiftUIs nativen
 Large Content Viewer. Dynamic Type bleibt für Seiteninhalte aktiv. Die Auswahl
 bleibt eine gemeinsame RootTab-Bindung; keine zweite Gesten-Zustandsmaschine.
+
+### Schema 9: eingefrorene Tagespläne und Pace-Dashboard
+
+`DayPlanSnapshot` speichert je Kalendertag die geplanten Habit-/Routine-IDs und den
+aktiven Mode samt Titel-Snapshot. Jede erfolgreiche `LifeStore.transaction` hält
+den Plan fest: Tage zwischen dem letzten gespeicherten Plan und heute werden aus
+dem Zustand **vor** der Änderung ergänzt (zwischen zwei Transaktionen kann sich
+nichts geändert haben), der heutige Plan folgt dem neuen Zustand. Vergangene Pläne
+werden nie überschrieben; eine zurückgestellte Uhr ändert nichts; Lücken sind auf
+366 Tage begrenzt. Tage vor dem ersten Plan bleiben „unbekannt“ und gelten nie als
+verpasst. `DaySummary`, `LifeStreak` (Ruhetage neutral, offener heutiger Tag
+unterbricht nicht, unbekannte Tage beenden die Serie) und `DailyMetric`
+(erledigte Habits, erfasste Minuten, vollständige Routine-Sessions) sind reine,
+getestete Core-Funktionen. Gelöschte Modes bleiben über ihren Titel erklärbar.
+
+`HomeWidgetKind` erhält Übersicht, Serie, Woche, Kalender, Kreise, Experimente und
+Chapters; `HomeWidgetPreference.size` ist optional (fehlend = Standardgröße).
+`AppSettings.displayName` ist ein optionaler lokaler Vorname für die Begrüßung.

@@ -19,6 +19,11 @@ ALLOWED_NAMES = {
     "pace-adaptive-light", "pace-chapters-detail-light", "pace-experiments-detail-light",
     "pace-circle-challenge-light", "pace-profile-light", "pace-profile-dark",
     "pace-profile-accessibility-xxxl-light",
+    "pace-dashboard-light", "pace-dashboard-scrolled-light", "pace-dashboard-bottom-light",
+    "pace-dashboard-edit-light", "pace-dashboard-dark", "pace-statistics-light", "pace-calendar-light",
+    "pace-path-detail-light", "pace-profile-seeded-dark", "pace-circles-light", "pace-circles-dark",
+    "pace-development-light", "pace-development-dark", "pace-chapters-light", "pace-chapters-dark",
+    "pace-experiments-light", "pace-experiments-dark", "pace-paths-dark", "pace-modes-dark", "pace-adaptive-dark",
 }
 
 

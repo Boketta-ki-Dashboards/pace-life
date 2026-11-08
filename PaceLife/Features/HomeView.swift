@@ -185,6 +185,7 @@ private struct WidgetChrome<Content: View>: View {
                                 .frame(minHeight: 44)
                         }
                         .accessibilityLabel(model.dash(.chooseSize) + ": " + name)
+                        .accessibilityValue(model.widgetSizeName(widget.resolvedSize))
                         .accessibilityIdentifier("widget.size." + widget.kind.rawValue)
                     }
                     Menu {

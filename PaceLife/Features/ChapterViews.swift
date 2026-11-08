@@ -161,11 +161,13 @@ struct ChapterDetail: View {
         }
     }
     private func photos(_ chapter: LifeChapter) -> some View {
+        // The PhotosPicker label closure is Sendable: capture plain values only.
         let pickerTitle = model.chapterText(.addPhotos)
+        let pickerTint = PaceColor.accent
         return VStack(alignment: .leading, spacing: PaceSpacing.s) {
             PaceSectionTitle(title: model.chapterText(.photos)) {
                 PhotosPicker(selection: $selections, maxSelectionCount: 10, matching: .images) {
-                    Label(pickerTitle, systemImage: "photo.badge.plus").font(.body).foregroundStyle(PaceColor.accent).frame(minHeight: 44)
+                    Label(pickerTitle, systemImage: "photo.badge.plus").font(.body).foregroundStyle(pickerTint).frame(minHeight: 44)
                 }.disabled(importing).accessibilityIdentifier("addChapterPhotos")
             }
             ForEach(chapter.photoIDs, id: \.self) { id in
