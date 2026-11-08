@@ -503,8 +503,14 @@ struct HabitRow: View {
                 Button(action: open) {
                     HStack(spacing: PaceSpacing.xs) {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(habit.title).font(.headline).foregroundStyle(PaceColor.textPrimary)
-                                .strikethrough(done && kind == .binary, color: PaceColor.textSecondary)
+                            HStack(spacing: 4) {
+                                if model.isPriority(habit) {
+                                    Image(systemName: "star.fill").font(.caption).foregroundStyle(PaceColor.streak)
+                                        .accessibilityLabel(model.feature(.priority))
+                                }
+                                Text(habit.title).font(.headline).foregroundStyle(PaceColor.textPrimary)
+                                    .strikethrough(done && kind == .binary, color: PaceColor.textSecondary)
+                            }
                             if let entry = model.adaptiveEntry(habit), let adjusted = entry.acceptedTarget {
                                 Text(adjusted == 0 ? model.adaptiveText(.deferred) : model.adaptiveText(.adjusted) + ": " + model.number(completion?.actualValue ?? 0) + " / " + model.number(adjusted))
                                     .font(.footnote).foregroundStyle(PaceColor.accentStrong)

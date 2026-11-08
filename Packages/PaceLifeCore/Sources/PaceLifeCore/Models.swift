@@ -63,8 +63,14 @@ public struct LifeMode: Identifiable, Codable, Equatable, Sendable {
     public var title: String
     /// Selected habits form this mode's daily template. Empty means no selected habits.
     public var habitIDs: Set<UUID>
-    public init(id: UUID = UUID(), title: String, habitIDs: Set<UUID> = []) {
-        self.id = id; self.title = title; self.habitIDs = habitIDs
+    /// Weekdays (Sunday = 1) on which this mode activates automatically (schema 10).
+    /// Nil or empty means manual only. With overlapping schedules the first mode in the list wins.
+    public var scheduledWeekdays: Set<Int>?
+    /// Up to three ordered daily priorities among the mode's habits (schema 10).
+    public var priorityHabitIDs: [UUID]?
+    public init(id: UUID = UUID(), title: String, habitIDs: Set<UUID> = [], scheduledWeekdays: Set<Int>? = nil, priorityHabitIDs: [UUID]? = nil) {
+        self.id = id; self.title = title; self.habitIDs = habitIDs; self.scheduledWeekdays = scheduledWeekdays
+        self.priorityHabitIDs = priorityHabitIDs
     }
 }
 
@@ -74,8 +80,11 @@ public struct ModeActivation: Identifiable, Codable, Equatable, Sendable {
     public let titleSnapshot: String
     public let start: Date
     public var end: Date?
-    public init(id: UUID = UUID(), modeID: UUID, titleSnapshot: String, start: Date, end: Date? = nil) {
+    /// True when the weekly mode schedule started this activation (schema 10); nil = manual or legacy.
+    public let isAutomatic: Bool?
+    public init(id: UUID = UUID(), modeID: UUID, titleSnapshot: String, start: Date, end: Date? = nil, isAutomatic: Bool? = nil) {
         self.id = id; self.modeID = modeID; self.titleSnapshot = titleSnapshot; self.start = start; self.end = end
+        self.isAutomatic = isAutomatic
     }
 }
 
@@ -136,6 +145,10 @@ public struct AppSettings: Codable, Equatable, Sendable {
 public struct LifeState: Codable, Equatable, Sendable {
     /// Frozen daily plans (schema 9). Days before the first snapshot stay unknown.
     public var dayPlans: [DayPlanSnapshot]
+    /// Local notification preferences (schema 10).
+    public var reminders: [Reminder]
+    /// Day of the last manual mode choice. It overrides the weekly schedule for that day only.
+    public var modeOverrideDay: DayKey?
     public var circles: [LocalCircle]
     public var circleChallenges: [CircleChallenge]
     public var circleContributions: [CircleContribution]
@@ -158,8 +171,8 @@ public struct LifeState: Codable, Equatable, Sendable {
     public init(habits: [Habit] = [], modes: [LifeMode] = [], completions: [HabitCompletion] = [],
                 activations: [ModeActivation] = [], activeModeID: UUID? = nil,
                 widgets: [HomeWidgetPreference] = HomeWidgetPreference.defaultLayout,
-                settings: AppSettings = AppSettings(), routines: [Routine] = [], routineSessions: [RoutineSession] = [], paths: [LifePath] = [], pathEntries: [PathEntry] = [], adaptivePlans: [DailyAdaptivePlan] = [], chapters: [LifeChapter] = [], experiments: [LifeExperiment] = [], experimentCheckIns: [ExperimentCheckIn] = [], circles: [LocalCircle] = [], circleChallenges: [CircleChallenge] = [], circleContributions: [CircleContribution] = [], dayPlans: [DayPlanSnapshot] = []) {
-        self.dayPlans = dayPlans
+                settings: AppSettings = AppSettings(), routines: [Routine] = [], routineSessions: [RoutineSession] = [], paths: [LifePath] = [], pathEntries: [PathEntry] = [], adaptivePlans: [DailyAdaptivePlan] = [], chapters: [LifeChapter] = [], experiments: [LifeExperiment] = [], experimentCheckIns: [ExperimentCheckIn] = [], circles: [LocalCircle] = [], circleChallenges: [CircleChallenge] = [], circleContributions: [CircleContribution] = [], dayPlans: [DayPlanSnapshot] = [], reminders: [Reminder] = [], modeOverrideDay: DayKey? = nil) {
+        self.dayPlans = dayPlans; self.reminders = reminders; self.modeOverrideDay = modeOverrideDay
         self.circles = circles; self.circleChallenges = circleChallenges; self.circleContributions = circleContributions
         self.experiments = experiments; self.experimentCheckIns = experimentCheckIns
         self.chapters = chapters

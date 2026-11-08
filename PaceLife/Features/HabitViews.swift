@@ -166,6 +166,7 @@ struct HabitDetailContent: View {
                         }
                     }
                 }
+                if !habit.isArchived { ReminderSection(target: .habit(habitID), defaultWeekdays: habit.weekdays) }
                 PaceSectionTitle(model.text(.history))
                 let entries = model.state.completions.filter { $0.habitID == habitID }.sorted { $0.day > $1.day }
                 PaceCard {

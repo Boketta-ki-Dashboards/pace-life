@@ -148,6 +148,62 @@ final class PaceLifeUITests: XCTestCase {
     }
 
     @MainActor
+    func testScheduledModeStartsAutomaticallyAndManualChoiceWinsForToday() {
+        let app = launchFreshApp()
+        let manage = app.buttons["manageModes"]
+        reveal(manage, in: app); manage.tap()
+        app.buttons["addMode"].tap()
+        let title = app.textFields["modeTitle"]
+        XCTAssertTrue(title.waitForExistence(timeout: 5)); title.tap(); title.typeText("Every day")
+        for day in 1...7 {
+            let chip = app.buttons["mode.schedule.\(day)"]
+            reveal(chip, in: app); chip.tap()
+            XCTAssertTrue(chip.isSelected, "Weekday \(day) must be selected")
+        }
+        app.buttons["saveMode"].tap()
+        // Scheduled for today: the mode is active without pressing "Activate".
+        XCTAssertFalse(app.buttons["mode.activate.Every day"].waitForExistence(timeout: 2))
+        app.terminate(); app.launch()
+        let active = app.staticTexts["mode.active"]
+        XCTAssertTrue(active.waitForExistence(timeout: 10)); XCTAssertEqual(active.label, "Every day")
+        // A manual choice overrides the schedule for the rest of the day, also after relaunch.
+        reveal(app.buttons["manageModes"], in: app); app.buttons["manageModes"].tap()
+        let all = app.buttons["mode.all"]
+        XCTAssertTrue(all.waitForExistence(timeout: 5)); all.tap()
+        XCTAssertTrue(app.buttons["mode.activate.Every day"].waitForExistence(timeout: 5))
+        app.terminate(); app.launch()
+        XCTAssertTrue(active.waitForExistence(timeout: 10))
+        XCTAssertEqual(active.label, "Alle Gewohnheiten")
+    }
+
+    @MainActor
+    func testHabitReminderIsSavedListedAndCanBeDisabled() {
+        let app = launchFreshApp()
+        createHabit("Stretch", in: app)
+        let detail = app.buttons["habit.detail.Stretch"]
+        reveal(detail, in: app); detail.tap()
+        let add = app.buttons["reminder.add"]
+        reveal(add, in: app); add.tap()
+        XCTAssertTrue(app.buttons["reminder.save"].waitForExistence(timeout: 5))
+        app.buttons["reminder.save"].tap()
+        let toggle = app.switches.matching(NSPredicate(format: "label BEGINSWITH %@", "Erinnerung")).firstMatch
+        XCTAssertTrue(toggle.waitForExistence(timeout: 5), app.debugDescription)
+        XCTAssertEqual(toggle.value as? String, "1")
+        app.terminate(); app.launch()
+        app.buttons["tab.profile"].tap()
+        let list = app.buttons["profile.reminders"]
+        reveal(list, in: app); list.tap()
+        let listed = app.switches.matching(NSPredicate(format: "label BEGINSWITH %@", "Erinnerung")).firstMatch
+        XCTAssertTrue(listed.waitForExistence(timeout: 5), "The reminder must survive a relaunch")
+        setSwitch(listed, to: false)
+        app.terminate(); app.launch()
+        app.buttons["tab.profile"].tap()
+        reveal(app.buttons["profile.reminders"], in: app); app.buttons["profile.reminders"].tap()
+        XCTAssertTrue(listed.waitForExistence(timeout: 5))
+        XCTAssertEqual(listed.value as? String, "0", "Disabling must persist")
+    }
+
+    @MainActor
     func testHiddenProgressWidgetSurvivesRelaunchAndCanBeRestored() {
         let app = launchFreshApp()
         app.buttons["customizeWidgets"].tap()

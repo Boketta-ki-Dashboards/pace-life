@@ -15,10 +15,7 @@ public enum LifeError: Error, Equatable, Sendable {
 /// Atomic replacement prevents partial JSON writes. A failed/corrupt read is never replaced by empty data.
 @MainActor public final class JSONStateRepository: StateRepository {
     public let url: URL
-    private struct Envelope: Codable {
-        let schemaVersion: Int
-        let state: LifeState
-    }
+    public static let currentSchemaVersion = 10
     private var loadedData: Data?
     private var hasLoaded = false
     public init(url: URL) { self.url = url }
@@ -29,30 +26,9 @@ public enum LifeError: Error, Equatable, Sendable {
             return LifeState()
         }
         let data = try Data(contentsOf: url)
-        // Inspect the schema before decoding models so a future document isn't mistaken for corruption.
-        struct Header: Decodable { let schemaVersion: Int }
-        let decoder = JSONDecoder()
-        let version: Int
-        do { version = try decoder.decode(Header.self, from: data).schemaVersion }
-        catch { throw LifeError.corruptStore }
-        guard (1...9).contains(version) else { throw LifeError.unsupportedSchema(version) }
-        do {
-            let state: LifeState
-            switch version {
-            case 1: state = try decoder.decode(SchemaOneEnvelope.self, from: data).state.migrated()
-            case 2: state = try decoder.decode(SchemaTwoEnvelope.self, from: data).state.migrated()
-            case 3: state = try decoder.decode(SchemaThreeEnvelope.self, from: data).state.migrated()
-            case 4: state = try decoder.decode(SchemaFourEnvelope.self, from: data).state.migrated()
-            case 5: state = try decoder.decode(SchemaFiveEnvelope.self, from: data).state.migrated()
-            case 6: state = try decoder.decode(SchemaSixEnvelope.self, from: data).state.migrated()
-            // Schema 8 only added an optional milestone field; its top-level shape equals schema 7.
-            case 7, 8: state = try decoder.decode(SchemaSevenEnvelope.self, from: data).state.migrated()
-            default: state = try decoder.decode(Envelope.self, from: data).state
-            }
-            try state.validate()
-            loadedData = data; hasLoaded = true
-            return state
-        } catch { throw LifeError.corruptStore }
+        let state = try Self.decodeDocument(data)
+        loadedData = data; hasLoaded = true
+        return state
     }
 
     public func save(_ state: LifeState) throws {
@@ -61,9 +37,7 @@ public enum LifeError: Error, Equatable, Sendable {
         if !hasLoaded { _ = try load() }
         let current = FileManager.default.fileExists(atPath: url.path) ? try Data(contentsOf: url) : nil
         guard current == loadedData else { throw LifeError.concurrentModification }
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.sortedKeys]
-        let data = try encoder.encode(Envelope(schemaVersion: 9, state: state))
+        let data = try Self.encodeDocument(state)
         try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
         #if os(iOS)
         try data.write(to: url, options: [.atomic, .completeFileProtection])
@@ -128,6 +102,7 @@ extension LifeState {
             guard !trimmed.isEmpty, trimmed == name, name.count <= 40 else { throw LifeError.corruptStore }
         }
         try validateDayPlans()
+        try validateSchedules()
         try validateRoutines()
         try validatePaths()
         try validateAdaptive()

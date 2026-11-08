@@ -149,6 +149,24 @@ struct SchemaSixState: Decodable {
     }
 }
 
+/// Schema 9 = schema 7/8 fields plus frozen day plans. Reminders and mode schedules are new in 10.
+struct SchemaNineEnvelope: Decodable {
+    let schemaVersion: Int
+    let state: SchemaNineState
+}
+struct SchemaNineState: Decodable {
+    let base: SchemaSevenState
+    let dayPlans: [DayPlanSnapshot]
+    enum CodingKeys: String, CodingKey { case dayPlans }
+    init(from decoder: Decoder) throws {
+        base = try SchemaSevenState(from: decoder)
+        dayPlans = try decoder.container(keyedBy: CodingKeys.self).decode([DayPlanSnapshot].self, forKey: .dayPlans)
+    }
+    func migrated() -> LifeState {
+        var state = base.migrated(); state.dayPlans = dayPlans; return state
+    }
+}
+
 struct SchemaSevenEnvelope: Decodable {
     let schemaVersion: Int
     let state: SchemaSevenState

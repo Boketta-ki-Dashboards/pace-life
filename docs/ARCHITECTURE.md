@@ -45,7 +45,7 @@ CircleContribution. Später: serverseitige Memberships, ShareGrants und External
 
 ### Persistenzentscheidung
 
-Ein versionierter Codable-JSON-Store ersetzt in Phase 1 SwiftData. Damit werden dieselben Domain-/Persistenzpfade unter Linux und macOS getestet, ohne Apple-Persistenztypen an die Domäne zu koppeln. Das kleine lokale MVP verwendet einen einzelnen MainActor-Writer und atomaren Dateiersatz. Ursprünglich `schemaVersion = 1`, aktuell Schema 9 mit expliziten Migrationen (siehe unten); unbekannte neuere Versionen und beschädigte Daten führen zum sichtbaren Ladefehler, niemals zum stillen Reset. Ein fehlgeschlagener Schreibvorgang verwirft den vorgeschlagenen Zustand. iOS-Dateischutz ist aktiviert. Keine Mehrfensterbearbeitung und keine mehreren Store-Instanzen auf dieselbe Datei.
+Ein versionierter Codable-JSON-Store ersetzt in Phase 1 SwiftData. Damit werden dieselben Domain-/Persistenzpfade unter Linux und macOS getestet, ohne Apple-Persistenztypen an die Domäne zu koppeln. Das kleine lokale MVP verwendet einen einzelnen MainActor-Writer und atomaren Dateiersatz. Ursprünglich `schemaVersion = 1`, aktuell Schema 10 mit expliziten Migrationen (siehe unten); unbekannte neuere Versionen und beschädigte Daten führen zum sichtbaren Ladefehler, niemals zum stillen Reset. Ein fehlgeschlagener Schreibvorgang verwirft den vorgeschlagenen Zustand. iOS-Dateischutz ist aktiviert. Keine Mehrfensterbearbeitung und keine mehreren Store-Instanzen auf dieselbe Datei.
 
 Der vollständige Snapshot wird synchron gespeichert. Bei stark wachsender Historie ist ein Hintergrund-Actor/SQLite-Adapter hinter demselben Protokoll erforderlich; dies ist kein Mehrgeräte-Sync-Konzept. Archive erhalten Habit-Historie. Die App synchronisiert oder veröffentlicht keine Daten; Gerätesicherungen unterliegen den Systemeinstellungen.
 
@@ -53,7 +53,7 @@ Der vollständige Snapshot wird synchron gespeichert. Bei stark wachsender Histo
 
 Erfüllungen sind pro Habit und lokalem gregorianischen Kalendertag eindeutig. Zeitzonenwechsel benennen bestehende Tage nicht um; derselbe lokale Tag wird dedupliziert. Der ursprüngliche Zielwert und Zieltyp werden beim ersten Eintrag eingefroren. Auch eine heutige Zieländerung ändert diesen Snapshot nicht. Zähler sind ganzzahlig, Dauer wird in Minuten erfasst, binär ist 0/1. Teilfortschritt ist sichtbar, aber erst Zielerreichung zählt als vollständig.
 
-Ein aktiver Life Mode filtert seine ausgewählten Habits zusätzlich nach deren Wochentagen. Ohne aktiven Mode gelten alle fälligen Habits; ein leerer Mode enthält bewusst keine. Aktivierungswechsel werden historisiert und verändern keine Erfüllungen. Eigenständige Routinen sind implementiert (siehe unten); wiederkehrende Mode-Planung bleibt offen. Habit-Einzelserien verwenden weiterhin den aktuellen Wochenplan. Die Life-Serie und alle Wochen-/Kalenderauswertungen nutzen ab Schema 9 eingefrorene Tagespläne (siehe unten); frühere Planänderungen werden nicht rekonstruiert.
+Ein aktiver Life Mode filtert seine ausgewählten Habits zusätzlich nach deren Wochentagen. Ohne aktiven Mode gelten alle fälligen Habits; ein leerer Mode enthält bewusst keine. Aktivierungswechsel werden historisiert und verändern keine Erfüllungen. Eigenständige Routinen sind implementiert (siehe unten); wiederkehrende Modes folgen seit Schema 10 einer transparenten Wochenplan-Regel (siehe unten). Habit-Einzelserien verwenden weiterhin den aktuellen Wochenplan. Die Life-Serie und alle Wochen-/Kalenderauswertungen nutzen ab Schema 9 eingefrorene Tagespläne (siehe unten); frühere Planänderungen werden nicht rekonstruiert.
 
 ### Navigation (seit 8. November 2026)
 
@@ -220,3 +220,22 @@ getestete Core-Funktionen. Gelöschte Modes bleiben über ihren Titel erklärbar
 `HomeWidgetKind` erhält Übersicht, Serie, Woche, Kalender, Kreise, Experimente und
 Chapters; `HomeWidgetPreference.size` ist optional (fehlend = Standardgröße).
 `AppSettings.displayName` ist ein optionaler lokaler Vorname für die Begrüßung.
+
+### Schema 10: Wochenplan-Modes, Tagesprioritäten, Erinnerungen, Backup
+
+Regel je Kalendertag (idempotent, kein Hin- und Herspringen): Eine heute getroffene
+manuelle Mode-Wahl gilt für den restlichen Tag. Sonst ist der erste Mode der Liste
+aktiv, der für den Wochentag geplant ist. Ohne geplanten Mode endet ein automatisch
+gestarteter Mode; eine frühere manuelle Wahl bleibt bestehen. `AppModel` wendet die
+Regel beim Laden, beim Tageswechsel und nach dem Speichern eines Modes an. Tage ohne
+App-Nutzung werden beim nächsten Schreiben mit dem für sie geltenden Mode eingefroren.
+
+Bis zu drei Tagesprioritäten je Mode (geordnet, Teil des Modes) stehen auf Heute oben
+und sind in Pace Adaptive vorab geschützt. Erinnerungen (`Reminder`) gehören zu einer
+Gewohnheit oder Routine; `NotificationReminderScheduler` ersetzt bei jeder relevanten
+Änderung alle ausstehenden Pace-Life-Mitteilungen durch wöchentliche
+`UNCalendarNotificationTrigger`. Die Erlaubnis wird erst beim Aktivieren erfragt; das
+iOS-Limit von 64 ausstehenden Mitteilungen wird im Core validiert. Archivieren entfernt
+Erinnerungen. UI-Tests verwenden einen deaktivierten Scheduler ohne Systemdialoge.
+Export: validierte, lesbare JSON-Datei über den nativen Dateiexport (ohne Fotos).
+Pace Adaptive kann einen Tag neu planen; angenommene/abgelehnte Entscheidungen bleiben.

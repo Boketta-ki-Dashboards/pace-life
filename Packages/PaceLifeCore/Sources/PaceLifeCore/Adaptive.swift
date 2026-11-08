@@ -109,3 +109,28 @@ extension LifeStore {
         }
     }
 }
+
+extension LifeStore {
+    /// Re-plans today after the available time or energy changed. Accepted and declined
+    /// decisions stay exactly as they were; only pending (or reverted) entries get new
+    /// suggestions. Original targets keep following today's stored completion snapshots.
+    public func replanAdaptive(availableMinutes: Int, energy: Int, load: Int, protectedIDs: Set<UUID> = [],
+                               on date: Date = Date(), calendar: Calendar = .current) throws {
+        let day = DayKey(date: date, calendar: calendar)
+        guard let existing = state.adaptivePlans.first(where: { $0.day == day }) else {
+            try createAdaptivePlan(availableMinutes: availableMinutes, energy: energy, load: load, protectedIDs: protectedIDs, on: date, calendar: calendar)
+            return
+        }
+        let habits = dueHabits(on: date, calendar: calendar)
+        var plan = try AdaptiveEngine.propose(state: state, habits: habits, routines: dueRoutines(on: date, calendar: calendar), day: day,
+                                              availableMinutes: availableMinutes, energy: energy, load: load,
+                                              protectedIDs: protectedIDs.intersection(Set(habits.map(\.id))))
+        let decided = existing.entries.filter { $0.decision == .accepted || $0.decision == .declined }
+        plan.entries = plan.entries.map { entry in decided.first { $0.habitID == entry.habitID } ?? entry }
+        plan.entries += decided.filter { old in !plan.entries.contains { $0.habitID == old.habitID } }
+        try transaction { state in
+            guard let index = state.adaptivePlans.firstIndex(where: { $0.day == day }) else { throw LifeError.invalidValue }
+            state.adaptivePlans[index] = plan
+        }
+    }
+}

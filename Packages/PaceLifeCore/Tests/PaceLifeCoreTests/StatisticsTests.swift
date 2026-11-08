@@ -33,3 +33,41 @@ final class StatisticsTests: XCTestCase {
         XCTAssertEqual(state.bestWeek(of: .minutes, weekStarts: weeks)?.value, 105)
     }
 }
+
+final class PathTimelineAndReplanTests: XCTestCase {
+    func testPathTimelineFollowsCountedContributions() {
+        let study = Habit(title: "Study", goalType: .duration, target: 60)
+        let path = LifePath(title: "Learn", startDay: DayKey(rawValue: "2026-11-01"),
+                            milestones: [PathMilestone(title: "Hours", goalType: .duration, target: 120, habitID: study.id), PathMilestone(title: "Exam")])
+        let state = LifeState(habits: [study],
+                              completions: [HabitCompletion(habitID: study.id, day: DayKey(rawValue: "2026-10-31"), timeZoneID: "UTC", actualValue: 60, targetSnapshot: 60, goalTypeSnapshot: .duration),
+                                            HabitCompletion(habitID: study.id, day: DayKey(rawValue: "2026-11-02"), timeZoneID: "UTC", actualValue: 60, targetSnapshot: 60, goalTypeSnapshot: .duration)],
+                              paths: [path],
+                              pathEntries: [PathEntry(milestoneID: path.milestones[1].id, day: DayKey(rawValue: "2026-11-04"), value: 1)])
+        let points = state.pathProgressTimeline(path, through: DayKey(rawValue: "2026-11-05"))
+        XCTAssertEqual(points.map(\.day.rawValue), ["2026-11-01", "2026-11-02", "2026-11-04", "2026-11-05"], "Work before the path start is not counted")
+        XCTAssertEqual(points.map(\.progress), [0, 0.25, 0.75, 0.75])
+    }
+
+    func testReplanKeepsDecisionsAndRefreshesPendingSuggestions() async throws {
+        try await MainActor.run {
+            let store = try LifeStore(repository: MemoryStateRepository())
+            let study = Habit(title: "Study", goalType: .duration, target: 60), read = Habit(title: "Read", goalType: .duration, target: 40)
+            try store.saveHabit(study); try store.saveHabit(read)
+            try store.createAdaptivePlan(availableMinutes: 30, energy: 3, load: 3)
+            let day = DayKey(date: Date())
+            try store.decideAdaptive(day: day, habitID: study.id, decision: .accepted, target: 20)
+            let before = try XCTUnwrap(store.state.adaptivePlans.first?.entries.first { $0.habitID == read.id })
+            try store.replanAdaptive(availableMinutes: 120, energy: 3, load: 3)
+            let plan = try XCTUnwrap(store.state.adaptivePlans.first)
+            XCTAssertEqual(store.state.adaptivePlans.count, 1)
+            XCTAssertEqual(plan.availableMinutes, 120)
+            let kept = try XCTUnwrap(plan.entries.first { $0.habitID == study.id })
+            XCTAssertEqual(kept.decision, .accepted); XCTAssertEqual(kept.acceptedTarget, 20); XCTAssertEqual(kept.originalTarget, 60)
+            let refreshed = try XCTUnwrap(plan.entries.first { $0.habitID == read.id })
+            XCTAssertEqual(refreshed.decision, .pending)
+            XCTAssertGreaterThan(refreshed.suggestedTarget, before.suggestedTarget)
+            XCTAssertLessThanOrEqual(refreshed.suggestedTarget, 40)
+        }
+    }
+}

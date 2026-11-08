@@ -151,7 +151,7 @@ final class DayPlanTests: XCTestCase {
             var resized = loaded; resized.widgets[0].size = .large
             try repo.save(resized)
             let envelope = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any])
-            XCTAssertEqual(envelope["schemaVersion"] as? Int, 9)
+            XCTAssertEqual(envelope["schemaVersion"] as? Int, JSONStateRepository.currentSchemaVersion)
             XCTAssertEqual(try JSONStateRepository(url: url).load(), resized)
 
             // A schema-9 document without day plans is not silently accepted as complete.

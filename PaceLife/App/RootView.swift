@@ -12,7 +12,7 @@ enum RootTab: String, CaseIterable, Hashable {
 /// compete with horizontal tab paging; the Pace dock stays visible on all of them.
 enum AppRoute: Hashable {
     case habits, habit(UUID), modes, routines, routine(UUID), paths, path(UUID), adaptive, calendar, statistics
-    case chapters, chapter(UUID), experiments, experiment(UUID), circle(UUID), challenge(UUID), widgets, connect
+    case chapters, chapter(UUID), experiments, experiment(UUID), circle(UUID), challenge(UUID), widgets, connect, reminders, backup
 }
 
 @MainActor @Observable
@@ -132,6 +132,8 @@ struct RouteDestination: View {
         case .challenge(let id): CircleChallengeDetail(challengeID: id)
         case .widgets: WidgetEditor()
         case .connect: ConnectView()
+        case .reminders: RemindersView()
+        case .backup: BackupView()
         }
     }
 }

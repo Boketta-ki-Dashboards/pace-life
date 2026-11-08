@@ -1,13 +1,13 @@
 # Pace Life — iOS
 
-Native, lokale SwiftUI-App für iPhone mit iOS 17+, Swift 6 und Xcode 16 oder neuer. Der Entwicklungsbranch implementiert Life Modes, Habits, eigenständige Routinen, Life Paths, Pace Adaptive, einen Wochen-/Monatskalender, einen modularen Homescreen, private Life Chapters mit Fotos, Life Experiments und einen lokalen Pace-Circles-Testmodus. Die sieben langfristigen Module bleiben in [Roadmap](docs/ROADMAP.md) und [Produktspezifikation](docs/PRODUCT_SPEC.md) verankert.
+Native, lokale SwiftUI-App für iPhone mit iOS 17+, Swift 6 und Xcode 16 oder neuer. Der Entwicklungsbranch implementiert Life Modes mit Wochenplan, Habits, eigenständige Routinen, Life Paths mit Fortschrittsverlauf, Pace Adaptive inklusive Neuplanung, Kalender und Statistik auf eingefrorenen Tagesplänen, ein frei anpassbares Pace-Dashboard, private Life Chapters mit Fotos, Life Experiments, einen lokalen Pace-Circles-Testmodus, lokale Erinnerungen und Datenexport/Wiederherstellung. Navigation und Design folgen der ausgewerteten Pace-Social-Referenz ([Analyse](docs/DESIGN_REFERENCE_ANALYSIS.md)). Die sieben langfristigen Module bleiben in [Roadmap](docs/ROADMAP.md) und [Produktspezifikation](docs/PRODUCT_SPEC.md) verankert.
 
 ## In Xcode öffnen und auf dem iPhone testen
 
 1. Dieses Repository klonen, den Branch `codex/pace-life-offline-beta` auswählen und `PaceLife.xcodeproj` öffnen. Das lokale Package `Packages/PaceLifeCore` wird ohne externe Abhängigkeiten eingebunden; kein Generator oder Paketmanager ist zum Öffnen nötig.
 2. Scheme **PaceLife** auswählen. Unter **Signing & Capabilities** beim Target **PaceLife** dein Apple-Entwicklerteam wählen. Falls nötig `com.boketta.pacelife` in eine eigene eindeutige Bundle-ID ändern. Es ist kein fremdes Team vorkonfiguriert.
 3. iPhone verbinden, dem Mac vertrauen und den Entwicklermodus am iPhone aktivieren. Gerät als Run Destination wählen und mit **⌘R** starten. Ein kostenloses Personal Team kann für lokale Gerätetests verwendet werden; dessen Apple-Limits gelten.
-4. Eine Gewohnheit erstellen, Wochentage/Ziel wählen und heutigen Fortschritt erfassen. Einen Life Mode anlegen, Gewohnheiten zuordnen und aktivieren. Home-Widgets unter „Home anpassen“ sortieren/ausblenden. App schließen und erneut öffnen: Eingaben und Einstellungen bleiben erhalten.
+4. Auf **Heute** mit dem „+“ der Gewohnheitskarte eine Gewohnheit erstellen und abhaken. Oben rechts **Anpassen** öffnen: Widgets entfernen (×), Größe wählen, über das Griff-Menü oder per Halten-und-Ziehen verschieben, „Widget hinzufügen“, dann **Fertig**. App schließen und erneut öffnen: Eingaben und Layout bleiben erhalten. Unterseiten öffnen sich per Push; der Pace-Dock bleibt sichtbar, Zurück per Edge-Swipe oder „‹ Heute“.
 
 Es gibt kein Login, keinen Server und keine benötigten API-Schlüssel. Die App startet ohne erfundene Nutzerdaten. Das Original-Wordmark wurde nicht geliefert; die Oberfläche kennzeichnet den Text-Ersatz.
 
@@ -44,11 +44,11 @@ Pace Social wird ausschließlich von Claude betreut. Kein Zugriff auf dessen Rep
 
 [AGENTS.md](AGENTS.md), [Kickoff](05_CODEX_KICKOFF_PROMPT.md), [Designsystem](docs/DESIGN_SYSTEM.md), [Testanforderungen](docs/TEST_AND_RELEASE.md), [Integrationsvertrag](docs/INTEGRATION_CONTRACT.md) und [Videoreferenz](docs/VIDEO_REFERENCE.md).
 
-Routinen testen: Unter **Heute → Routinen** eine Routine mit mehreren Schritten
+Routinen testen: Auf **Heute** die Routinen-Karte öffnen und eine Routine mit mehreren Schritten
 anlegen, optional einem Life Mode zuordnen und diesen aktivieren. Routine starten,
 einige Schritte erledigen, pausieren und die App neu starten. Teilfortschritt und
-Pause bleiben erhalten. Das Routinen-Widget lässt sich unter „Home anpassen“
-einblenden. Bestehende Schema-1-Daten werden automatisch verlustfrei übernommen.
+Pause bleiben erhalten. Das Routinen-Widget lässt sich über **Anpassen**
+ein- und ausblenden. Bestehende Schema-1-Daten werden automatisch verlustfrei übernommen.
 
 Life Paths testen: **Entwicklung → Life Paths**, Ziel mit mehreren Meilensteinen
 anlegen. Einen Minuten-Meilenstein mit einer Dauer-Gewohnheit verknüpfen (100
@@ -56,16 +56,18 @@ Lernstunden = 6000 Minuten). Heute 45 Minuten bei dieser Gewohnheit erfassen: De
 Path zeigt 45 tatsächliche Minuten. Korrekturen ändern diesen Beitrag ohne
 Doppelzählung; weitere Meilensteine bleiben unabhängig.
 
-Pace Adaptive testen: Einen Dauer-Habit mit 60 Minuten anlegen, **Heute → Pace
-Adaptive** öffnen und 30 Minuten Budget wählen. Vorschlag bestätigen, 30 Minuten
+Pace Adaptive testen: Einen Dauer-Habit mit 60 Minuten anlegen, auf **Heute** „Tag
+anpassen“ öffnen und 30 Minuten Budget wählen. Vorschlag bestätigen, 30 Minuten
 erfassen: angepasstes Tagesziel erreicht, ursprüngliches Ziel erst zur Hälfte.
 Der echte Wert fließt in verknüpfte Paths. Neustart erhält beide Ziele und den
 Istwert. Bereits erstellte Tagespläne bleiben eingefroren; einzelne Ziele können
 bearbeitet oder ihre Anpassung zurückgenommen werden.
 
 Kalender testen: Unter **Heute** das Kalender-Symbol öffnen, zwischen Woche und
-Monat wechseln und Tage auswählen. Historische Werte stammen aus gespeicherten
-Ergebnissen; Zukunftspläne sind ausdrücklich eine Vorschau mit dem aktuellen Mode.
+Monat wechseln und Tage auswählen. Erreichte Tage sind gefüllt, Teilfortschritt zeigt
+einen Ring. Vergangene Tage nutzen ihren eingefrorenen Tagesplan (ab Schema 9); Tage
+ohne gespeicherten Plan gelten nicht als verpasst. Zukunftstage sind eine Vorschau.
+Das Statistik-Symbol zeigt Woche/Monat, Kennzahlen und Bestwerte.
 
 Life Chapters testen: **Entwicklung → Life Chapters → +**. Titel, Zeitraum,
 Kategorie und optional verknüpfte Paths speichern. Im Kapitel Fotos über den nativen

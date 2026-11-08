@@ -103,6 +103,7 @@ extension LifeStore {
         try transaction { state in
             guard let index = state.routines.firstIndex(where: { $0.id == id }) else { throw LifeError.missingRoutine }
             state.routines[index].isArchived = true
+            state.reminders.removeAll { $0.target == .routine(id) }
         }
     }
     public func dueRoutines(on date: Date = Date(), calendar: Calendar = .current) -> [Routine] {

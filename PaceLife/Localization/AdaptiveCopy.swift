@@ -1,7 +1,7 @@
 import PaceLifeCore
 
 enum AdaptiveCopy {
-    case available, energy, load, protect, propose, accept, decline, undo, adjusted, suggested, current, routineTime, unknown, overBudget, rule, frozen, deferred, original, actual, noActivities
+    case replan, replanNote, available, energy, load, protect, propose, accept, decline, undo, adjusted, suggested, current, routineTime, unknown, overBudget, rule, frozen, deferred, original, actual, noActivities
     func text(_ language: AppLanguage) -> String {
         let v: (String, String, String)
         switch self {
@@ -20,6 +20,8 @@ enum AdaptiveCopy {
         case .unknown: v = ("Aktivitäten/Schritte ohne Zeitangabe", "Activities/steps without a duration", "Действия/шаги без длительности")
         case .overBudget: v = ("Der aktuelle Plan überschreitet dein Zeitbudget. Abgelehnte Vorschläge und feste Aufgaben behalten ihren ursprünglichen Umfang.", "The current plan exceeds your time budget. Declined suggestions and fixed activities keep their original scope.", "Текущий план превышает доступное время. Отклонённые предложения и фиксированные задачи сохраняют исходный объём.")
         case .rule: v = ("Nur Minuten-Ziele werden reduziert. Routinen und geschützte Ziele bleiben fest. Energie unter 3 oder Belastung über 3 reduziert das verfügbare Planungsbudget proportional. Aktive Life Paths erhalten bei der Verteilung doppeltes Gewicht. Zeitangaben fehlen für manche Aktivitäten; diese sind nicht im Minutenbudget enthalten.", "Only minute goals are reduced. Routines and protected goals stay fixed. Energy below 3 or load above 3 proportionally lowers the planning budget. Active Life Paths receive double weight in allocation. Activities without a duration are not included in the minute budget.", "Сокращаются только цели в минутах. Рутины и защищённые цели не меняются. Энергия ниже 3 или нагрузка выше 3 пропорционально уменьшает время планирования. Активные Life Paths получают двойной вес при распределении. Действия без длительности не входят в расчёт времени.")
+        case .replan: v = ("Neu planen", "Re-plan", "Перепланировать")
+        case .replanNote: v = ("Bereits angenommene oder abgelehnte Anpassungen bleiben unverändert. Nur offene Vorschläge werden mit deiner neuen Zeit und Energie neu berechnet.", "Adjustments you already accepted or declined stay unchanged. Only open suggestions are recalculated with your new time and energy.", "Уже принятые или отклонённые изменения останутся. Пересчитываются только открытые предложения с учётом нового времени и энергии.")
         case .frozen: v = ("Der Plan hält die heutigen Ausgangsziele fest. Jede Anpassung braucht deine Zustimmung. Du kannst sie bearbeiten oder zurücknehmen; neue Aktivitäten und Mode-Wechsel ändern diesen Plan nicht automatisch.", "This plan freezes today's original goals. Each adjustment needs your consent. You can edit or undo it; new activities and mode changes do not automatically change this plan.", "План фиксирует исходные цели дня. Каждое изменение требует согласия. Его можно изменить или отменить; новые действия и смена режима не меняют этот план автоматически.")
         case .deferred: v = ("Heute zurückgestellt · zählt nicht als erledigt", "Deferred today · does not count as complete", "Отложено на сегодня · не считается выполненным")
         case .original: v = ("Ursprüngliches Ziel", "Original goal", "Исходная цель")

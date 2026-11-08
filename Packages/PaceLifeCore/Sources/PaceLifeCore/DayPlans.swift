@@ -57,20 +57,30 @@ public struct LifeStreak: Equatable, Sendable {
 extension LifeState {
     /// Habits scheduled on this date by the current definitions and active mode.
     public func dueHabits(on date: Date, calendar: Calendar = .current) -> [Habit] {
-        let mode = modes.first { $0.id == activeModeID }
+        dueHabits(on: date, calendar: calendar, modeID: activeModeID)
+    }
+
+    func dueHabits(on date: Date, calendar: Calendar, modeID: UUID?) -> [Habit] {
+        let mode = modes.first { $0.id == modeID }
         return habits.filter { $0.isDue(on: date, calendar: calendar) && (mode == nil || mode!.habitIDs.contains($0.id)) }
     }
 
     public func dueRoutines(on date: Date, calendar: Calendar = .current) -> [Routine] {
-        routines.filter { $0.isDue(on: date, calendar: calendar) && ($0.modeID == nil || $0.modeID == activeModeID) }
+        dueRoutines(on: date, calendar: calendar, modeID: activeModeID)
+    }
+
+    func dueRoutines(on date: Date, calendar: Calendar, modeID: UUID?) -> [Routine] {
+        routines.filter { $0.isDue(on: date, calendar: calendar) && ($0.modeID == nil || $0.modeID == modeID) }
             .sorted { ($0.plannedMinute ?? 1440, $0.title, $0.id.uuidString) < ($1.plannedMinute ?? 1440, $1.title, $1.id.uuidString) }
     }
 
-    func makeDayPlan(on date: Date, calendar: Calendar) -> DayPlanSnapshot {
-        let mode = modes.first { $0.id == activeModeID }
+    /// Plan of a day with the given mode. Untouched days use `effectiveModeID` so a
+    /// weekly mode schedule is honoured even when the app was not opened that day.
+    func makeDayPlan(on date: Date, calendar: Calendar, modeID: UUID?) -> DayPlanSnapshot {
+        let mode = modes.first { $0.id == modeID }
         return DayPlanSnapshot(day: DayKey(date: date, calendar: calendar),
-                               habitIDs: dueHabits(on: date, calendar: calendar).map(\.id),
-                               routineIDs: dueRoutines(on: date, calendar: calendar).map(\.id),
+                               habitIDs: dueHabits(on: date, calendar: calendar, modeID: mode?.id).map(\.id),
+                               routineIDs: dueRoutines(on: date, calendar: calendar, modeID: mode?.id).map(\.id),
                                modeID: mode?.id, modeTitle: mode?.title)
     }
 
@@ -86,12 +96,12 @@ extension LifeState {
             var filled = 0
             while let day = cursor, day < today, filled < Self.maximumGapDays,
                   let date = day.localDate(calendar: calendar) {
-                dayPlans.append(previous.makeDayPlan(on: date, calendar: calendar))
+                dayPlans.append(previous.makeDayPlan(on: date, calendar: calendar, modeID: previous.effectiveModeID(on: date, calendar: calendar)))
                 filled += 1
                 cursor = day.adding(days: 1)
             }
         }
-        let snapshot = makeDayPlan(on: now, calendar: calendar)
+        let snapshot = makeDayPlan(on: now, calendar: calendar, modeID: activeModeID)
         if let index = dayPlans.firstIndex(where: { $0.day == today }) {
             if dayPlans[index] != snapshot { dayPlans[index] = snapshot }
         } else {
@@ -106,10 +116,11 @@ extension LifeState {
         let day = DayKey(date: date, calendar: calendar)
         if let stored = dayPlans.first(where: { $0.day == day }) { return stored }
         let current = DayKey(date: today, calendar: calendar)
-        if day >= current { return makeDayPlan(on: date, calendar: calendar) }
+        if day == current { return makeDayPlan(on: date, calendar: calendar, modeID: activeModeID) }
+        if day > current { return makeDayPlan(on: date, calendar: calendar, modeID: effectiveModeID(on: date, calendar: calendar)) }
         guard let last = dayPlans.map(\.day).max(), day > last,
               let limit = last.adding(days: Self.maximumGapDays), day <= limit else { return nil }
-        return makeDayPlan(on: date, calendar: calendar)
+        return makeDayPlan(on: date, calendar: calendar, modeID: effectiveModeID(on: date, calendar: calendar))
     }
 
     public func summary(on date: Date, today: Date = Date(), calendar: Calendar = .current) -> DaySummary {
@@ -127,17 +138,28 @@ extension LifeState {
 
     public func lifeStreak(today: Date = Date(), calendar: Calendar = .current) -> LifeStreak {
         let current = DayKey(date: today, calendar: calendar)
-        func summary(_ day: DayKey) -> DaySummary? {
-            day.localDate(calendar: calendar).map { self.summary(on: $0, today: today, calendar: calendar) }
+        // Precomputed lookups keep this linear in the number of days, even with long histories.
+        let stored = Dictionary(dayPlans.map { ($0.day, $0) }, uniquingKeysWith: { first, _ in first })
+        var completedByDay: [DayKey: Set<UUID>] = [:]
+        for completion in completions where completion.isComplete { completedByDay[completion.day, default: []].insert(completion.habitID) }
+        let last = dayPlans.map(\.day).max()
+        let limit = last.flatMap { $0.adding(days: Self.maximumGapDays) }
+        func planned(_ day: DayKey) -> [UUID]? {
+            if let plan = stored[day] { return plan.habitIDs }
+            guard let date = day.localDate(calendar: calendar) else { return nil }
+            if day == current { return makeDayPlan(on: date, calendar: calendar, modeID: activeModeID).habitIDs }
+            guard let last, let limit, day > last, day <= limit, day < current else { return nil }
+            return makeDayPlan(on: date, calendar: calendar, modeID: effectiveModeID(on: date, calendar: calendar)).habitIDs
         }
+        func reached(_ day: DayKey, _ ids: [UUID]) -> Bool { !ids.isEmpty && Set(ids).isSubset(of: completedByDay[day] ?? []) }
+
         // Current streak, walking backwards from today.
-        var count = 0, todayDone = false, cursor: DayKey? = current
-        if let first = summary(current), first.goalReached { count = 1; todayDone = true }
-        cursor = current.adding(days: -1)
-        var steps = 0
-        while let day = cursor, steps < 3660, let result = summary(day), let planned = result.plannedHabitIDs {
-            if !planned.isEmpty {
-                guard result.goalReached else { break }
+        var count = 0, todayDone = false
+        if let ids = planned(current), reached(current, ids) { count = 1; todayDone = true }
+        var cursor = current.adding(days: -1), steps = 0
+        while let day = cursor, steps < 3660, let ids = planned(day) {
+            if !ids.isEmpty {
+                guard reached(day, ids) else { break }
                 count += 1
             }
             cursor = day.adding(days: -1); steps += 1
@@ -149,9 +171,9 @@ extension LifeState {
             while let value = day, value <= current, guardSteps < 3660 {
                 guardSteps += 1
                 defer { day = value.adding(days: 1) }
-                guard let result = summary(value), let planned = result.plannedHabitIDs else { run = 0; runStart = nil; continue }
-                if planned.isEmpty { continue }
-                if result.goalReached {
+                guard let ids = planned(value) else { run = 0; runStart = nil; continue }
+                if ids.isEmpty { continue }
+                if reached(value, ids) {
                     if run == 0 { runStart = value }
                     run += 1
                     if run > longest { longest = run; longestStart = runStart; longestEnd = value }

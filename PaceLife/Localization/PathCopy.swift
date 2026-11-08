@@ -1,10 +1,11 @@
 import PaceLifeCore
 
 enum PathCopy {
-    case nextMilestone, milestonesDone, source, routineRule, paths, newPath, editPath, milestones, addMilestone, linkedHabit, manual, category, targetDate, noPaths, contributionRule, status, active, paused, completed, archived, finish, resume, todayValue, startDate, completedDate
+    case progressHistory, nextMilestone, milestonesDone, source, routineRule, paths, newPath, editPath, milestones, addMilestone, linkedHabit, manual, category, targetDate, noPaths, contributionRule, status, active, paused, completed, archived, finish, resume, todayValue, startDate, completedDate
     func text(_ language: AppLanguage) -> String {
         let v: (String, String, String)
         switch self {
+        case .progressHistory: v = ("Fortschrittsverlauf", "Progress history", "История прогресса")
         case .nextMilestone: v = ("Nächster Meilenstein", "Next milestone", "Следующий этап")
         case .milestonesDone: v = ("%@ von %@ Meilensteinen erreicht", "%@ of %@ milestones reached", "Достигнуто этапов: %@ из %@")
         case .source: v = ("Beitragsquelle", "Contribution source", "Источник вклада")

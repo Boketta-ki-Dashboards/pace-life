@@ -64,7 +64,7 @@ final class RoutinePathTests: XCTestCase {
             XCTAssertEqual(try repo.load(), original); XCTAssertEqual(try Data(contentsOf: url), data)
             try repo.save(original)
             let envelope = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any])
-            XCTAssertEqual(envelope["schemaVersion"] as? Int, 9)
+            XCTAssertEqual(envelope["schemaVersion"] as? Int, JSONStateRepository.currentSchemaVersion)
             XCTAssertEqual(try JSONStateRepository(url: url).load(), original)
         }
     }

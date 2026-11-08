@@ -1,6 +1,6 @@
 # Versionierte Datenmigration und Dateninvarianten
 
-Status: Schema 9 ist aktiviert. Explizite DTOs für Schema 1 bis 8 erhalten die bisherigen Daten; 62 Core-Tests bestanden (Swift 6.0.3/Linux, 8. November 2026). Die Simulator-Buildgrundlage ist auf Apple Silicon und Intel nachgewiesen. Die eingefrorene Datei `Packages/PaceLifeCore/Tests/PaceLifeCoreTests/Fixtures/schema-one.json` wurde mit dem originalen Schema-1-Serializer aus `c2299e5` erstellt. Ihre Originalfelder werden vor Änderungen an Domain und Repository geprüft.
+Status: Schema 10 ist aktiviert. Explizite DTOs für Schema 1 bis 9 erhalten die bisherigen Daten; 69 Core-Tests bestanden (Swift 6.0.3/Linux, 8. November 2026). Die Simulator-Buildgrundlage ist auf Apple Silicon und Intel nachgewiesen. Die eingefrorene Datei `Packages/PaceLifeCore/Tests/PaceLifeCoreTests/Fixtures/schema-one.json` wurde mit dem originalen Schema-1-Serializer aus `c2299e5` erstellt. Ihre Originalfelder werden vor Änderungen an Domain und Repository geprüft.
 
 ## Übergang
 
@@ -70,3 +70,15 @@ leer: es wird keine Vergangenheit erfunden. Ein Schema-9-Dokument ohne `dayPlans
 gilt als beschädigt. Ältere Apps lehnen Schema 9 bewusst mit „unsupported schema“
 ab; nach dem ersten Schreiben keine ältere Beta über denselben Datencontainer
 installieren.
+
+## Schema 10 (8. November 2026)
+
+Neu: `reminders` (Pflichtfeld ab Schema 10), optionale `LifeMode.scheduledWeekdays`
+und `LifeMode.priorityHabitIDs`, optionales `ModeActivation.isAutomatic` und
+`modeOverrideDay`. Schema-9-Dokumente werden über ein eigenes DTO (Schema 7/8 +
+`dayPlans`) gelesen; Erinnerungen starten leer, Modes ohne Wochenplan bleiben manuell.
+Ein Schema-10-Dokument ohne `reminders` gilt als beschädigt. Backup-Dateien nutzen
+dieselbe Dekodierung (`JSONStateRepository.decodeDocument`) und akzeptieren damit
+alle Schemata 1–10; neuere Versionen werden abgelehnt. Vor einer Wiederherstellung
+wird der aktuelle Stand als `Backups/before-restore-<Zeit>.json` im App-Container
+abgelegt; die Wiederherstellung selbst ist eine einzige atomare Transaktion.

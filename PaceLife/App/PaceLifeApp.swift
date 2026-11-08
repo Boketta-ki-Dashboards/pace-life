@@ -24,8 +24,13 @@ struct PaceLifeApp: App {
             }
         }
         #endif
+        var scheduler: any ReminderScheduling = NotificationReminderScheduler()
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("--uitesting") { scheduler = DisabledReminderScheduler() }
+        #endif
         _model = State(initialValue: AppModel(repository: JSONStateRepository(url: folder.appendingPathComponent("life.json")),
-            photos: FileChapterPhotoRepository(directory: folder.appendingPathComponent("photos", isDirectory: true))))
+            photos: FileChapterPhotoRepository(directory: folder.appendingPathComponent("photos", isDirectory: true)),
+            scheduler: scheduler, backupDirectory: folder.appendingPathComponent("Backups", isDirectory: true)))
     }
 
     var body: some Scene {

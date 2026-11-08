@@ -81,8 +81,6 @@ struct ProfileView: View {
             }
             PaceSectionTitle(model.dash(.settings))
             settingsLinks
-            PaceSettingsRowLabel(systemImage: "lock.shield", title: model.dash(.data), subtitle: model.text(.privacyDetail), showsChevron: false)
-                .accessibilityElement(children: .combine)
             PaceCard {
                 VStack(alignment: .leading, spacing: PaceSpacing.xs) {
                     Text(model.text(.about)).font(.headline)
@@ -109,6 +107,15 @@ struct ProfileView: View {
                 PaceSettingsRowLabel(systemImage: "rectangle.3.group", title: model.dash(.homeLayout), subtitle: model.dash(.homeLayoutDetail))
             }
             .buttonStyle(.plain).accessibilityIdentifier("profile.widgets")
+            NavigationLink(value: AppRoute.reminders) {
+                PaceSettingsRowLabel(systemImage: "bell", title: model.feature(.reminders), subtitle: model.feature(.remindersDetail),
+                                     value: model.number(Double(model.state.reminders.filter(\.isEnabled).count)))
+            }
+            .buttonStyle(.plain).accessibilityIdentifier("profile.reminders")
+            NavigationLink(value: AppRoute.backup) {
+                PaceSettingsRowLabel(systemImage: "externaldrive", title: model.feature(.backup), subtitle: model.feature(.backupDetail))
+            }
+            .buttonStyle(.plain).accessibilityIdentifier("profile.backup")
             NavigationLink(value: AppRoute.connect) {
                 PaceSettingsRowLabel(systemImage: "link", title: "Pace Connect", subtitle: model.dash(.connectStatus), value: model.text(.unavailable))
             }

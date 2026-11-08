@@ -12,12 +12,19 @@ final class AppModel {
     var photoFailed = false
     @ObservationIgnored let photos: any ChapterPhotoRepository
     var today = Date()
+    /// True after iOS reported that notifications are not allowed for Pace Life.
+    var notificationsDenied = false
     @ObservationIgnored private var store: LifeStore?
     @ObservationIgnored private let repository: any StateRepository
+    @ObservationIgnored let scheduler: any ReminderScheduling
+    @ObservationIgnored let backupDirectory: URL?
 
-    init(repository: any StateRepository, photos: any ChapterPhotoRepository) {
+    init(repository: any StateRepository, photos: any ChapterPhotoRepository,
+         scheduler: any ReminderScheduling = NotificationReminderScheduler(), backupDirectory: URL? = nil) {
         self.photos = photos
         self.repository = repository
+        self.scheduler = scheduler
+        self.backupDirectory = backupDirectory
         reload()
     }
 
@@ -28,18 +35,46 @@ final class AppModel {
             state = service.state
             loaded = true
             saveFailed = false
+            applyModeSchedule()
+            syncReminders()
         } catch { loaded = false }
     }
 
-    func refreshDay() { today = Date() }
+    func refreshDay() {
+        today = Date()
+        applyModeSchedule()
+    }
+
+    /// Applies the weekly mode plan for today; writes only when the active mode changes.
+    func applyModeSchedule() {
+        guard let store else { return }
+        do { if try store.applyModeSchedule(at: Date()) { state = store.state } }
+        catch { saveFailed = true }
+    }
+
+    func syncReminders() {
+        let requests = state.scheduledReminders()
+        let body = feature(.reminderBody)
+        let scheduler = scheduler
+        Task { await scheduler.sync(requests, body: body) }
+    }
     var locale: Locale { Locale(identifier: state.settings.language.rawValue) }
     var colorScheme: ColorScheme? {
         switch state.settings.theme { case .system: nil; case .light: .light; case .dark: .dark }
     }
+    /// Today's habits; the active mode's daily priorities come first in their chosen order.
     var dueHabits: [Habit] {
         _ = state // Register observation before consulting the use-case layer.
-        return store?.dueHabits(on: today) ?? []
+        let habits = store?.dueHabits(on: today) ?? []
+        let priorities = state.activePriorityHabitIDs
+        guard !priorities.isEmpty else { return habits }
+        return habits.enumerated().sorted { lhs, rhs in
+            let left = priorities.firstIndex(of: lhs.element.id) ?? priorities.count + lhs.offset
+            let right = priorities.firstIndex(of: rhs.element.id) ?? priorities.count + rhs.offset
+            return left < right
+        }.map(\.element)
     }
+    func isPriority(_ habit: Habit) -> Bool { state.activePriorityHabitIDs.contains(habit.id) }
     var activeHabits: [Habit] { state.habits.filter { !$0.isArchived } }
     var activeMode: LifeMode? { state.modes.first { $0.id == state.activeModeID } }
     var progress: Double {
@@ -87,8 +122,13 @@ final class AppModel {
     }
     @discardableResult func perform(_ action: (LifeStore) throws -> Void) -> Bool {
         guard let store else { return false }
-        do { try action(store); state = store.state; saveFailed = false; return true }
-        catch { saveFailed = true; return false }
+        let scheduledBefore = state.scheduledReminders()
+        do {
+            try action(store); state = store.state; saveFailed = false
+            // Archiving or renaming a target changes its notifications as well.
+            if state.scheduledReminders() != scheduledBefore { syncReminders() }
+            return true
+        } catch { state = store.state; saveFailed = true; return false }
     }
     func saveHabit(_ habit: Habit) -> Bool { perform { try $0.saveHabit(habit) } }
     func archiveHabit(_ habit: Habit) -> Bool { perform { try $0.archiveHabit(id: habit.id) } }
@@ -140,6 +180,10 @@ extension AppModel {
     func proposeAdaptive(available: Int, energy: Int, load: Int, protectedIDs: Set<UUID>) {
         refreshDay()
         perform { try $0.createAdaptivePlan(availableMinutes: available, energy: energy, load: load, protectedIDs: protectedIDs, on: today) }
+    }
+    func replanAdaptive(available: Int, energy: Int, load: Int, protectedIDs: Set<UUID>) {
+        refreshDay()
+        perform { try $0.replanAdaptive(availableMinutes: available, energy: energy, load: load, protectedIDs: protectedIDs, on: today) }
     }
     @discardableResult func decideAdaptive(_ day: DayKey, habitID: UUID, decision: AdaptiveDecision, target: Double? = nil) -> Bool {
         perform { try $0.decideAdaptive(day: day, habitID: habitID, decision: decision, target: target) }
@@ -281,5 +325,78 @@ extension AppModel {
         case .habits, .paths, .routines: [.compact, .regular, .large]
         default: []
         }
+    }
+}
+
+
+// MARK: - Reminders and backup (schema 10)
+extension AppModel {
+    func reminders(for target: ReminderTarget) -> [Reminder] {
+        state.reminders.filter { $0.target == target }.sorted { $0.minute < $1.minute }
+    }
+
+    /// Permission is requested only when the user enables a reminder.
+    func saveReminder(_ reminder: Reminder) async -> Bool {
+        if reminder.isEnabled {
+            let granted = await scheduler.requestAuthorization()
+            if granted { notificationsDenied = false } else { notificationsDenied = await scheduler.isDenied() }
+        }
+        return perform { try $0.saveReminder(reminder) }
+    }
+
+    func deleteReminder(_ id: UUID) -> Bool { perform { try $0.deleteReminder(id: id) } }
+
+    func reminderTitle(_ target: ReminderTarget) -> String {
+        switch target {
+        case .habit(let id): state.habits.first { $0.id == id }?.title ?? text(.habits)
+        case .routine(let id): state.routines.first { $0.id == id }?.title ?? text(.routines)
+        }
+    }
+
+    func timeLabel(minute: Int) -> String {
+        var components = DateComponents(); components.hour = minute / 60; components.minute = minute % 60
+        guard let date = Calendar.current.date(from: components) else { return "" }
+        return date.formatted(.dateTime.hour().minute().locale(locale))
+    }
+
+    func weekdaysLabel(_ days: Set<Int>) -> String {
+        days.count == 7 ? text(.everyDay) : weekdays.filter { days.contains($0) }.map { weekdayShort($0) }.joined(separator: " ")
+    }
+
+    func exportDocument() -> Data? {
+        try? JSONStateRepository.encodeDocument(state, pretty: true)
+    }
+
+    func decodeBackup(_ data: Data) -> LifeState? {
+        try? JSONStateRepository.decodeDocument(data)
+    }
+
+    func backupSummary(_ backup: LifeState) -> String {
+        feature(.backupContents, number(Double(backup.habits.count)), number(Double(backup.completions.count)),
+                number(Double(backup.paths.count)), number(Double(backup.chapters.count)))
+    }
+
+    /// Writes a safety copy of the current state, then replaces everything atomically.
+    func restore(_ backup: LifeState) -> Bool {
+        if let directory = backupDirectory {
+            do {
+                try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+                let formatter = DateFormatter()
+                formatter.locale = Locale(identifier: "en_US_POSIX"); formatter.dateFormat = "yyyyMMdd-HHmmss"
+                let stamp = formatter.string(from: Date())
+                let data = try JSONStateRepository.encodeDocument(state)
+                #if os(iOS)
+                try data.write(to: directory.appendingPathComponent("before-restore-\(stamp).json"), options: [.atomic, .completeFileProtection])
+                #else
+                try data.write(to: directory.appendingPathComponent("before-restore-\(stamp).json"), options: [.atomic])
+                #endif
+            } catch {
+                saveFailed = true
+                return false
+            }
+        }
+        let restored = perform { try $0.restore(backup) }
+        if restored { syncReminders(); applyModeSchedule() }
+        return restored
     }
 }

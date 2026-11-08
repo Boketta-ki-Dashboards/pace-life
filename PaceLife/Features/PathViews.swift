@@ -1,4 +1,5 @@
 import SwiftUI
+import Charts
 import PaceLifeCore
 
 struct PathsView: View {
@@ -77,6 +78,7 @@ struct PathDetail: View {
         } content: {
             if let path {
                 hero(path)
+                progressChart(path)
                 if !path.notes.isEmpty { PaceCard { Text(path.notes).font(.body).foregroundStyle(PaceColor.textPrimary) } }
                 LazyVGrid(columns: [GridItem(.flexible(), spacing: PaceSpacing.xs), GridItem(.flexible(), spacing: PaceSpacing.xs)], spacing: PaceSpacing.xs) {
                     PaceStatTile(value: model.dayLabel(path.startDay), label: model.pathText(.startDate), systemImage: "calendar")
@@ -131,6 +133,43 @@ struct PathDetail: View {
             }
         }
         .accessibilityElement(children: .combine)
+    }
+
+    /// Step chart of the overall progress after each counted contribution.
+    private func progressChart(_ path: LifePath) -> some View {
+        let points = model.state.pathProgressTimeline(path, through: DayKey(date: model.today))
+        let tint = PaceColor.accentStrong
+        let fill = PaceColor.accentSoft
+        return PaceCard {
+            VStack(alignment: .leading, spacing: PaceSpacing.s) {
+                PaceCardHeader(title: model.pathText(.progressHistory), systemImage: "chart.line.uptrend.xyaxis", chevron: false)
+                if points.count < 2 {
+                    Text(model.text(.noHistory)).font(.subheadline).foregroundStyle(PaceColor.textSecondary)
+                } else {
+                    Chart {
+                        ForEach(points, id: \.day) { point in
+                            if let date = point.day.localDate() {
+                                AreaMark(x: .value(model.pathText(.startDate), date), y: .value(model.text(.progress), point.progress * 100))
+                                    .interpolationMethod(.stepEnd).foregroundStyle(fill)
+                                LineMark(x: .value(model.pathText(.startDate), date), y: .value(model.text(.progress), point.progress * 100))
+                                    .interpolationMethod(.stepEnd).foregroundStyle(tint)
+                                    .lineStyle(StrokeStyle(lineWidth: 2.5, lineCap: .round))
+                            }
+                        }
+                    }
+                    .chartYScale(domain: 0...100)
+                    .chartYAxis {
+                        AxisMarks(values: [0.0, 50.0, 100.0]) { value in
+                            AxisGridLine()
+                            AxisValueLabel { if let number = value.as(Double.self) { Text(model.percent(number / 100)) } }
+                        }
+                    }
+                    .frame(height: 160)
+                    .accessibilityLabel(model.pathText(.progressHistory))
+                    .accessibilityValue(model.percent(points.last?.progress ?? 0))
+                }
+            }
+        }
     }
 
     private func milestoneCard(_ milestone: PathMilestone, index: Int, in path: LifePath) -> some View {

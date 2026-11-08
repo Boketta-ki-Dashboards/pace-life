@@ -59,3 +59,26 @@ extension LifeState {
         return best
     }
 }
+
+public struct PathProgressPoint: Equatable, Sendable {
+    public let day: DayKey
+    public let progress: Double
+}
+
+extension LifeState {
+    /// Overall path progress after each day with a counted contribution, starting at the path start.
+    public func pathProgressTimeline(_ path: LifePath, through today: DayKey) -> [PathProgressPoint] {
+        var days: Set<DayKey> = [path.startDay]
+        for milestone in path.milestones {
+            days.formUnion(pathEntries.filter { $0.milestoneID == milestone.id }.map(\.day))
+            if let habitID = milestone.habitID {
+                days.formUnion(completions.filter { $0.habitID == habitID && $0.goalTypeSnapshot == milestone.goalType && $0.day >= path.startDay }.map(\.day))
+            }
+            if let routineID = milestone.routineID {
+                days.formUnion(routineSessions.filter { $0.routineID == routineID && $0.isComplete && $0.day >= path.startDay }.map(\.day))
+            }
+        }
+        if path.startDay <= today { days.insert(today) }
+        return days.filter { $0 <= today }.sorted().map { PathProgressPoint(day: $0, progress: pathProgress(path, through: $0)) }
+    }
+}

@@ -49,6 +49,8 @@ import Foundation
         try transaction { state in
             guard let index = state.habits.firstIndex(where: { $0.id == id }) else { throw LifeError.missingHabit }
             state.habits[index].isArchived = true
+            // Archived habits no longer remind; their scheduled notifications disappear on the next sync.
+            state.reminders.removeAll { $0.target == .habit(id) }
         }
     }
 
@@ -84,6 +86,8 @@ import Foundation
         try transaction { state in
             try Self.closeActivation(in: &state, at: date)
             state.activeModeID = id
+            // A manual choice overrides the weekly schedule for the rest of this day.
+            state.modeOverrideDay = DayKey(date: date, calendar: calendar)
             if let mode {
                 state.activations.append(ModeActivation(modeID: mode.id, titleSnapshot: mode.title, start: date))
             }

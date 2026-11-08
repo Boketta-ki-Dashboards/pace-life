@@ -98,6 +98,7 @@ struct RoutineDetail: View {
                         }
                     }
                 }
+                if !routine.isArchived { ReminderSection(target: .routine(routineID), defaultWeekdays: routine.weekdays) }
                 Text(model.routineText(.snapshotNote)).font(.footnote).foregroundStyle(PaceColor.textSecondary)
                 let history = model.state.routineSessions.filter { $0.routineID == routineID }.sorted { $0.day > $1.day }
                 if !history.isEmpty { PaceSectionTitle(model.routineText(.history)) }

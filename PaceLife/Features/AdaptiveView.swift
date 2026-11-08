@@ -9,17 +9,23 @@ struct AdaptiveView: View {
     @State private var protectedIDs: Set<UUID> = []
     @State private var editing: AdaptiveEntry?
     @State private var recording: Habit?
+    @State private var replanning = false
     var body: some View {
         PaceSubpage(title: "Pace Adaptive", subtitle: model.text(.adaptiveDetail)) {
-            if let plan = model.adaptivePlan {
+            if model.adaptivePlan != nil, replanning {
+                planner(replan: true)
+                Button(model.text(.cancel)) { replanning = false }.buttonStyle(PaceButtonStyle(kind: .secondary))
+            } else if let plan = model.adaptivePlan {
                 summary(plan)
+                Button { replanning = true } label: { Label(model.adaptiveText(.replan), systemImage: "arrow.triangle.2.circlepath") }
+                    .buttonStyle(PaceButtonStyle(kind: .secondary)).accessibilityIdentifier("replanAdaptive")
                 if plan.entries.isEmpty {
                     PaceCard { PaceEmptyState(systemImage: "clock", title: "Pace Adaptive", message: model.adaptiveText(.noActivities)) }
                 }
                 ForEach(plan.entries) { entry in entryCard(entry, plan: plan) }
                 Text(model.adaptiveText(.frozen)).font(.footnote).foregroundStyle(PaceColor.textSecondary)
             } else {
-                planner
+                planner(replan: false)
             }
             Text(model.adaptiveText(.rule)).font(.footnote).foregroundStyle(PaceColor.textSecondary)
             let history = model.state.adaptivePlans.filter { $0.day != DayKey(date: model.today) }.sorted { $0.day > $1.day }
@@ -45,13 +51,19 @@ struct AdaptiveView: View {
                 }
             }
         }
+        .onAppear {
+            // Daily priorities of the active mode start protected; the user can still change this.
+            if protectedIDs.isEmpty {
+                protectedIDs = Set(model.state.activePriorityHabitIDs.filter { id in model.dueHabits.contains { $0.id == id && model.dayGoalType($0) == .duration } })
+            }
+        }
         .sheet(item: $editing) { entry in
             if let plan = model.adaptivePlan { AdaptiveTargetEditor(entry: entry, day: plan.day) }
         }
         .sheet(item: $recording) { RecordEditor(habit: $0) }
     }
 
-    private var planner: some View {
+    private func planner(replan: Bool) -> some View {
         VStack(alignment: .leading, spacing: PaceSpacing.s) {
             PaceCard {
                 VStack(alignment: .leading, spacing: PaceSpacing.s) {
@@ -104,9 +116,19 @@ struct AdaptiveView: View {
                     }
                 }
             }
-            Button(model.adaptiveText(.propose)) { model.proposeAdaptive(available: available, energy: energy, load: load, protectedIDs: protectedIDs) }
+            if replan {
+                Text(model.adaptiveText(.replanNote)).font(.footnote).foregroundStyle(PaceColor.textSecondary)
+                Button(model.adaptiveText(.replan)) {
+                    model.replanAdaptive(available: available, energy: energy, load: load, protectedIDs: protectedIDs)
+                    if !model.saveFailed { replanning = false }
+                }
                 .buttonStyle(PaceButtonStyle())
-                .accessibilityIdentifier("proposeAdaptive")
+                .accessibilityIdentifier("confirmReplanAdaptive")
+            } else {
+                Button(model.adaptiveText(.propose)) { model.proposeAdaptive(available: available, energy: energy, load: load, protectedIDs: protectedIDs) }
+                    .buttonStyle(PaceButtonStyle())
+                    .accessibilityIdentifier("proposeAdaptive")
+            }
         }
     }
 
