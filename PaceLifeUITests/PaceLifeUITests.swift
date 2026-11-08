@@ -688,8 +688,12 @@ final class PaceLifeUITests: XCTestCase {
         XCTAssertTrue(add.waitForExistence(timeout: 10), app.debugDescription)
         // scripts/test-ios.sh adds an explicitly synthetic PNG fixture to the
         // simulator's Photos library. No private or remote photos are required.
+        // Older pickers expose collection-view cells; the iOS 18.x picker renders the grid
+        // as images ("PXGGridLayout-Info"). Accept either, without retries or second taps.
         let cell = app.collectionViews.cells.firstMatch
-        XCTAssertTrue(cell.waitForExistence(timeout: 10), app.debugDescription); cell.tap()
+        let gridImage = app.images.matching(identifier: "PXGGridLayout-Info").firstMatch
+        let photoElement = gridImage.waitForExistence(timeout: 10) ? gridImage : cell
+        XCTAssertTrue(photoElement.waitForExistence(timeout: 5), app.debugDescription); photoElement.tap()
         let selected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "enabled == true"), object: add)
         XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 10), .completed, app.debugDescription)
         add.tap()

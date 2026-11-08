@@ -1,6 +1,6 @@
 # Pace Life – Implementierungs- und Prüfstand
 
-Stand: **4. November 2026**. Ausschließlich `Boketta-ki-Dashboards/pace-life`,
+Stand: **8. November 2026** (Design-Neuaufbau und Schema 10, Claude Code); ältere Abschnitte unten vom 4. November. Ausschließlich `Boketta-ki-Dashboards/pace-life`,
 Branch `codex/pace-life-offline-beta`; Ausgangs-HEAD `74931679` remote verifiziert.
 Alle Entwicklungsabschnitte sind einzeln gepusht und per Remote-HEAD überprüft.
 Keine Merges nach main, kein Force-Push, keine anderen Repositories oder Backends.
@@ -25,9 +25,9 @@ Ergebnis: Die Farbtokens stimmen, Layout, Navigation und Komponenten nicht.
 
 | Modul | Implementierter Stand | Verbleibender Umfang |
 |---|---|---|
-| Life Modes | Bestehendes CRUD/manuelle Aktivierung/Habit-Auswahl erhalten. Eigenständige Routinen mit Mode-Zuordnung, Wochentagen, optionaler Uhrzeit, sortierbaren Schritten/Dauer, Teilabschluss, Pause/Fortsetzen, Tages-Snapshots, Archiv/Wiederherstellen und Home-Widget. | Automatische wiederkehrende Mode-Wechsel, Mode-Duplikation/Archiv, Tagesprioritäten und vollständige historische Habit-Planrevisionen. |
-| Life Paths | Mehrere Paths, Lebensbereich/Beschreibung/Zieldatum, binäre/Zähler/Minuten-Meilensteine, Tagesbeiträge, Habit-Verknüpfung oder vollständige Routine-Sessions, nachvollziehbarer Fortschritt, Statuswechsel/Archiv, Verlauf und Home-Widget. | Titelbilder, historisch versionierte Änderungen einer Beitragsregel und umfassende Fortschrittsdiagramme. |
-| Pace Adaptive | Lokale deterministische Vorschläge aus Zeit/Energie/Belastung, geschützten Habits, Routine-Dauern und aktiven Paths; ausdrückliche Annahme/Ablehnung, individuelle Ziele, Rückgängig, Tageshistorie und Home-Widget. | Neuplanung eines schon eingefrorenen Tages, flexible Routine-Schritte, freie Prioritäten/Zeitfenster. |
+| Life Modes | CRUD, manuelle Aktivierung, Habit-Auswahl; **Wochenplan mit transparenter Übersteuerungsregel** (manuelle Wahl gilt für den Tag), **bis zu drei Tagesprioritäten**, eingefrorene Tagespläne je Tag (historische Planänderungen bleiben erhalten), Routinen mit Mode-Zuordnung, Schritten, Teilabschluss, Pause, Erinnerungen und Home-Widget. | Mode-Duplikation/Archiv, Zeitfenster innerhalb eines Tages, physische Geräteabnahme. |
+| Life Paths | Mehrere Paths, Meilenstein-Typen, Habit-/Routine-/manuelle Beiträge ohne Doppelzählung, Statuswechsel/Archiv, **Pace-Detailseite mit Ring, Meilenstein-Timeline und Fortschrittsverlauf (Stufendiagramm)**, Home-Widget mit nächstem Meilenstein. | Titelbilder, versionierte Änderungen einer Beitragsregel. |
+| Pace Adaptive | Deterministische Vorschläge aus Zeit/Energie/Belastung, geschützte Habits, Routine-Dauern, Path-Gewichtung; Annahme/Ablehnung/Bearbeiten/Rückgängig, **Neuplanung des Tages unter Erhalt getroffener Entscheidungen**, Prioritäten vorab geschützt, Tageshistorie, Hero-Aktion „Tag anpassen“. | Flexible Routine-Schritte, freie Zeitfenster. |
 | Life Chapters | Private Timeline, Titel/Text/Kategorie/Zeitraum, Path-Verknüpfung, Erinnerungen und persönliche Meilensteine, Bearbeiten/Archiv/Wiederherstellen/Löschen, native Fotoauswahl und separate lokale JPEG-Dateien; DE/EN/RU. | Neustart/Archiv/Editieren und nativer Fotoablauf im Simulator bestanden; Export und vollständige Geräte-/Designabnahme offen. |
 | Life Experiments | 7/14/30 Tage und frei wählbarer Zeitraum; individuelle numerische, Minuten-, Skalen- und Ja/Nein-Messgrößen; Ausgangswerte, tägliche Check-ins/Korrekturen, Punktdiagramme, ehrliche Vergleiche, Reflexion, Abschluss/Wiederholung/Archiv, Habit-Links. | Neustart/Korrektur auf beiden Simulator-Architekturen bestanden; vollständige Geräte-/Designabnahme und automatischer Datenimport offen. |
 | Pace Circles | Lokale Circles mit bearbeitbaren Demo-Mitgliedern/Rollen, Gruppenzielen, datierten Challenges, Beiträgen, Verlauf, Abschluss/Archiv und ausdrücklicher widerruflicher Freigabe. | Freigabe/Widerruf/Neustart auf beiden Simulator-Architekturen bestanden; keine echten Mitglieder oder Synchronisierung. |
