@@ -3,39 +3,61 @@ import PaceLifeCore
 
 struct PathsView: View {
     @Environment(AppModel.self) private var model
-    @Environment(\.dismiss) private var dismiss
     @State private var creating = false
     var body: some View {
-        NavigationStack {
-            List {
-                SaveErrorBanner()
-                if model.state.paths.isEmpty { Text(model.pathText(.noPaths)) }
-                ForEach(PathStatus.allCases, id: \.self) { status in
-                    let paths = model.state.paths.filter { $0.status == status }
-                    if !paths.isEmpty {
-                        Section(model.pathStatusName(status)) {
-                            ForEach(paths) { path in
-                                NavigationLink { PathDetail(pathID: path.id) } label: {
-                                    VStack(alignment: .leading, spacing: 8) {
-                                        Text(path.title).font(.headline)
-                                        ProgressView(value: model.state.pathProgress(path)).tint(PaceColor.accent)
-                                    }
-                                }.accessibilityIdentifier("path.open." + path.title)
-                            }
-                        }
+        PaceSubpage(title: model.pathText(.paths), subtitle: model.text(.pathsDetail)) {
+            Button { creating = true } label: { PaceSquareIcon(systemImage: "plus") }
+                .buttonStyle(.plain)
+                .accessibilityLabel(model.pathText(.newPath)).accessibilityIdentifier("addPath")
+        } content: {
+            if model.state.paths.isEmpty {
+                PaceCard {
+                    PaceEmptyState(systemImage: "point.topleft.down.to.point.bottomright.curvepath", title: model.pathText(.paths), message: model.pathText(.noPaths)) {
+                        Button(model.pathText(.newPath)) { creating = true }.buttonStyle(PaceButtonStyle(kind: .secondary))
                     }
                 }
             }
-            .scrollContentBackground(.hidden).background(PaceColor.background)
-            .navigationTitle("Life Paths").navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button(model.text(.done)) { dismiss() }.accessibilityIdentifier("closePaths") }
-                ToolbarItem(placement: .primaryAction) {
-                    Button { creating = true } label: { Image(systemName: "plus") }
-                        .accessibilityLabel(model.pathText(.newPath)).accessibilityIdentifier("addPath")
+            ForEach(PathStatus.allCases, id: \.self) { status in
+                let paths = model.state.paths.filter { $0.status == status }
+                if !paths.isEmpty {
+                    PaceSectionTitle(model.pathStatusName(status))
+                    ForEach(paths) { path in
+                        NavigationLink(value: AppRoute.path(path.id)) { PathRowCard(path: path) }
+                            .buttonStyle(.plain)
+                            .accessibilityIdentifier("path.open." + path.title)
+                    }
                 }
             }
-            .sheet(isPresented: $creating) { PathEditor() }
+        }
+        .sheet(isPresented: $creating) { PathEditor() }
+    }
+}
+
+/// Overview card of one path: progress, status and the next open milestone.
+struct PathRowCard: View {
+    @Environment(AppModel.self) private var model
+    let path: LifePath
+    var body: some View {
+        let progress = model.state.pathProgress(path)
+        PaceCard {
+            VStack(alignment: .leading, spacing: PaceSpacing.s) {
+                HStack(alignment: .firstTextBaseline) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(path.title).font(.headline).foregroundStyle(PaceColor.textPrimary)
+                        Text([path.category, model.pathStatusName(path.status)].filter { !$0.isEmpty }.joined(separator: " · "))
+                            .font(.footnote).foregroundStyle(PaceColor.textSecondary)
+                    }
+                    Spacer(minLength: PaceSpacing.xs)
+                    Text(model.percent(progress)).font(.title2.weight(.heavy)).monospacedDigit()
+                        .foregroundStyle(PaceColor.textPrimary)
+                    PaceChevron()
+                }
+                PaceProgressBar(progress: progress)
+                if let next = model.nextMilestone(in: path) {
+                    Label(model.pathText(.nextMilestone) + ": " + next.title, systemImage: "flag")
+                        .font(.footnote).foregroundStyle(PaceColor.textSecondary).lineLimit(2)
+                }
+            }
         }
     }
 }
@@ -47,60 +69,111 @@ struct PathDetail: View {
     @State private var recording: PathMilestone?
     private var path: LifePath? { model.state.paths.first { $0.id == pathID } }
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                SaveErrorBanner()
-                if let path {
-                    PaceProgressRing(progress: model.state.pathProgress(path), value: model.state.pathProgress(path).formatted(.percent.locale(model.locale).precision(.fractionLength(0))), label: model.text(.progress))
-                    Text(path.notes)
-                    Text(path.category).foregroundStyle(PaceColor.textSecondary)
-                    LabeledContent(model.pathText(.startDate), value: model.dayLabel(path.startDay))
-                    if let day = path.targetDay { LabeledContent(model.pathText(.targetDate), value: model.dayLabel(day)) }
-                    LabeledContent(model.pathText(.status), value: model.pathStatusName(path.status))
-                    if let day = path.completedDay { LabeledContent(model.pathText(.completedDate), value: model.dayLabel(day)) }
-                    ForEach(path.milestones) { milestone in milestoneCard(milestone, in: path) }
-                    Text(model.pathText(.contributionRule)).font(.footnote)
-                    Text(model.pathText(.routineRule)).font(.footnote).foregroundStyle(PaceColor.textSecondary)
-                    Button(model.text(.edit)) { editing = true }.buttonStyle(PaceButtonStyle(kind: .secondary))
+        PaceSubpage(title: path?.title ?? model.pathText(.paths), subtitle: path.map { model.pathStatusName($0.status) + ($0.category.isEmpty ? "" : " · " + $0.category) }) {
+            if path != nil {
+                Button { editing = true } label: { PaceSquareIcon(systemImage: "pencil") }
+                    .buttonStyle(.plain).accessibilityLabel(model.text(.edit)).accessibilityIdentifier("editPath")
+            }
+        } content: {
+            if let path {
+                hero(path)
+                if !path.notes.isEmpty { PaceCard { Text(path.notes).font(.body).foregroundStyle(PaceColor.textPrimary) } }
+                LazyVGrid(columns: [GridItem(.flexible(), spacing: PaceSpacing.xs), GridItem(.flexible(), spacing: PaceSpacing.xs)], spacing: PaceSpacing.xs) {
+                    PaceStatTile(value: model.dayLabel(path.startDay), label: model.pathText(.startDate), systemImage: "calendar")
+                    if let day = path.targetDay { PaceStatTile(value: model.dayLabel(day), label: model.pathText(.targetDate), systemImage: "flag.checkered") }
+                    if let day = path.completedDay { PaceStatTile(value: model.dayLabel(day), label: model.pathText(.completedDate), systemImage: "checkmark.seal") }
+                }
+                PaceSectionTitle(model.pathText(.milestones))
+                ForEach(Array(path.milestones.enumerated()), id: \.element.id) { index, milestone in
+                    milestoneCard(milestone, index: index, in: path)
+                }
+                VStack(alignment: .leading, spacing: PaceSpacing.xs) {
+                    Text(model.pathText(.contributionRule))
+                    Text(model.pathText(.routineRule))
+                }
+                .font(.footnote).foregroundStyle(PaceColor.textSecondary)
+                VStack(spacing: PaceSpacing.xs) {
                     if path.status == .active {
                         Button(model.pathText(.finish)) { model.setPathStatus(pathID, .completed) }
                             .buttonStyle(PaceButtonStyle()).disabled(model.state.pathProgress(path) < 1)
                         Button(model.pathText(.paused)) { model.setPathStatus(pathID, .paused) }
+                            .buttonStyle(PaceButtonStyle(kind: .secondary))
                     } else {
                         Button(model.pathText(.resume)) { model.setPathStatus(pathID, .active) }.buttonStyle(PaceButtonStyle())
                     }
-                    if path.status != .archived { Button(model.text(.archive)) { model.setPathStatus(pathID, .archived) } }
+                    if path.status != .archived {
+                        Button(model.text(.archive)) { model.setPathStatus(pathID, .archived) }.buttonStyle(PaceButtonStyle(kind: .destructive))
+                    }
                 }
-            }.padding(16)
+            } else {
+                PaceCard { PaceEmptyState(systemImage: "questionmark.folder", title: model.pathText(.paths), message: model.text(.noHistory)) }
+            }
         }
-        .background(PaceColor.background).navigationTitle(path?.title ?? "Life Paths").navigationBarTitleDisplayMode(.inline)
-        .toolbar(.visible, for: .navigationBar)
-        .navigationBarBackButtonHidden(false)
         .sheet(isPresented: $editing) { if let path { PathEditor(path: path) } }
         .sheet(item: $recording) { PathEntryEditor(milestone: $0) }
     }
-    private func milestoneCard(_ milestone: PathMilestone, in path: LifePath) -> some View {
-        PaceCard {
-            VStack(alignment: .leading, spacing: 12) {
-                Text(milestone.title).font(.headline)
-                let actual = model.state.milestoneValue(milestone, in: path)
-                Text(model.number(actual) + " / " + model.number(milestone.target) + (milestone.goalType == .duration ? " " + model.text(.minutes) : ""))
-                    .accessibilityIdentifier("milestone.value." + milestone.title)
-                ProgressView(value: min(1, actual / milestone.target)).tint(PaceColor.accent)
-                if let id = milestone.habitID, let habit = model.state.habits.first(where: { $0.id == id }) {
-                    NavigationLink { HabitDetailContent(habitID: id) } label: { Label(habit.title, systemImage: "link") }
-                } else if let id = milestone.routineID, let routine = model.state.routines.first(where: { $0.id == id }) {
-                    NavigationLink { RoutineDetail(routineID: id) } label: { Label(routine.title, systemImage: "list.bullet.rectangle") }
-                } else {
-                    Button(model.text(.recordProgress)) { recording = milestone }.disabled(path.status != .active)
-                        .accessibilityIdentifier("recordMilestone." + milestone.title)
+
+    private func hero(_ path: LifePath) -> some View {
+        let progress = model.state.pathProgress(path)
+        let done = path.milestones.filter { model.state.milestoneValue($0, in: path) >= $0.target }.count
+        return PaceCard {
+            HStack(alignment: .center, spacing: PaceSpacing.m) {
+                VStack(alignment: .leading, spacing: PaceSpacing.xs) {
+                    Text(model.text(.progress)).font(.headline)
+                    Text(model.percent(progress)).font(.system(size: 48, weight: .bold)).monospacedDigit()
+                        .minimumScaleFactor(0.6).lineLimit(1)
+                    Text(model.pathText(.milestonesDone, done, path.milestones.count))
+                        .font(.subheadline).foregroundStyle(PaceColor.textSecondary)
+                    PaceProgressBar(progress: progress)
                 }
-                let days = Set(model.state.pathEntries.filter { $0.milestoneID == milestone.id }.map(\.day)
-                    + model.state.completions.filter { $0.habitID == milestone.habitID && $0.goalTypeSnapshot == milestone.goalType && $0.day >= path.startDay }.map(\.day)
-                    + model.state.routineSessions.filter { $0.routineID == milestone.routineID && $0.day >= path.startDay }.map(\.day)).sorted(by: >)
-                ForEach(days, id: \.self) { day in
-                    LabeledContent(model.dayLabel(day), value: model.number(model.state.milestoneValue(milestone, in: path, through: day)))
+                PaceRing(progress: progress, diameter: 96, lineWidth: 11,
+                         centerText: model.number(Double(done)) + "/" + model.number(Double(path.milestones.count)))
+            }
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    private func milestoneCard(_ milestone: PathMilestone, index: Int, in path: LifePath) -> some View {
+        let actual = model.state.milestoneValue(milestone, in: path)
+        let reached = actual >= milestone.target
+        return HStack(alignment: .top, spacing: PaceSpacing.s) {
+            ZStack {
+                Circle().fill(reached ? PaceColor.goalReachedFill : PaceColor.accentSoft)
+                if reached { Image(systemName: "checkmark").font(.footnote.weight(.bold)).foregroundStyle(PaceColor.onGoalReached) }
+                else { Text(model.number(Double(index + 1))).font(.footnote.weight(.bold)).foregroundStyle(PaceColor.accentStrong) }
+            }
+            .frame(width: 28, height: 28)
+            .padding(.top, PaceSpacing.m)
+            .accessibilityHidden(true)
+            PaceCard {
+                VStack(alignment: .leading, spacing: PaceSpacing.s) {
+                    Text(milestone.title).font(.headline)
+                    Text(model.number(actual) + " / " + model.number(milestone.target) + (milestone.goalType == .duration ? " " + model.text(.minutes) : ""))
+                        .font(.subheadline.weight(.semibold)).monospacedDigit()
+                        .accessibilityIdentifier("milestone.value." + milestone.title)
+                    PaceProgressBar(progress: min(1, actual / milestone.target), height: 6)
+                    if let id = milestone.habitID, let habit = model.state.habits.first(where: { $0.id == id }) {
+                        NavigationLink(value: AppRoute.habit(id)) { Label(habit.title, systemImage: "link") }
+                            .buttonStyle(PaceLinkButtonStyle())
+                    } else if let id = milestone.routineID, let routine = model.state.routines.first(where: { $0.id == id }) {
+                        NavigationLink(value: AppRoute.routine(id)) { Label(routine.title, systemImage: "list.bullet.rectangle") }
+                            .buttonStyle(PaceLinkButtonStyle())
+                    } else {
+                        Button { recording = milestone } label: { Label(model.text(.recordProgress), systemImage: "plus.circle") }
+                            .buttonStyle(PaceLinkButtonStyle()).disabled(path.status != .active)
+                            .accessibilityIdentifier("recordMilestone." + milestone.title)
+                    }
+                    let days = Set(model.state.pathEntries.filter { $0.milestoneID == milestone.id }.map(\.day)
+                        + model.state.completions.filter { $0.habitID == milestone.habitID && $0.goalTypeSnapshot == milestone.goalType && $0.day >= path.startDay }.map(\.day)
+                        + model.state.routineSessions.filter { $0.routineID == milestone.routineID && $0.day >= path.startDay }.map(\.day)).sorted(by: >)
+                    ForEach(days.prefix(5), id: \.self) { day in
+                        HStack {
+                            Text(model.dayLabel(day))
+                            Spacer()
+                            Text(model.number(model.state.milestoneValue(milestone, in: path, through: day))).monospacedDigit()
+                        }
                         .font(.footnote).foregroundStyle(PaceColor.textSecondary)
+                    }
                 }
             }
         }
@@ -163,7 +236,7 @@ struct PathEditor: View {
                 Text(model.pathText(.routineRule)).font(.footnote)
             }
             .environment(\.editMode, $editMode)
-            .scrollContentBackground(.hidden).background(PaceColor.background)
+            .paceFormStyle()
             .navigationTitle(model.pathText(existing == nil ? .newPath : .editPath)).navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 guard !initialized else { return }; initialized = true

@@ -1,35 +1,63 @@
 import SwiftUI
 import PaceLifeCore
 
-private enum RootTab: String, CaseIterable {
+enum RootTab: String, CaseIterable, Hashable {
     case today, development, circles, profile
     var copy: Copy { switch self { case .today: .today; case .development: .development; case .circles: .circles; case .profile: .profile } }
-    var icon: String { switch self { case .today: "sun.max"; case .development: "chart.xyaxis.line"; case .circles: "person.2"; case .profile: "person.crop.circle" } }
+    var icon: String { switch self { case .today: "house"; case .development: "chart.bar"; case .circles: "person.2"; case .profile: "person" } }
+    var selectedIcon: String { switch self { case .today: "house.fill"; case .development: "chart.bar.fill"; case .circles: "person.2.fill"; case .profile: "person.fill" } }
+}
+
+/// Every pushed subpage. Pushes cover the root pager, so native back swipes never
+/// compete with horizontal tab paging; the Pace dock stays visible on all of them.
+enum AppRoute: Hashable {
+    case habits, habit(UUID), modes, routines, routine(UUID), paths, path(UUID), adaptive, calendar, statistics
+    case chapters, chapter(UUID), experiments, experiment(UUID), circle(UUID), challenge(UUID), widgets, connect
+}
+
+@MainActor @Observable
+final class Navigator {
+    var tab: RootTab = .today
+    var path: [AppRoute] = []
+    func open(_ route: AppRoute) { path.append(route) }
+    /// Dock behaviour: switching tabs (or re-selecting the current one) returns to its root.
+    func select(_ tab: RootTab) {
+        path.removeAll()
+        self.tab = tab
+    }
 }
 
 struct RootView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var tab: RootTab = .today
+    @State private var navigator = Navigator()
 
     var body: some View {
         Group {
             if model.loaded {
-                // Native page gestures provide interactive tracking, cancellation,
-                // velocity-aware settling and vertical scroll arbitration. Editors
-                // and detail stacks are presented above this root in sheets.
-                // Root pages have no push destinations: do not nest an unused
-                // navigation controller around the page controller.
-                TabView(selection: $tab) {
-                    HomeView().tag(RootTab.today).accessibilityHidden(tab != .today)
-                    DevelopmentView().tag(RootTab.development).accessibilityHidden(tab != .development)
-                    CirclesView().tag(RootTab.circles).accessibilityHidden(tab != .circles)
-                    ProfileView().tag(RootTab.profile).accessibilityHidden(tab != .profile)
+                NavigationStack(path: Binding(get: { navigator.path }, set: { navigator.path = $0 })) {
+                    // Native page gestures provide interactive tracking, cancellation and
+                    // velocity-aware settling. Subpages are pushed above this pager.
+                    TabView(selection: Binding(get: { navigator.tab }, set: { navigator.tab = $0 })) {
+                        HomeView().tag(RootTab.today).accessibilityHidden(navigator.tab != .today)
+                        DevelopmentView().tag(RootTab.development).accessibilityHidden(navigator.tab != .development)
+                        CirclesView().tag(RootTab.circles).accessibilityHidden(navigator.tab != .circles)
+                        ProfileView().tag(RootTab.profile).accessibilityHidden(navigator.tab != .profile)
+                    }
+                    .tabViewStyle(.page(indexDisplayMode: .never))
+                    .background(PaceColor.background)
+                    .overlay(alignment: .top) {
+                        // Scrolling content never appears behind the status bar.
+                        PaceColor.background.ignoresSafeArea(edges: .top).frame(height: 0)
+                            .allowsHitTesting(false).accessibilityHidden(true)
+                    }
+                    .navigationTitle(model.text(navigator.tab.copy))
+                    .toolbar(.hidden, for: .navigationBar)
+                    .navigationDestination(for: AppRoute.self) { RouteDestination(route: $0) }
                 }
-                .tabViewStyle(.page(indexDisplayMode: .never))
-                .background(PaceColor.background)
                 .safeAreaInset(edge: .bottom, spacing: 0) { dock }
+                .environment(navigator)
             } else {
                 VStack(spacing: 24) {
                     PaceStatus(title: "Pace Life", message: model.text(.loadError), systemImage: "externaldrive.badge.exclamationmark")
@@ -46,19 +74,22 @@ struct RootView: View {
     private var dock: some View {
         HStack(alignment: .center, spacing: 4) {
             ForEach(RootTab.allCases, id: \.self) { item in
+                let selected = navigator.tab == item
                 Button {
-                    withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.25)) { tab = item }
+                    withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.25)) { navigator.select(item) }
                 } label: {
-                    VStack(spacing: 4) {
-                        Image(systemName: item.icon).font(.system(size: 20))
-                        Text(model.text(item.copy)).font(.system(size: 13, weight: .semibold))
+                    VStack(spacing: 3) {
+                        Image(systemName: selected ? item.selectedIcon : item.icon)
+                            .font(.system(size: 20, weight: selected ? .semibold : .regular))
+                            .frame(height: 24)
+                        Text(model.text(item.copy)).font(.system(size: 13, weight: selected ? .bold : .medium))
                             .lineLimit(1).minimumScaleFactor(0.8)
                     }
                     .frame(maxWidth: .infinity, minHeight: 48)
-                    .padding(.vertical, 8)
+                    .padding(.vertical, 6)
                     .contentShape(Rectangle())
-                    .foregroundStyle(tab == item ? PaceColor.onSelection : PaceColor.textSecondary)
-                    .background(tab == item ? PaceColor.selectionFill : Color.clear, in: RoundedRectangle(cornerRadius: 14))
+                    .foregroundStyle(selected ? PaceColor.onSelection : PaceColor.textPrimary)
+                    .background(selected ? PaceColor.selectionFill : Color.clear, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                 }
                 .buttonStyle(.plain)
                 .accessibilityShowsLargeContentViewer {
@@ -66,13 +97,42 @@ struct RootView: View {
                 }
                 .accessibilityLabel(model.text(item.copy))
                 .accessibilityIdentifier("tab." + item.rawValue)
-                .accessibilityAddTraits(tab == item ? .isSelected : [])
+                .accessibilityAddTraits(selected ? .isSelected : [])
             }
         }
-        .padding(.horizontal, 16).padding(.vertical, 8)
+        .padding(.horizontal, 12).padding(.top, 6).padding(.bottom, 4)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("paceDock")
-        .background(PaceColor.surface.shadow(color: .black.opacity(0.04), radius: 10, y: -3))
+        .background(PaceColor.surface)
+        .overlay(alignment: .top) { Rectangle().fill(PaceColor.border).frame(height: 1).accessibilityHidden(true) }
+    }
+}
+
+/// Maps a route to its page. Routes carry stable IDs; a missing object shows an
+/// honest unavailable state instead of crashing (e.g. after deleting a chapter).
+struct RouteDestination: View {
+    let route: AppRoute
+    var body: some View {
+        switch route {
+        case .habits: HabitsView()
+        case .habit(let id): HabitDetailContent(habitID: id)
+        case .modes: ModesView()
+        case .routines: RoutinesView()
+        case .routine(let id): RoutineDetail(routineID: id)
+        case .paths: PathsView()
+        case .path(let id): PathDetail(pathID: id)
+        case .adaptive: AdaptiveView()
+        case .calendar: CalendarView()
+        case .statistics: StatisticsView()
+        case .chapters: ChaptersView()
+        case .chapter(let id): ChapterDetail(chapterID: id)
+        case .experiments: ExperimentsView()
+        case .experiment(let id): ExperimentDetail(experimentID: id)
+        case .circle(let id): CircleDetail(circleID: id)
+        case .challenge(let id): CircleChallengeDetail(challengeID: id)
+        case .widgets: WidgetEditor()
+        case .connect: ConnectView()
+        }
     }
 }
 
@@ -82,28 +142,40 @@ struct SaveErrorBanner: View {
         if model.saveFailed {
             Label(model.text(.saveError), systemImage: "exclamationmark.triangle")
                 .font(.callout).foregroundStyle(PaceColor.danger)
+                .padding(PaceSpacing.s)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(PaceColor.danger.opacity(0.08), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                 .accessibilityIdentifier("saveError")
         }
     }
 }
 
-struct Page<Content: View>: View {
-    @Environment(AppModel.self) private var model
+/// Root tab page: Pace header (wordmark + primary action, title + icon actions) and
+/// one vertical scroll. Horizontal paging between tabs is handled by the pager.
+struct Page<Primary: View, Accessory: View, Content: View>: View {
     let title: String
     var subtitle: String? = nil
+    @ViewBuilder var primary: Primary
+    @ViewBuilder var accessory: Accessory
     @ViewBuilder var content: Content
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                PaceRootHeader(title: title, subtitle: subtitle, placeholderLabel: model.text(.placeholder))
+            VStack(alignment: .leading, spacing: PaceSpacing.s) {
+                PaceRootHeader(title: title, subtitle: subtitle) { primary } accessory: { accessory }
                 SaveErrorBanner()
                 content
             }
-            .padding(.horizontal, 16).padding(.bottom, 24)
+            .padding(.horizontal, PaceSpacing.m).padding(.bottom, PaceSpacing.l)
             .frame(maxWidth: 680)
             .frame(maxWidth: .infinity)
         }
         .background(PaceColor.background)
+    }
+}
+
+extension Page where Primary == EmptyView, Accessory == EmptyView {
+    init(title: String, subtitle: String? = nil, @ViewBuilder content: () -> Content) {
+        self.init(title: title, subtitle: subtitle, primary: { EmptyView() }, accessory: { EmptyView() }, content: content)
     }
 }

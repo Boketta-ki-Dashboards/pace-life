@@ -4,42 +4,69 @@ import PaceLifeCore
 
 struct ChaptersView: View {
     @Environment(AppModel.self) private var model
-    @Environment(\.dismiss) private var dismiss
     @State private var creating = false
     @State private var archived = false
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 16) {
-                    SaveErrorBanner()
-                    Label(model.chapterText(.privateNote), systemImage: "lock.shield").font(.footnote)
-                    Toggle(model.chapterText(.archive), isOn: $archived).accessibilityIdentifier("chapterArchive")
-                    if model.state.chapterTimeline(archived: archived).isEmpty {
-                        PaceCard { PaceStatus(title: "Life Chapters", message: model.chapterText(.noChapters), systemImage: "book.closed") }
+        PaceSubpage(title: "Life Chapters", subtitle: model.text(.chaptersDetail)) {
+            Button { creating = true } label: { PaceSquareIcon(systemImage: "plus") }
+                .buttonStyle(.plain)
+                .accessibilityLabel(model.chapterText(.newChapter)).accessibilityIdentifier("addChapter")
+        } content: {
+            Label(model.chapterText(.privateNote), systemImage: "lock.shield").font(.footnote).foregroundStyle(PaceColor.textSecondary)
+            PaceToggleRow(title: model.chapterText(.archive), isOn: $archived).accessibilityIdentifier("chapterArchive")
+            let timeline = model.state.chapterTimeline(archived: archived)
+            if timeline.isEmpty {
+                PaceCard {
+                    PaceEmptyState(systemImage: "book.closed", title: "Life Chapters", message: model.chapterText(.noChapters)) {
+                        if !archived { Button(model.chapterText(.newChapter)) { creating = true }.buttonStyle(PaceButtonStyle(kind: .secondary)) }
                     }
-                    ForEach(model.state.chapterTimeline(archived: archived)) { chapter in
-                        NavigationLink { ChapterDetail(chapterID: chapter.id) } label: {
-                            PaceCard {
-                                VStack(alignment: .leading, spacing: 8) {
-                                    Text(model.dayLabel(chapter.startDay)).font(.caption).foregroundStyle(PaceColor.accent)
-                                    Text(chapter.title).font(.title3.bold())
-                                    Text(model.categoryName(chapter.category)).font(.footnote)
-                                    if !chapter.notes.isEmpty { Text(chapter.notes).lineLimit(3) }
-                                }
-                            }
-                        }.buttonStyle(.plain).accessibilityIdentifier("chapter.open." + chapter.title)
-                    }
-                }.padding(16)
-            }
-            .background(PaceColor.background).navigationTitle("Life Chapters").navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button(model.text(.done)) { dismiss() }.accessibilityIdentifier("closeChapters") }
-                ToolbarItem(placement: .primaryAction) {
-                    Button { creating = true } label: { Image(systemName: "plus") }
-                        .accessibilityLabel(model.chapterText(.newChapter)).accessibilityIdentifier("addChapter")
                 }
             }
-            .sheet(isPresented: $creating) { ChapterEditor() }
+            VStack(alignment: .leading, spacing: 0) {
+                ForEach(Array(timeline.enumerated()), id: \.element.id) { index, chapter in
+                    HStack(alignment: .top, spacing: PaceSpacing.s) {
+                        VStack(spacing: 0) {
+                            Circle().fill(PaceColor.accentStrong).frame(width: 12, height: 12).padding(.top, 22)
+                            if index < timeline.count - 1 { Rectangle().fill(PaceColor.border).frame(width: 2).frame(maxHeight: .infinity) }
+                        }
+                        .frame(width: 14)
+                        .accessibilityHidden(true)
+                        NavigationLink(value: AppRoute.chapter(chapter.id)) { ChapterRowCard(chapter: chapter) }
+                            .buttonStyle(.plain)
+                            .accessibilityIdentifier("chapter.open." + chapter.title)
+                            .padding(.bottom, PaceSpacing.s)
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $creating) { ChapterEditor() }
+    }
+}
+
+struct ChapterRowCard: View {
+    @Environment(AppModel.self) private var model
+    let chapter: LifeChapter
+    var body: some View {
+        PaceCard {
+            HStack(alignment: .top, spacing: PaceSpacing.s) {
+                VStack(alignment: .leading, spacing: PaceSpacing.xxs) {
+                    Text(model.dayLabel(chapter.startDay) + " – " + (chapter.endDay.map(model.dayLabel) ?? model.chapterText(.ongoing)))
+                        .font(.caption.weight(.semibold)).foregroundStyle(PaceColor.accent)
+                    Text(chapter.title).font(.headline).foregroundStyle(PaceColor.textPrimary)
+                    Text(model.categoryName(chapter.category)).font(.footnote).foregroundStyle(PaceColor.textSecondary)
+                    if !chapter.notes.isEmpty { Text(chapter.notes).font(.subheadline).lineLimit(2).foregroundStyle(PaceColor.textPrimary) }
+                    HStack(spacing: PaceSpacing.xs) {
+                        if !chapter.photoIDs.isEmpty { PaceBadge(text: model.number(Double(chapter.photoIDs.count)), systemImage: "photo") }
+                        if !chapter.memories.isEmpty { PaceBadge(text: model.number(Double(chapter.memories.count)), systemImage: "text.book.closed") }
+                    }
+                }
+                Spacer(minLength: 0)
+                if let id = chapter.photoIDs.first, let image = model.chapterPhoto(id) {
+                    Image(uiImage: image).resizable().scaledToFill().frame(width: 64, height: 64)
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        .accessibilityHidden(true)
+                }
+            }
         }
     }
 }
@@ -55,45 +82,64 @@ struct ChapterDetail: View {
     @State private var importing = false
     private var chapter: LifeChapter? { model.state.chapters.first { $0.id == chapterID } }
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                SaveErrorBanner()
-                if let chapter {
-                    PaceCard {
-                        VStack(alignment: .leading, spacing: 12) {
-                            Label(model.chapterText(.privateNote), systemImage: "lock.shield").font(.footnote)
-                            Text(chapter.notes)
-                            LabeledContent(model.pathText(.category), value: model.categoryName(chapter.category))
-                            LabeledContent(model.chapterText(.start), value: model.dayLabel(chapter.startDay))
-                            LabeledContent(model.chapterText(.end), value: chapter.endDay.map(model.dayLabel) ?? model.chapterText(.ongoing))
-                            ForEach(model.state.paths.filter { chapter.pathIDs.contains($0.id) }) { path in
-                                NavigationLink { PathDetail(pathID: path.id) } label: { Label(path.title, systemImage: "link") }
-                            }
+        PaceSubpage(title: chapter?.title ?? "Life Chapters", subtitle: chapter.map { model.dayLabel($0.startDay) + " – " + ($0.endDay.map(model.dayLabel) ?? model.chapterText(.ongoing)) }) {
+            if chapter != nil {
+                Button { editing = true } label: { PaceSquareIcon(systemImage: "pencil") }
+                    .buttonStyle(.plain).accessibilityLabel(model.text(.edit)).accessibilityIdentifier("editChapter")
+            }
+        } content: {
+            if let chapter {
+                PaceCard {
+                    VStack(alignment: .leading, spacing: PaceSpacing.s) {
+                        HStack {
+                            PaceBadge(text: model.categoryName(chapter.category))
+                            if chapter.isArchived { PaceBadge(text: model.pathText(.archived), systemImage: "archivebox") }
+                            Spacer()
+                        }
+                        if !chapter.notes.isEmpty { Text(chapter.notes).font(.body) }
+                        Label(model.chapterText(.privateNote), systemImage: "lock.shield").font(.footnote).foregroundStyle(PaceColor.textSecondary)
+                        ForEach(model.state.paths.filter { chapter.pathIDs.contains($0.id) }) { path in
+                            NavigationLink(value: AppRoute.path(path.id)) { Label(path.title, systemImage: "link") }
+                                .buttonStyle(PaceLinkButtonStyle())
                         }
                     }
-                    photos(chapter)
-                    Text(model.chapterText(.memories)).font(.title3.bold())
-                    ForEach(chapter.memories.sorted { $0.day > $1.day }) { entry in
+                }
+                photos(chapter)
+                PaceSectionTitle(title: model.chapterText(.memories)) {
+                    Button { memory = ChapterMemory(title: "") } label: { Label(model.text(.add), systemImage: "plus") }
+                        .buttonStyle(PaceLinkButtonStyle()).accessibilityIdentifier("addMemory")
+                }
+                if chapter.memories.isEmpty {
+                    PaceCard { Text(model.text(.noHistory)).foregroundStyle(PaceColor.textSecondary) }
+                }
+                ForEach(chapter.memories.sorted { $0.day > $1.day }) { entry in
+                    Button { memory = entry } label: {
                         PaceCard {
-                            VStack(alignment: .leading, spacing: 8) {
-                                Label(entry.title, systemImage: entry.isMilestone ? "flag.checkered" : "text.book.closed")
-                                Text(model.dayLabel(entry.day)).font(.caption)
-                                Text(entry.notes)
-                                Button(model.text(.edit)) { memory = entry }
+                            VStack(alignment: .leading, spacing: PaceSpacing.xs) {
+                                HStack {
+                                    Label(entry.title, systemImage: entry.isMilestone ? "flag.checkered" : "text.book.closed")
+                                        .font(.headline).foregroundStyle(PaceColor.textPrimary)
+                                    Spacer()
+                                    Text(model.dayLabel(entry.day)).font(.caption).foregroundStyle(PaceColor.textSecondary)
+                                }
+                                if !entry.notes.isEmpty { Text(entry.notes).font(.subheadline).foregroundStyle(PaceColor.textPrimary) }
                             }
                         }
                     }
-                    Button(model.chapterText(.addMemory)) { memory = ChapterMemory(title: "") }
-                        .buttonStyle(PaceButtonStyle(kind: .secondary)).accessibilityIdentifier("addMemory")
-                    Button(model.text(.edit)) { editing = true }.buttonStyle(PaceButtonStyle(kind: .secondary)).accessibilityIdentifier("editChapter")
+                    .buttonStyle(.plain)
+                    .accessibilityHint(model.text(.edit))
+                }
+                VStack(spacing: PaceSpacing.xs) {
                     Button(model.chapterText(chapter.isArchived ? .restore : .archive)) {
                         var updated = chapter; updated.isArchived.toggle(); _ = model.saveChapter(updated)
-                    }.accessibilityIdentifier("archiveChapter")
-                    Button(model.chapterText(.deleteChapter), role: .destructive) { deleting = true }.accessibilityIdentifier("deleteChapter")
+                    }
+                    .buttonStyle(PaceButtonStyle(kind: .secondary)).accessibilityIdentifier("archiveChapter")
+                    Button(model.chapterText(.deleteChapter), role: .destructive) { deleting = true }
+                        .buttonStyle(PaceButtonStyle(kind: .destructive)).accessibilityIdentifier("deleteChapter")
                 }
-            }.padding(16).disabled(importing)
+            }
         }
-        .background(PaceColor.background).navigationTitle(chapter?.title ?? "Life Chapters").navigationBarTitleDisplayMode(.inline)
+        .disabled(importing)
         .sheet(isPresented: $editing) { if let chapter { ChapterEditor(existing: chapter) } }
         .sheet(item: $memory) { MemoryEditor(chapterID: chapterID, memory: $0) }
         .confirmationDialog(model.chapterText(.deleteChapter), isPresented: $deleting, titleVisibility: .visible) {
@@ -116,29 +162,35 @@ struct ChapterDetail: View {
     }
     private func photos(_ chapter: LifeChapter) -> some View {
         let pickerTitle = model.chapterText(.addPhotos)
-        return VStack(alignment: .leading, spacing: 12) {
-            Text(model.chapterText(.photos)).font(.title3.bold())
+        return VStack(alignment: .leading, spacing: PaceSpacing.s) {
+            PaceSectionTitle(title: model.chapterText(.photos)) {
+                PhotosPicker(selection: $selections, maxSelectionCount: 10, matching: .images) {
+                    Label(pickerTitle, systemImage: "photo.badge.plus").font(.body).foregroundStyle(PaceColor.accent).frame(minHeight: 44)
+                }.disabled(importing).accessibilityIdentifier("addChapterPhotos")
+            }
             ForEach(chapter.photoIDs, id: \.self) { id in
-                PaceCard {
-                    VStack(alignment: .leading, spacing: 8) {
+                PaceCard(padding: PaceSpacing.xs) {
+                    VStack(alignment: .leading, spacing: PaceSpacing.xs) {
                         if let image = model.chapterPhoto(id) {
-                            Image(uiImage: image).resizable().scaledToFit().frame(maxHeight: 280)
+                            Image(uiImage: image).resizable().scaledToFit().frame(maxWidth: .infinity, maxHeight: 320)
+                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                                 .accessibilityLabel(model.chapterText(.photos))
                                 .accessibilityIdentifier("chapter.photo." + id.uuidString)
-                        } else { Label(model.chapterText(.missingPhoto), systemImage: "photo.badge.exclamationmark") }
+                        } else {
+                            Label(model.chapterText(.missingPhoto), systemImage: "photo.badge.exclamationmark").padding(PaceSpacing.s)
+                        }
                         Button(model.chapterText(.removePhoto), role: .destructive) {
                             var updated = chapter; updated.photoIDs.removeAll { $0 == id }; _ = model.saveChapter(updated)
-                        }.accessibilityIdentifier("chapter.removePhoto." + id.uuidString)
+                        }
+                        .font(.subheadline).foregroundStyle(PaceColor.danger).frame(minHeight: 44).padding(.horizontal, PaceSpacing.xs)
+                        .accessibilityIdentifier("chapter.removePhoto." + id.uuidString)
                     }
                 }
             }
-            PhotosPicker(selection: $selections, maxSelectionCount: 10, matching: .images) {
-                Label(pickerTitle, systemImage: "photo.badge.plus")
-            }.disabled(importing).accessibilityIdentifier("addChapterPhotos")
-            if importing { ProgressView() }
+            if importing { ProgressView().tint(PaceColor.accentStrong) }
             if model.photoFailed {
                 Text(model.chapterText(.photoError)).foregroundStyle(PaceColor.danger)
-                Button(model.chapterText(.retryCleanup)) { model.cleanChapterPhotos() }
+                Button(model.chapterText(.retryCleanup)) { model.cleanChapterPhotos() }.buttonStyle(PaceLinkButtonStyle())
             }
         }
     }
@@ -174,7 +226,7 @@ struct ChapterEditor: View {
                 }
                 Text(model.chapterText(.privateNote)).font(.footnote)
             }
-            .scrollContentBackground(.hidden).background(PaceColor.background)
+            .paceFormStyle()
             .navigationTitle("Life Chapters").navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 if !initialized { start = model.date(for: chapter.startDay); end = chapter.endDay.map(model.date) ?? start; ongoing = chapter.endDay == nil; initialized = true }

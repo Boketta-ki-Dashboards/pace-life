@@ -4,9 +4,14 @@ import Foundation
 @MainActor public final class LifeStore {
     public private(set) var state: LifeState
     private let repository: any StateRepository
+    private let now: () -> Date
+    private let calendar: Calendar
 
-    public init(repository: any StateRepository) throws {
+    /// `now` and `calendar` only decide which civil day a transaction's plan snapshot belongs to.
+    public init(repository: any StateRepository, now: @escaping () -> Date = { Date() }, calendar: Calendar = .current) throws {
         self.repository = repository
+        self.now = now
+        self.calendar = calendar
         let loaded = try repository.load()
         try loaded.validate()
         state = loaded
@@ -23,6 +28,7 @@ import Foundation
                 candidate.paths[index].completedDay = nil
             }
         }
+        candidate.captureDayPlans(previous: state, now: now(), calendar: calendar)
         try candidate.validate()
         try repository.save(candidate)
         state = candidate
@@ -119,8 +125,7 @@ import Foundation
     public func setSettings(_ settings: AppSettings) throws { try transaction { $0.settings = settings } }
 
     public func dueHabits(on date: Date = Date(), calendar: Calendar = .current) -> [Habit] {
-        let mode = state.modes.first { $0.id == state.activeModeID }
-        return state.habits.filter { $0.isDue(on: date, calendar: calendar) && (mode == nil || mode!.habitIDs.contains($0.id)) }
+        state.dueHabits(on: date, calendar: calendar)
     }
     public func completion(habitID: UUID, on date: Date = Date(), calendar: Calendar = .current) -> HabitCompletion? {
         let day = DayKey(date: date, calendar: calendar)

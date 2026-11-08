@@ -49,7 +49,7 @@ struct HabitEditor: View {
                     }
                 } header: { Text(model.text(.frequency)) } footer: { Text(model.text(.habitScheduleNote)) }
             }
-            .scrollContentBackground(.hidden).background(PaceColor.background)
+            .paceFormStyle()
             .navigationTitle(model.text(existing == nil ? .newHabit : .editHabit)).navigationBarTitleDisplayMode(.inline)
             .onAppear { if !initialized { targetText = model.inputNumber(existing?.target ?? 1); initialized = true } }
             .toolbar {
@@ -69,51 +69,40 @@ struct HabitEditor: View {
 
 struct HabitsView: View {
     @Environment(AppModel.self) private var model
-    @Environment(\.dismiss) private var dismiss
     @State private var add = false
 
     var body: some View {
-        NavigationStack {
-            List {
-                SaveErrorBanner()
-                ForEach(model.activeHabits) { habit in
-                    NavigationLink { HabitDetailContent(habitID: habit.id) } label: {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(habit.title)
-                            Text(model.goalName(habit.goalType)).font(.footnote).foregroundStyle(PaceColor.textSecondary)
-                        }
+        PaceSubpage(title: model.text(.habits)) {
+            Button { add = true } label: { PaceSquareIcon(systemImage: "plus") }
+                .buttonStyle(.plain).accessibilityLabel(model.text(.newHabit)).accessibilityIdentifier("habits.add")
+        } content: {
+            if model.activeHabits.isEmpty {
+                PaceCard {
+                    PaceEmptyState(systemImage: "checklist", title: model.text(.noHabits), message: model.text(.welcomeDetail)) {
+                        Button(model.text(.newHabit)) { add = true }.buttonStyle(PaceButtonStyle(kind: .secondary))
                     }
                 }
-                if model.activeHabits.isEmpty { Text(model.text(.noHabits)).foregroundStyle(PaceColor.textSecondary) }
-                let archived = model.state.habits.filter(\.isArchived)
-                if !archived.isEmpty {
-                    Section {
-                        ForEach(archived) { habit in
-                            NavigationLink { HabitDetailContent(habitID: habit.id) } label: { Label(habit.title, systemImage: "archivebox") }
-                        }
-                    } footer: { Text(model.text(.archiveHelp)) }
+            }
+            ForEach(model.activeHabits) { habit in
+                NavigationLink(value: AppRoute.habit(habit.id)) {
+                    PaceSettingsRowLabel(systemImage: model.habitIcon(habit.goalType), title: habit.title,
+                                         subtitle: model.habitScheduleSummary(habit),
+                                         value: model.habitStreak(habit) > 0 ? "🔥 " + model.number(Double(model.habitStreak(habit))) : nil)
                 }
+                .buttonStyle(.plain).accessibilityIdentifier("habit.open." + habit.title)
             }
-            .scrollContentBackground(.hidden).background(PaceColor.background)
-            .navigationTitle(model.text(.habits)).navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button(model.text(.done)) { dismiss() } }
-                ToolbarItem(placement: .primaryAction) { Button { add = true } label: { Image(systemName: "plus") }.accessibilityLabel(model.text(.newHabit)) }
+            let archived = model.state.habits.filter(\.isArchived)
+            if !archived.isEmpty {
+                PaceSectionTitle(model.pathText(.archived))
+                ForEach(archived) { habit in
+                    NavigationLink(value: AppRoute.habit(habit.id)) {
+                        PaceSettingsRowLabel(systemImage: "archivebox", title: habit.title, subtitle: model.goalName(habit.goalType))
+                    }.buttonStyle(.plain)
+                }
+                Text(model.text(.archiveHelp)).font(.footnote).foregroundStyle(PaceColor.textSecondary)
             }
-            .sheet(isPresented: $add) { HabitEditor() }
         }
-    }
-}
-
-struct HabitDetail: View {
-    @Environment(AppModel.self) private var model
-    @Environment(\.dismiss) private var dismiss
-    let habitID: UUID
-    var body: some View {
-        NavigationStack {
-            HabitDetailContent(habitID: habitID)
-                .toolbar { ToolbarItem(placement: .cancellationAction) { Button(model.text(.done)) { dismiss() } } }
-        }
+        .sheet(isPresented: $add) { HabitEditor() }
     }
 }
 
@@ -127,58 +116,84 @@ struct HabitDetailContent: View {
     private var habit: Habit? { model.state.habits.first { $0.id == habitID } }
 
     var body: some View {
-        Group {
+        PaceSubpage(title: habit?.title ?? model.text(.habits), subtitle: habit.map { model.goalName($0.goalType) }) {
+            if let habit, !habit.isArchived {
+                Button { edit = true } label: { PaceSquareIcon(systemImage: "pencil") }
+                    .buttonStyle(.plain).accessibilityLabel(model.text(.edit)).accessibilityIdentifier("editHabit")
+            }
+        } content: {
             if let habit {
-                List {
-                    SaveErrorBanner()
-                    Section {
-                        LabeledContent(model.text(.goal), value: model.goalName(habit.goalType))
-                        LabeledContent(model.text(.target), value: model.number(habit.target) + (habit.goalType == .duration ? " " + model.text(.minutes) : ""))
-                        Text(model.weekdays.filter { habit.weekdays.contains($0) }.map { model.weekday($0) }.joined(separator: ", "))
-                            .font(.footnote).foregroundStyle(PaceColor.textSecondary)
-                        if !habit.isArchived {
-                            Button(model.text(.recordProgress)) { record = true }.disabled(!habit.isDue(on: model.today))
-                            if !habit.isDue(on: model.today) { Text(model.text(.notScheduled)).font(.footnote).foregroundStyle(PaceColor.textSecondary) }
-                            Button(model.text(.edit)) { edit = true }
-                        }
-                    }
-                    Section {
-                        let entries = model.state.completions.filter { $0.habitID == habitID }.sorted { $0.day > $1.day }
-                        if entries.isEmpty { Text(model.text(.noHistory)).foregroundStyle(PaceColor.textSecondary) }
-                        ForEach(entries) { entry in
-                            HStack(alignment: .top) {
-                                Image(systemName: entry.isComplete ? "checkmark.circle.fill" : "circle.lefthalf.filled").foregroundStyle(PaceColor.accent)
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(dayLabel(entry.day)).font(.headline)
-                                    Text(model.number(entry.actualValue) + " / " + model.number(entry.targetSnapshot) + (entry.goalTypeSnapshot == .duration ? " " + model.text(.minutes) : ""))
-                                        .font(.callout).foregroundStyle(PaceColor.textSecondary)
-                                }
+                let today = model.state.completions.first { $0.habitID == habitID && $0.day == DayKey(date: model.today) }
+                PaceCard {
+                    VStack(alignment: .leading, spacing: PaceSpacing.s) {
+                        HStack(alignment: .center, spacing: PaceSpacing.m) {
+                            VStack(alignment: .leading, spacing: PaceSpacing.xxs) {
+                                Text(model.text(.actualValue)).font(.headline)
+                                Text(model.number(today?.actualValue ?? 0)).font(.system(size: 48, weight: .bold)).monospacedDigit()
+                                Text(model.text(.target) + ": " + model.number(today?.targetSnapshot ?? habit.target) + (habit.goalType == .duration ? " " + model.text(.minutes) : ""))
+                                    .font(.subheadline).foregroundStyle(PaceColor.textSecondary)
                             }
+                            Spacer(minLength: PaceSpacing.xs)
+                            PaceRing(progress: today?.progress ?? 0, diameter: 92, lineWidth: 11, centerText: model.percent(today?.progress ?? 0))
                         }
-                    } header: { Text(model.text(.history)) } footer: { Text(model.text(.historyNote)) }
-                    if !habit.isArchived {
-                        Section { Button(model.text(.archive), role: .destructive) { confirmArchive = true } }
+                        if !habit.isArchived {
+                            Button(model.text(.recordProgress)) { record = true }
+                                .buttonStyle(PaceButtonStyle()).disabled(!habit.isDue(on: model.today))
+                                .accessibilityIdentifier("habit.record")
+                            if !habit.isDue(on: model.today) { Text(model.text(.notScheduled)).font(.footnote).foregroundStyle(PaceColor.textSecondary) }
+                        }
                     }
                 }
-                .scrollContentBackground(.hidden).background(PaceColor.background)
-                .navigationTitle(habit.title).navigationBarTitleDisplayMode(.inline)
-                .sheet(isPresented: $edit) { HabitEditor(existing: habit) }
-                .sheet(isPresented: $record) { RecordEditor(habit: habit) }
-                .confirmationDialog(model.text(.confirmArchive), isPresented: $confirmArchive, titleVisibility: .visible) {
-                    Button(model.text(.archive), role: .destructive) { if model.archiveHabit(habit) { dismiss() } }
-                    Button(model.text(.cancel), role: .cancel) { }
-                } message: { Text(model.text(.archiveMessage)) }
+                HStack(spacing: PaceSpacing.xs) {
+                    PaceStatTile(value: model.number(Double(model.habitStreak(habit))), label: model.text(.streak), systemImage: "flame")
+                    PaceStatTile(value: model.number(Double(model.state.completions.filter { $0.habitID == habitID && $0.isComplete }.count)),
+                                 label: model.text(.completed), systemImage: "checkmark.circle")
+                }
+                PaceCard {
+                    VStack(alignment: .leading, spacing: PaceSpacing.s) {
+                        Text(model.text(.scheduledDays)).font(.headline)
+                        HStack(spacing: PaceSpacing.xxs) {
+                            ForEach(model.weekdays, id: \.self) { day in
+                                let on = habit.weekdays.contains(day)
+                                Text(model.weekdayShort(day))
+                                    .font(.caption.weight(.semibold))
+                                    .frame(maxWidth: .infinity, minHeight: 32)
+                                    .foregroundStyle(on ? PaceColor.onSelection : PaceColor.textSecondary)
+                                    .background(on ? PaceColor.selectionFill : PaceColor.fieldBackground, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                                    .accessibilityLabel(model.weekday(day))
+                                    .accessibilityAddTraits(on ? .isSelected : [])
+                            }
+                        }
+                    }
+                }
+                PaceSectionTitle(model.text(.history))
+                let entries = model.state.completions.filter { $0.habitID == habitID }.sorted { $0.day > $1.day }
+                PaceCard {
+                    VStack(alignment: .leading, spacing: PaceSpacing.s) {
+                        if entries.isEmpty { Text(model.text(.noHistory)).foregroundStyle(PaceColor.textSecondary) }
+                        ForEach(entries) { entry in
+                            HStack(alignment: .center, spacing: PaceSpacing.s) {
+                                Image(systemName: entry.isComplete ? "checkmark.circle.fill" : "circle.lefthalf.filled").foregroundStyle(PaceColor.accent)
+                                Text(model.dayLabel(entry.day)).font(.subheadline.weight(.semibold))
+                                Spacer()
+                                Text(model.number(entry.actualValue) + " / " + model.number(entry.targetSnapshot) + (entry.goalTypeSnapshot == .duration ? " " + model.text(.minutes) : ""))
+                                    .font(.subheadline).monospacedDigit().foregroundStyle(PaceColor.textSecondary)
+                            }
+                        }
+                        Text(model.text(.historyNote)).font(.footnote).foregroundStyle(PaceColor.textSecondary)
+                    }
+                }
+                if !habit.isArchived {
+                    Button(model.text(.archive)) { confirmArchive = true }.buttonStyle(PaceButtonStyle(kind: .destructive))
+                }
             }
         }
-    }
-
-    private func dayLabel(_ key: DayKey) -> String {
-        let parser = DateFormatter(); parser.locale = Locale(identifier: "en_US_POSIX")
-        parser.calendar = Calendar(identifier: .gregorian); parser.timeZone = TimeZone(secondsFromGMT: 0); parser.dateFormat = "yyyy-MM-dd"
-        guard let date = parser.date(from: key.rawValue) else { return key.rawValue }
-        let formatter = DateFormatter(); formatter.locale = model.locale
-        formatter.timeZone = TimeZone(secondsFromGMT: 0); formatter.dateStyle = .medium
-        return formatter.string(from: date)
+        .sheet(isPresented: $edit) { if let habit { HabitEditor(existing: habit) } }
+        .sheet(isPresented: $record) { if let habit { RecordEditor(habit: habit) } }
+        .confirmationDialog(model.text(.confirmArchive), isPresented: $confirmArchive, titleVisibility: .visible) {
+            Button(model.text(.archive), role: .destructive) { if let habit, model.archiveHabit(habit) { dismiss() } }
+            Button(model.text(.cancel), role: .cancel) { }
+        } message: { Text(model.text(.archiveMessage)) }
     }
 }
 
@@ -213,7 +228,7 @@ struct RecordEditor: View {
                 }
                 Section { Text(model.text(.historyNote)).font(.footnote).foregroundStyle(PaceColor.textSecondary) }
             }
-            .scrollContentBackground(.hidden).background(PaceColor.background)
+            .paceFormStyle()
             .navigationTitle(model.text(.recordProgress)).navigationBarTitleDisplayMode(.inline)
             .onChange(of: model.today) { _, date in if let selectedDay, selectedDay != DayKey(date: date) { dayChanged = true } }
             .onAppear {

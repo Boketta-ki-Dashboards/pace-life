@@ -4,35 +4,60 @@ import PaceLifeCore
 
 struct ExperimentsView: View {
     @Environment(AppModel.self) private var model
-    @Environment(\.dismiss) private var dismiss
     @State private var creating = false
     var body: some View {
-        NavigationStack {
-            List {
-                SaveErrorBanner()
-                if model.state.experiments.isEmpty { Text(model.experimentText(.noExperiments)) }
-                ForEach(ExperimentStatus.allCases, id: \.self) { status in
-                    Section(model.pathStatusName(status == .active ? .active : status == .completed ? .completed : .archived)) {
-                        ForEach(model.state.experiments.filter { $0.status == status }) { experiment in
-                            NavigationLink { ExperimentDetail(experimentID: experiment.id) } label: {
-                                VStack(alignment: .leading, spacing: 8) {
-                                    Text(experiment.title).font(.headline)
-                                    Text(model.dayLabel(experiment.startDay) + " – " + model.dayLabel(experiment.endDay)).font(.caption)
-                                }
-                            }.accessibilityIdentifier("experiment.open." + experiment.title)
-                        }
+        PaceSubpage(title: "Life Experiments", subtitle: model.text(.experimentsDetail)) {
+            Button { creating = true } label: { PaceSquareIcon(systemImage: "plus") }
+                .buttonStyle(.plain)
+                .accessibilityLabel(model.experimentText(.newExperiment)).accessibilityIdentifier("addExperiment")
+        } content: {
+            if model.state.experiments.isEmpty {
+                PaceCard {
+                    PaceEmptyState(systemImage: "flask", title: "Life Experiments", message: model.experimentText(.noExperiments)) {
+                        Button(model.experimentText(.newExperiment)) { creating = true }.buttonStyle(PaceButtonStyle(kind: .secondary))
                     }
                 }
             }
-            .scrollContentBackground(.hidden).background(PaceColor.background)
-            .navigationTitle("Life Experiments").navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button(model.text(.done)) { dismiss() }.accessibilityIdentifier("closeExperiments") }
-                ToolbarItem(placement: .primaryAction) {
-                    Button { creating = true } label: { Image(systemName: "plus") }
-                        .accessibilityLabel(model.experimentText(.newExperiment)).accessibilityIdentifier("addExperiment")
+            ForEach(ExperimentStatus.allCases, id: \.self) { status in
+                let items = model.state.experiments.filter { $0.status == status }
+                if !items.isEmpty {
+                    PaceSectionTitle(model.pathStatusName(status == .active ? .active : status == .completed ? .completed : .archived))
+                    ForEach(items) { experiment in
+                        NavigationLink(value: AppRoute.experiment(experiment.id)) { ExperimentRowCard(experiment: experiment) }
+                            .buttonStyle(.plain)
+                            .accessibilityIdentifier("experiment.open." + experiment.title)
+                    }
                 }
-            }.sheet(isPresented: $creating) { ExperimentEditor() }
+            }
+        }
+        .sheet(isPresented: $creating) { ExperimentEditor() }
+    }
+}
+
+struct ExperimentRowCard: View {
+    @Environment(AppModel.self) private var model
+    let experiment: LifeExperiment
+    var body: some View {
+        let count = model.state.experimentCheckIns.filter { $0.experimentID == experiment.id && !$0.values.isEmpty }.count
+        let progress = experiment.plannedDays > 0 ? Double(count) / Double(experiment.plannedDays) : 0
+        PaceCard {
+            VStack(alignment: .leading, spacing: PaceSpacing.s) {
+                HStack(alignment: .firstTextBaseline) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(experiment.title).font(.headline).foregroundStyle(PaceColor.textPrimary)
+                        Text(model.dayLabel(experiment.startDay) + " – " + model.dayLabel(experiment.endDay))
+                            .font(.footnote).foregroundStyle(PaceColor.textSecondary)
+                    }
+                    Spacer(minLength: PaceSpacing.xs)
+                    Text(model.number(Double(count)) + "/" + model.number(Double(experiment.plannedDays)))
+                        .font(.title3.weight(.heavy)).monospacedDigit()
+                    PaceChevron()
+                }
+                PaceProgressBar(progress: progress)
+                if model.experimentCheckedInToday(experiment) {
+                    Label(model.experimentText(.recorded), systemImage: "checkmark.circle.fill").font(.footnote).foregroundStyle(PaceColor.accent)
+                }
+            }
         }
     }
 }
@@ -45,72 +70,109 @@ struct ExperimentDetail: View {
     @State private var recording = false
     private var experiment: LifeExperiment? { model.state.experiments.first { $0.id == experimentID } }
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                SaveErrorBanner()
-                if let experiment {
-                    PaceCard {
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text(experiment.question).font(.headline)
-                            Text(experiment.context)
-                            Text(model.dayLabel(experiment.startDay) + " – " + model.dayLabel(experiment.endDay))
-                            let count = model.state.experimentCheckIns.filter { $0.experimentID == experiment.id && !$0.values.isEmpty }.count
-                            ProgressView(value: Double(count), total: Double(experiment.plannedDays)).tint(PaceColor.accent)
-                            Text("\(count) / \(experiment.plannedDays) · " + model.experimentText(.recorded)).font(.footnote)
-                            ForEach(model.state.habits.filter { experiment.habitIDs.contains($0.id) }) { habit in
-                                NavigationLink { HabitDetailContent(habitID: habit.id) } label: { Label(habit.title, systemImage: "link") }
+        PaceSubpage(title: experiment?.title ?? "Life Experiments", subtitle: experiment.map { model.dayLabel($0.startDay) + " – " + model.dayLabel($0.endDay) }) {
+            if experiment != nil {
+                Button { editing = true } label: { PaceSquareIcon(systemImage: "pencil") }
+                    .buttonStyle(.plain).accessibilityLabel(model.text(.edit)).accessibilityIdentifier("editExperiment")
+            }
+        } content: {
+            if let experiment {
+                let count = model.state.experimentCheckIns.filter { $0.experimentID == experiment.id && !$0.values.isEmpty }.count
+                PaceCard {
+                    VStack(alignment: .leading, spacing: PaceSpacing.s) {
+                        HStack(alignment: .center, spacing: PaceSpacing.m) {
+                            VStack(alignment: .leading, spacing: PaceSpacing.xxs) {
+                                Text(model.experimentText(.recorded)).font(.headline)
+                                Text(model.number(Double(count))).font(.system(size: 48, weight: .bold)).monospacedDigit()
+                                Text(model.experimentDaysLabel(experiment.plannedDays)).font(.subheadline).foregroundStyle(PaceColor.textSecondary)
                             }
+                            Spacer(minLength: PaceSpacing.xs)
+                            PaceRing(progress: experiment.plannedDays > 0 ? Double(count) / Double(experiment.plannedDays) : 0, diameter: 92, lineWidth: 11,
+                                     centerText: model.percent(experiment.plannedDays > 0 ? Double(count) / Double(experiment.plannedDays) : 0))
+                        }
+                        if !experiment.question.isEmpty { Text(experiment.question).font(.subheadline.weight(.semibold)) }
+                        if !experiment.context.isEmpty { Text(experiment.context).font(.subheadline).foregroundStyle(PaceColor.textSecondary) }
+                        ForEach(model.state.habits.filter { experiment.habitIDs.contains($0.id) }) { habit in
+                            NavigationLink(value: AppRoute.habit(habit.id)) { Label(habit.title, systemImage: "link") }
+                                .buttonStyle(PaceLinkButtonStyle())
+                        }
+                        if experiment.status != .archived && experiment.startDay <= DayKey(date: model.today) {
+                            Button(model.experimentText(.checkIn)) { recording = true }
+                                .buttonStyle(PaceButtonStyle()).accessibilityIdentifier("experimentCheckIn")
                         }
                     }
-                    if experiment.status != .archived && experiment.startDay <= DayKey(date: model.today) {
-                        Button(model.experimentText(.checkIn)) { recording = true }.buttonStyle(PaceButtonStyle()).accessibilityIdentifier("experimentCheckIn")
+                }
+                ForEach(experiment.metrics) { metric in metricCard(metric, in: experiment) }
+                Label(model.experimentText(.observations), systemImage: "info.circle").font(.footnote).foregroundStyle(PaceColor.textSecondary)
+                if !experiment.reflection.isEmpty {
+                    PaceCard {
+                        VStack(alignment: .leading, spacing: PaceSpacing.xs) {
+                            Text(model.experimentText(.reflection)).font(.headline)
+                            Text(experiment.reflection)
+                        }
                     }
-                    ForEach(experiment.metrics) { metric in metricCard(metric, in: experiment) }
-                    PaceCard { Text(model.experimentText(.observations)).font(.footnote) }
-                    if !experiment.reflection.isEmpty { Text(experiment.reflection) }
-                    Button(model.text(.edit)) { editing = true }.buttonStyle(PaceButtonStyle(kind: .secondary))
+                }
+                VStack(spacing: PaceSpacing.xs) {
                     if experiment.status == .active {
                         Button(model.experimentText(.finish)) { model.perform { try $0.finishExperiment(id: experimentID) } }
+                            .buttonStyle(PaceButtonStyle(kind: .secondary))
                             .disabled(experiment.startDay > DayKey(date: model.today)).accessibilityIdentifier("finishExperiment")
-                    }
-                    if experiment.status != .archived {
-                        Button(model.text(.archive)) { model.perform { try $0.archiveExperiment(id: experimentID) } }
                     }
                     Button(model.experimentText(.repeatExperiment)) {
                         if model.perform({ _ = try $0.repeatExperiment(id: experimentID) }) { dismiss() }
                     }.buttonStyle(PaceButtonStyle(kind: .secondary)).accessibilityIdentifier("repeatExperiment")
+                    if experiment.status != .archived {
+                        Button(model.text(.archive)) { model.perform { try $0.archiveExperiment(id: experimentID) } }
+                            .buttonStyle(PaceButtonStyle(kind: .destructive))
+                    }
                 }
-            }.padding(16)
-        }.background(PaceColor.background)
-            .navigationTitle(experiment?.title ?? "Life Experiments").navigationBarTitleDisplayMode(.inline)
-            .sheet(isPresented: $editing) { if let experiment { ExperimentEditor(existing: experiment) } }
-            .sheet(isPresented: $recording) { if let experiment { ExperimentCheckInEditor(experiment: experiment) } }
+            }
+        }
+        .sheet(isPresented: $editing) { if let experiment { ExperimentEditor(existing: experiment) } }
+        .sheet(isPresented: $recording) { if let experiment { ExperimentCheckInEditor(experiment: experiment) } }
     }
     private func metricCard(_ metric: ExperimentMetric, in experiment: LifeExperiment) -> some View {
         let summary = model.state.experimentSummary(experiment, metric: metric, through: DayKey(date: model.today))
         return PaceCard {
-            VStack(alignment: .leading, spacing: 12) {
-                Text(metric.title + " · " + model.metricUnit(metric)).font(.headline)
-                if summary.samples.isEmpty { Text(model.experimentText(.noData)) }
-                else {
+            VStack(alignment: .leading, spacing: PaceSpacing.s) {
+                PaceCardHeader(title: metric.title, trailing: { Text(model.metricUnit(metric)).font(.footnote).foregroundStyle(PaceColor.textSecondary) })
+                if summary.samples.isEmpty {
+                    Text(model.experimentText(.noData)).foregroundStyle(PaceColor.textSecondary)
+                } else {
                     // Discrete points never bridge or interpolate missing days.
-                    Chart(summary.samples) { sample in
-                        PointMark(x: .value(model.experimentText(.days), experiment.startDay.distance(to: sample.day) + 1), y: .value(metric.title, sample.value))
-                            .foregroundStyle(PaceColor.accent)
+                    Chart {
+                        if let baseline = summary.baseline {
+                            RuleMark(y: .value(model.experimentText(.baseline), baseline))
+                                .foregroundStyle(PaceColor.textSecondary)
+                                .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
+                        }
+                        ForEach(summary.samples) { sample in
+                            PointMark(x: .value(model.experimentText(.days), experiment.startDay.distance(to: sample.day) + 1), y: .value(metric.title, sample.value))
+                                .foregroundStyle(PaceColor.accentStrong)
+                                .symbolSize(70)
+                        }
                     }
                     .chartXScale(domain: 1...max(2, experiment.plannedDays))
                     .chartXAxisLabel(model.experimentText(.days)).chartYAxisLabel(model.metricUnit(metric))
                     .frame(height: 180).accessibilityLabel(metric.title)
-                    ForEach(summary.samples) { sample in
-                        LabeledContent(model.dayLabel(sample.day), value: model.number(sample.value))
-                            .font(.footnote).accessibilityIdentifier("experiment.value." + metric.title + "." + sample.day.rawValue)
-                    }
                 }
-                LabeledContent(model.experimentText(.missing), value: "\(summary.missingDays)")
-                if let mean = summary.mean { LabeledContent(model.experimentText(.mean), value: model.number(mean)) }
-                if let baseline = summary.baseline { LabeledContent(model.experimentText(.baseline), value: model.number(baseline)) }
-                if let last = summary.lastValue { LabeledContent(model.experimentText(.last), value: model.number(last)) }
-                if let change = summary.changeFromBaseline { LabeledContent(model.experimentText(.change), value: model.number(change)) }
+                LazyVGrid(columns: [GridItem(.flexible(), spacing: PaceSpacing.xs), GridItem(.flexible(), spacing: PaceSpacing.xs)], spacing: PaceSpacing.xs) {
+                    PaceStatTile(value: model.number(Double(summary.missingDays)), label: model.experimentText(.missing))
+                    if let mean = summary.mean { PaceStatTile(value: model.number(mean), label: model.experimentText(.mean)) }
+                    if let baseline = summary.baseline { PaceStatTile(value: model.number(baseline), label: model.experimentText(.baseline)) }
+                    if let last = summary.lastValue { PaceStatTile(value: model.number(last), label: model.experimentText(.last)) }
+                    if let change = summary.changeFromBaseline { PaceStatTile(value: model.signedNumber(change), label: model.experimentText(.change)) }
+                }
+                ForEach(summary.samples.reversed()) { sample in
+                    HStack {
+                        Text(model.dayLabel(sample.day))
+                        Spacer()
+                        Text(model.number(sample.value)).monospacedDigit()
+                    }
+                    .font(.footnote).foregroundStyle(PaceColor.textSecondary)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityIdentifier("experiment.value." + metric.title + "." + sample.day.rawValue)
+                }
             }
         }
     }
@@ -184,7 +246,7 @@ struct ExperimentEditor: View {
                 }
                 Text(model.experimentText(.dataRule)).font(.footnote)
             }
-            .scrollContentBackground(.hidden).background(PaceColor.background)
+            .paceFormStyle()
             .navigationTitle("Life Experiments").navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 guard !initialized else { return }; initialized = true

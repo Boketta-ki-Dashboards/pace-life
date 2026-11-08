@@ -29,9 +29,13 @@ public enum PlanningCalendar {
 extension LifeStore {
     public func overview(on date: Date, today: Date = Date(), calendar: Calendar = .current) -> DayOverview {
         let day = DayKey(date: date, calendar: calendar), current = DayKey(date: today, calendar: calendar)
+        // Past days show their frozen schema-9 plan when one was captured; otherwise unknown.
+        let plan = state.plan(on: date, today: today, calendar: calendar)
+        let habits = plan.map { plan in plan.habitIDs.compactMap { id in state.habits.first { $0.id == id } } }
+        let routines = plan.map { plan in plan.routineIDs.compactMap { id in state.routines.first { $0.id == id } } }
         return DayOverview(day: day,
-                           plannedHabits: day < current ? nil : dueHabits(on: date, calendar: calendar),
-                           plannedRoutines: day < current ? nil : dueRoutines(on: date, calendar: calendar),
+                           plannedHabits: habits,
+                           plannedRoutines: routines,
                            completions: state.completions.filter { $0.day == day },
                            routineSessions: state.routineSessions.filter { $0.day == day },
                            adaptivePlan: state.adaptivePlans.first { $0.day == day }, isForecast: day > current)

@@ -24,6 +24,7 @@ struct SchemaOneState: Decodable {
         result.widgets.append(HomeWidgetPreference(kind: .routines, isVisible: false))
         result.widgets.append(HomeWidgetPreference(kind: .paths, isVisible: false))
         result.widgets.append(HomeWidgetPreference(kind: .adaptive, isVisible: false))
+        result.widgets = HomeWidgetPreference.upgradingToSchemaNine(result.widgets)
         try result.validate()
         return result
     }
@@ -51,6 +52,7 @@ struct SchemaTwoState: Decodable {
                                widgets: widgets, settings: settings, routines: routines, routineSessions: routineSessions)
         result.widgets.append(HomeWidgetPreference(kind: .paths, isVisible: false))
         result.widgets.append(HomeWidgetPreference(kind: .adaptive, isVisible: false))
+        result.widgets = HomeWidgetPreference.upgradingToSchemaNine(result.widgets)
         try result.validate()
         return result
     }
@@ -80,6 +82,7 @@ struct SchemaThreeState: Decodable {
                                settings: settings, routines: routines, routineSessions: routineSessions,
                                paths: paths, pathEntries: pathEntries)
         result.widgets.append(HomeWidgetPreference(kind: .adaptive, isVisible: false))
+        result.widgets = HomeWidgetPreference.upgradingToSchemaNine(result.widgets)
         try result.validate()
         return result
     }
@@ -104,7 +107,7 @@ struct SchemaFourState: Decodable {
     let adaptivePlans: [DailyAdaptivePlan]
     func migrated() -> LifeState {
         LifeState(habits: habits, modes: modes, completions: completions, activations: activations,
-                  activeModeID: activeModeID, widgets: widgets, settings: settings, routines: routines,
+                  activeModeID: activeModeID, widgets: HomeWidgetPreference.upgradingToSchemaNine(widgets), settings: settings, routines: routines,
                   routineSessions: routineSessions, paths: paths, pathEntries: pathEntries, adaptivePlans: adaptivePlans)
     }
 }

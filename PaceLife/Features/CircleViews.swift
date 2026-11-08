@@ -4,70 +4,152 @@ import PaceLifeCore
 struct CirclesView: View {
     @Environment(AppModel.self) private var model
     @State private var creating = false
-    @State private var opening: LocalCircle?
     var body: some View {
-        Page(title: model.text(.circles), subtitle: model.circleText(.localDemo)) {
-            PaceCard { Text(model.circleText(.demoNote)).font(.callout) }
-            Button(model.circleText(.newCircle)) { creating = true }.buttonStyle(PaceButtonStyle()).accessibilityIdentifier("addCircle")
-            if model.state.circles.isEmpty { Text(model.circleText(.noCircles)) }
+        Page(title: model.text(.circles), subtitle: nil) {
+            EmptyView()
+        } accessory: {
+            PaceBadge(text: model.circleText(.localDemo), systemImage: "iphone")
+        } content: {
+            Button { creating = true } label: { Label(model.circleText(.newCircle), systemImage: "person.2.badge.plus") }
+                .buttonStyle(PaceButtonStyle(kind: .secondary)).accessibilityIdentifier("addCircle")
+            PaceCard {
+                Label(model.circleText(.demoNote), systemImage: "info.circle").font(.footnote).foregroundStyle(PaceColor.textSecondary)
+            }
+            PaceSectionTitle(model.circleText(.yourCircles))
+            if model.state.circles.isEmpty {
+                PaceCard { PaceEmptyState(systemImage: "person.2", title: model.text(.circles), message: model.circleText(.noCircles)) }
+            }
             ForEach(model.state.circles) { circle in
-                Button { opening = circle } label: {
-                    PaceCard {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text(circle.title).font(.title3.bold())
-                            Text(circle.notes).font(.callout)
-                            Label(model.circleText(.localDemo), systemImage: "iphone").font(.caption)
-                        }
-                    }
-                }.buttonStyle(.plain).accessibilityIdentifier("circle.open." + circle.title)
+                NavigationLink(value: AppRoute.circle(circle.id)) { CircleRowCard(circle: circle) }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("circle.open." + circle.title)
+            }
+            let active = model.state.circleChallenges.filter { $0.status == .active }
+            if !active.isEmpty {
+                PaceSectionTitle(model.circleText(.challenge))
+                ForEach(active) { challenge in
+                    NavigationLink(value: AppRoute.challenge(challenge.id)) { ChallengeRowCard(challenge: challenge) }
+                        .buttonStyle(.plain)
+                        .accessibilityIdentifier("circles.challenge." + challenge.title)
+                }
             }
         }
         .sheet(isPresented: $creating) { CircleEditor() }
-        .sheet(item: $opening) { circle in NavigationStack { CircleDetail(circleID: circle.id) } }
     }
 }
+
+/// Group row like the Pace Social group list: avatar, name, status line, counter.
+struct CircleRowCard: View {
+    @Environment(AppModel.self) private var model
+    let circle: LocalCircle
+    var body: some View {
+        let challenges = model.state.circleChallenges.filter { $0.circleID == circle.id && $0.status == .active }
+        PaceCard(padding: PaceSpacing.s) {
+            HStack(spacing: PaceSpacing.s) {
+                PaceAvatar(name: circle.title, seed: circle.id)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(circle.title).font(.headline).foregroundStyle(PaceColor.textPrimary)
+                    Text(model.circleMembersLine(circle) + " · " + model.number(Double(challenges.count)) + " " + model.circleText(.challenge))
+                        .font(.footnote).foregroundStyle(PaceColor.textSecondary)
+                }
+                Spacer(minLength: PaceSpacing.xs)
+                PaceChevron()
+            }
+        }
+    }
+}
+
+struct ChallengeRowCard: View {
+    @Environment(AppModel.self) private var model
+    let challenge: CircleChallenge
+    var body: some View {
+        let progress = model.state.circleProgress(challenge)
+        PaceCard {
+            VStack(alignment: .leading, spacing: PaceSpacing.xs) {
+                HStack(alignment: .firstTextBaseline) {
+                    Text(challenge.title).font(.headline).foregroundStyle(PaceColor.textPrimary)
+                    Spacer()
+                    Text(model.number(progress.total) + " / " + model.number(challenge.target)).font(.subheadline.weight(.semibold)).monospacedDigit()
+                }
+                PaceProgressBar(progress: progress.total / challenge.target)
+                Text(model.dayLabel(challenge.startDay) + " – " + model.dayLabel(challenge.endDay)).font(.footnote).foregroundStyle(PaceColor.textSecondary)
+            }
+        }
+    }
+}
+
+/// Initial avatar with a stable pastel derived from the ID.
+struct PaceAvatar: View {
+    let name: String
+    let seed: UUID
+    var size: CGFloat = 44
+    var body: some View {
+        let hues: [Double] = [0.38, 0.45, 0.52, 0.58, 0.12, 0.08, 0.72, 0.9]
+        let index = Int(seed.uuid.0) % hues.count
+        Text(String(name.trimmingCharacters(in: .whitespaces).prefix(1)).uppercased())
+            .font(.system(size: size * 0.4, weight: .bold, design: .rounded))
+            .foregroundStyle(Color(hue: hues[index], saturation: 0.55, brightness: 0.35))
+            .frame(width: size, height: size)
+            .background(Color(hue: hues[index], saturation: 0.25, brightness: 0.95), in: Circle())
+            .overlay { Circle().strokeBorder(PaceColor.border, lineWidth: 1) }
+            .accessibilityHidden(true)
+    }
+}
+
 struct CircleDetail: View {
     @Environment(AppModel.self) private var model
-    @Environment(\.dismiss) private var dismiss
     let circleID: UUID
     @State private var editing = false
     @State private var adding = false
     private var circle: LocalCircle? { model.state.circles.first { $0.id == circleID } }
     var body: some View {
-        List {
-            SaveErrorBanner()
+        PaceSubpage(title: circle?.title ?? "Pace Circles", subtitle: circle.map { model.circleMembersLine($0) }) {
+            if circle != nil {
+                Button { editing = true } label: { PaceSquareIcon(systemImage: "gearshape") }
+                    .buttonStyle(.plain).accessibilityLabel(model.text(.edit)).accessibilityIdentifier("editCircle")
+            }
+        } content: {
             if let circle {
-                Section {
-                    Text(model.circleText(.demoNote))
-                    Text(circle.notes)
-                    Button(model.text(.edit)) { editing = true }
+                PaceBadge(text: model.circleText(.localDemo), systemImage: "iphone")
+                if !circle.notes.isEmpty { PaceCard { Text(circle.notes) } }
+                PaceSectionTitle(title: model.circleText(.challenge)) {
+                    Button { adding = true } label: { Label(model.circleText(.newChallenge), systemImage: "plus") }
+                        .buttonStyle(PaceLinkButtonStyle()).accessibilityIdentifier("addChallenge")
                 }
-                Section(model.circleText(.members)) {
-                    ForEach(circle.members) { member in
-                        LabeledContent(member.name + " · " + model.circleText(.demo), value: model.circleText(member.role == .member ? .member : .moderator))
-                    }
+                let challenges = model.state.circleChallenges.filter { $0.circleID == circleID }
+                if challenges.isEmpty { PaceCard { Text(model.circleText(.noChallenges)).foregroundStyle(PaceColor.textSecondary) } }
+                ForEach(challenges) { challenge in
+                    NavigationLink(value: AppRoute.challenge(challenge.id)) { ChallengeRowCard(challenge: challenge) }
+                        .buttonStyle(.plain)
+                        .accessibilityIdentifier("challenge.open." + challenge.title)
                 }
-                Section(model.circleText(.challenge)) {
-                    Button(model.circleText(.newChallenge)) { adding = true }.accessibilityIdentifier("addChallenge")
-                    ForEach(model.state.circleChallenges.filter { $0.circleID == circleID }) { challenge in
-                        NavigationLink { CircleChallengeDetail(challengeID: challenge.id) } label: {
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text(challenge.title).font(.headline)
-                                Text(model.pathStatusName(challenge.status == .active ? .active : challenge.status == .completed ? .completed : .archived)).font(.caption)
-                                ProgressView(value: min(1, model.state.circleProgress(challenge).total / challenge.target)).tint(PaceColor.accent)
+                PaceSectionTitle(model.circleText(.members))
+                PaceCard {
+                    VStack(alignment: .leading, spacing: PaceSpacing.s) {
+                        HStack(spacing: PaceSpacing.s) {
+                            PaceAvatar(name: model.circleText(.own), seed: circleID, size: 36)
+                            Text(model.circleText(.own)).font(.subheadline.weight(.semibold))
+                            Spacer()
+                        }
+                        ForEach(circle.members) { member in
+                            HStack(spacing: PaceSpacing.s) {
+                                PaceAvatar(name: member.name, seed: member.id, size: 36)
+                                Text(member.name).font(.subheadline)
+                                PaceBadge(text: model.circleText(.demo))
+                                Spacer()
+                                Text(model.circleText(member.role == .member ? .member : .moderator)).font(.footnote).foregroundStyle(PaceColor.textSecondary)
                             }
-                        }.accessibilityIdentifier("challenge.open." + challenge.title)
+                        }
+                        Text(model.circleText(.demoNote)).font(.footnote).foregroundStyle(PaceColor.textSecondary)
                     }
                 }
             }
         }
-        .scrollContentBackground(.hidden).background(PaceColor.background)
-        .navigationTitle(circle?.title ?? "Pace Circles").navigationBarTitleDisplayMode(.inline)
-        .toolbar { ToolbarItem(placement: .cancellationAction) { Button(model.text(.done)) { dismiss() } } }
         .sheet(isPresented: $editing) { if let circle { CircleEditor(existing: circle) } }
         .sheet(isPresented: $adding) { ChallengeEditor(circleID: circleID) }
     }
 }
+
 struct CircleEditor: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
@@ -118,56 +200,107 @@ struct CircleChallengeDetail: View {
     @State private var deleting = false
     private var challenge: CircleChallenge? { model.state.circleChallenges.first { $0.id == challengeID } }
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                SaveErrorBanner()
-                if let challenge {
-                    let progress = model.state.circleProgress(challenge)
-                    Label(model.circleText(.localDemo), systemImage: "iphone").font(.footnote)
-                    PaceProgressRing(progress: progress.total / challenge.target, value: model.number(progress.total) + " / " + model.number(challenge.target), label: challenge.kind == .duration ? model.text(.minutes) : challenge.unit)
-                    HStack(alignment: .firstTextBaseline) {
-                        Text(model.circleText(.total))
-                        Spacer()
-                        Text(model.number(progress.total)).accessibilityIdentifier("circleTotal")
+        PaceSubpage(title: challenge?.title ?? "Pace Circles", subtitle: challenge.map { model.dayLabel($0.startDay) + " – " + model.dayLabel($0.endDay) }) {
+            if challenge != nil {
+                Button { editing = true } label: { PaceSquareIcon(systemImage: "pencil") }
+                    .buttonStyle(.plain).accessibilityLabel(model.text(.edit)).accessibilityIdentifier("editChallenge")
+            }
+        } content: {
+            if let challenge {
+                let progress = model.state.circleProgress(challenge)
+                PaceBadge(text: model.circleText(.localDemo), systemImage: "iphone")
+                PaceCard {
+                    VStack(alignment: .leading, spacing: PaceSpacing.s) {
+                        HStack(alignment: .center, spacing: PaceSpacing.m) {
+                            VStack(alignment: .leading, spacing: PaceSpacing.xxs) {
+                                Text(model.circleText(.total)).font(.headline)
+                                Text(model.number(progress.total)).font(.system(size: 48, weight: .bold)).monospacedDigit()
+                                    .accessibilityIdentifier("circleTotal")
+                                Text(model.circleText(.target) + ": " + model.number(challenge.target) + " " + (challenge.kind == .duration ? model.text(.minutes) : challenge.unit))
+                                    .font(.subheadline).foregroundStyle(PaceColor.textSecondary)
+                            }
+                            Spacer(minLength: PaceSpacing.xs)
+                            PaceRing(progress: progress.total / challenge.target, diameter: 92, lineWidth: 11, centerText: model.percent(progress.total / challenge.target))
+                        }
+                        PaceProgressBar(progress: progress.total / challenge.target)
+                        HStack(spacing: PaceSpacing.xs) {
+                            PaceStatTile(value: model.number(progress.own), label: model.circleText(.own), systemImage: "person")
+                            PaceStatTile(value: model.number(progress.demo), label: model.circleText(.simulated), systemImage: "person.2")
+                        }
+                        if challenge.status == .active && challenge.startDay <= DayKey(date: model.today) {
+                            Button(model.circleText(.contribution)) { recording = true }
+                                .buttonStyle(PaceButtonStyle()).accessibilityIdentifier("recordCircleContribution")
+                        }
                     }
-                    LabeledContent(model.circleText(.own), value: model.number(progress.own))
-                    LabeledContent(model.circleText(.simulated), value: model.number(progress.demo))
-                    Text(challenge.notes)
-                    Text(model.dayLabel(challenge.startDay) + " – " + model.dayLabel(challenge.endDay))
-                    if challenge.status == .active && challenge.startDay <= DayKey(date: model.today) {
-                        Button(model.circleText(.contribution)) { recording = true }.buttonStyle(PaceButtonStyle()).accessibilityIdentifier("recordCircleContribution")
+                }
+                if !challenge.notes.isEmpty { PaceCard { Text(challenge.notes) } }
+                let entries = model.state.circleContributions.filter { $0.challengeID == challengeID }.sorted { $0.day > $1.day }
+                if !entries.isEmpty { PaceSectionTitle(model.circleText(.value)) }
+                ForEach(entries) { entry in contributionCard(entry, challenge: challenge) }
+                let days = Set(entries.map(\.day)).sorted()
+                if !days.isEmpty {
+                    PaceCard {
+                        VStack(alignment: .leading, spacing: PaceSpacing.xs) {
+                            Text(model.text(.history)).font(.headline)
+                            ForEach(days, id: \.self) { day in
+                                HStack {
+                                    Text(model.dayLabel(day))
+                                    Spacer()
+                                    Text(model.number(model.state.circleProgress(challenge, through: day).total)).monospacedDigit()
+                                }.font(.footnote).foregroundStyle(PaceColor.textSecondary)
+                            }
+                        }
                     }
-                    ForEach(model.state.circleContributions.filter { $0.challengeID == challengeID }.sorted { $0.day > $1.day }) { entry in contributionCard(entry, challenge: challenge) }
-                    let days = Set(model.state.circleContributions.filter { $0.challengeID == challengeID }.map(\.day)).sorted()
-                    ForEach(days, id: \.self) { day in
-                        LabeledContent(model.dayLabel(day), value: model.number(model.state.circleProgress(challenge, through: day).total)).font(.footnote)
-                    }
-                    Text(model.circleText(.consent)).font(.footnote).foregroundStyle(PaceColor.textSecondary)
-                    Button(model.text(.edit)) { editing = true }.buttonStyle(PaceButtonStyle(kind: .secondary))
+                }
+                Text(model.circleText(.consent)).font(.footnote).foregroundStyle(PaceColor.textSecondary)
+                VStack(spacing: PaceSpacing.xs) {
                     if challenge.status == .active {
                         Button(model.circleText(.finish)) { model.perform { try $0.closeCircleChallenge(id: challengeID) } }
+                            .buttonStyle(PaceButtonStyle(kind: .secondary))
                             .disabled(challenge.startDay > DayKey(date: model.today))
                     }
-                    if challenge.status != .archived { Button(model.text(.archive)) { model.perform { try $0.closeCircleChallenge(id: challengeID, archive: true) } } }
+                    if challenge.status != .archived {
+                        Button(model.text(.archive)) { model.perform { try $0.closeCircleChallenge(id: challengeID, archive: true) } }
+                            .buttonStyle(PaceButtonStyle(kind: .secondary))
+                    }
                     Button(model.circleText(.deleteChallenge), role: .destructive) { deleting = true }
+                        .buttonStyle(PaceButtonStyle(kind: .destructive))
                 }
-            }.padding(16)
-        }.background(PaceColor.background).navigationTitle(challenge?.title ?? "Pace Circles").navigationBarTitleDisplayMode(.inline)
-            .sheet(isPresented: $editing) { if let challenge { ChallengeEditor(circleID: challenge.circleID, existing: challenge) } }
-            .sheet(isPresented: $recording) { if let challenge { CircleContributionEditor(challenge: challenge) } }
-            .confirmationDialog(model.circleText(.deleteChallenge), isPresented: $deleting) {
-                Button(model.circleText(.deleteChallenge), role: .destructive) { if model.perform({ try $0.deleteCircleChallenge(id: challengeID) }) { dismiss() } }
-            } message: { Text(model.circleText(.deleteWarning)) }
+            }
+        }
+        .sheet(isPresented: $editing) { if let challenge { ChallengeEditor(circleID: challenge.circleID, existing: challenge) } }
+        .sheet(isPresented: $recording) { if let challenge { CircleContributionEditor(challenge: challenge) } }
+        .confirmationDialog(model.circleText(.deleteChallenge), isPresented: $deleting) {
+            Button(model.circleText(.deleteChallenge), role: .destructive) { if model.perform({ try $0.deleteCircleChallenge(id: challengeID) }) { dismiss() } }
+        } message: { Text(model.circleText(.deleteWarning)) }
     }
     private func contributionCard(_ entry: CircleContribution, challenge: CircleChallenge) -> some View {
         let member = model.state.circles.first { $0.id == challenge.circleID }?.members.first { $0.id == entry.demoMemberID }
         return PaceCard {
-            VStack(alignment: .leading, spacing: 8) {
-                Text(member.map { $0.name + " · " + model.circleText(.demo) } ?? model.circleText(.own)).font(.headline)
-                Text(model.dayLabel(entry.day) + " · " + model.number(model.state.circleContributionValue(entry)))
-                Text(model.circleText(entry.isShared ? .shared : .privateValue)).font(.footnote)
-                if entry.isShared { Button(model.circleText(.revoke)) { model.perform { try $0.revokeCircleContribution(id: entry.id) } }.accessibilityIdentifier("revokeContribution") }
-                Button(model.circleText(.remove), role: .destructive) { model.perform { try $0.deleteCircleContribution(id: entry.id) } }
+            VStack(alignment: .leading, spacing: PaceSpacing.xs) {
+                HStack(spacing: PaceSpacing.s) {
+                    PaceAvatar(name: member?.name ?? model.circleText(.own), seed: member?.id ?? challenge.circleID, size: 36)
+                    VStack(alignment: .leading, spacing: 2) {
+                        HStack(spacing: PaceSpacing.xs) {
+                            Text(member?.name ?? model.circleText(.own)).font(.headline)
+                            if member != nil { PaceBadge(text: model.circleText(.demo)) }
+                        }
+                        Text(model.dayLabel(entry.day) + " · " + model.number(model.state.circleContributionValue(entry)))
+                            .font(.footnote).foregroundStyle(PaceColor.textSecondary)
+                    }
+                    Spacer()
+                    Label(model.circleText(entry.isShared ? .shared : .privateValue), systemImage: entry.isShared ? "person.2.fill" : "lock")
+                        .font(.caption.weight(.semibold)).foregroundStyle(entry.isShared ? PaceColor.accent : PaceColor.textSecondary)
+                }
+                HStack(spacing: PaceSpacing.xs) {
+                    if entry.isShared {
+                        Button(model.circleText(.revoke)) { model.perform { try $0.revokeCircleContribution(id: entry.id) } }
+                            .buttonStyle(PaceCompactButtonStyle(prominent: false)).accessibilityIdentifier("revokeContribution")
+                    }
+                    Spacer()
+                    Button(model.circleText(.remove), role: .destructive) { model.perform { try $0.deleteCircleContribution(id: entry.id) } }
+                        .font(.subheadline).foregroundStyle(PaceColor.danger).frame(minHeight: 44)
+                }
             }
         }
     }

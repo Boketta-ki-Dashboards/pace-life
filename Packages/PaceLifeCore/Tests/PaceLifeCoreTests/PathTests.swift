@@ -89,8 +89,10 @@ final class PathTests: XCTestCase {
             let repo = JSONStateRepository(url: url)
             let loaded = try repo.load()
             XCTAssertEqual(loaded.routines, [routine]); XCTAssertEqual(loaded.routineSessions, [session])
-            XCTAssertEqual(loaded.widgets.map(\.kind), [.routines, .habits, .mode, .progress, .paths, .adaptive])
-            XCTAssertEqual(loaded.widgets.map(\.isVisible), [true, false, true, false, false, false])
+            // Legacy order and visibility are preserved; schema-9 dashboard widgets are inserted around them.
+            XCTAssertEqual(loaded.widgets.map(\.kind), [.routines, .habits, .mode, .overview, .progress, .streak, .week, .paths, .adaptive, .calendar, .circles, .experiments, .chapters])
+            XCTAssertEqual(loaded.widgets.map(\.isVisible), [true, false, true, true, false, true, true, false, false, true, false, false, false])
+            XCTAssertTrue(loaded.widgets.allSatisfy { $0.size == nil })
             XCTAssertEqual(try Data(contentsOf: url), data)
             try repo.save(loaded)
             XCTAssertEqual(loaded, try JSONStateRepository(url: url).load())

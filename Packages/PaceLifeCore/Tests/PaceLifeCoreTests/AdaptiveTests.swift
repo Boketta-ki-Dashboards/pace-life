@@ -82,7 +82,8 @@ final class AdaptiveTests: XCTestCase {
             let state = LifeState(paths: [path])
             var legacy = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(state)) as? [String: Any])
             legacy.removeValue(forKey: "adaptivePlans")
-            legacy["widgets"] = (legacy["widgets"] as? [[String: Any]])?.filter { $0["kind"] as? String != "adaptive" }
+            legacy.removeValue(forKey: "dayPlans")
+            legacy["widgets"] = ["progress", "mode", "habits", "routines", "paths"].map { ["kind": $0, "isVisible": true] }
             let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
             defer { try? FileManager.default.removeItem(at: folder) }
             try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
@@ -91,7 +92,8 @@ final class AdaptiveTests: XCTestCase {
             let repo = JSONStateRepository(url: url)
             let loaded = try repo.load()
             XCTAssertEqual(loaded.paths, [path]); XCTAssertTrue(loaded.adaptivePlans.isEmpty)
-            XCTAssertEqual(loaded.widgets.last, HomeWidgetPreference(kind: .adaptive, isVisible: false))
+            XCTAssertEqual(loaded.widgets.first(where: { $0.kind == .adaptive }), HomeWidgetPreference(kind: .adaptive, isVisible: false))
+            XCTAssertEqual(loaded.widgets.map(\.kind), [.mode, .habits, .routines, .paths, .adaptive].reduce(into: [HomeWidgetKind.overview, .progress, .streak, .week]) { $0.append($1) } + [.calendar, .circles, .experiments, .chapters])
             XCTAssertEqual(try Data(contentsOf: url), data)
             try repo.save(loaded); XCTAssertEqual(loaded, try JSONStateRepository(url: url).load())
             let corrupt = try JSONSerialization.data(withJSONObject: ["schemaVersion": 4, "state": legacy]); try corrupt.write(to: url)

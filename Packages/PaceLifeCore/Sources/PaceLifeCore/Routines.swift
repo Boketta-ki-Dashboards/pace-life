@@ -106,9 +106,7 @@ extension LifeStore {
         }
     }
     public func dueRoutines(on date: Date = Date(), calendar: Calendar = .current) -> [Routine] {
-        state.routines.filter { $0.isDue(on: date, calendar: calendar)
-            && ($0.modeID == nil || $0.modeID == state.activeModeID) }
-            .sorted { ($0.plannedMinute ?? 1440, $0.title, $0.id.uuidString) < ($1.plannedMinute ?? 1440, $1.title, $1.id.uuidString) }
+        state.dueRoutines(on: date, calendar: calendar)
     }
     public func routineSession(routineID: UUID, on date: Date = Date(), calendar: Calendar = .current) -> RoutineSession? {
         state.routineSessions.first { $0.routineID == routineID && $0.day == DayKey(date: date, calendar: calendar) }

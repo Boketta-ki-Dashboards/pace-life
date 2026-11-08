@@ -130,13 +130,18 @@ final class LifeStoreTests: XCTestCase {
             let mode = LifeMode(title: "Weekend", habitIDs: [habit.id])
             try store.saveMode(mode); try store.activateMode(id: mode.id)
             try store.record(habitID: habit.id, value: 8, on: now)
-            let widgets = [HomeWidgetPreference(kind: .habits), HomeWidgetPreference(kind: .progress, isVisible: false), HomeWidgetPreference(kind: .mode), HomeWidgetPreference(kind: .routines), HomeWidgetPreference(kind: .paths), HomeWidgetPreference(kind: .adaptive)]
+            let legacyOrder = [HomeWidgetPreference(kind: .habits), HomeWidgetPreference(kind: .progress, isVisible: false), HomeWidgetPreference(kind: .mode), HomeWidgetPreference(kind: .routines), HomeWidgetPreference(kind: .paths), HomeWidgetPreference(kind: .adaptive)]
+            let dashboard = [HomeWidgetPreference(kind: .week, size: .large), HomeWidgetPreference(kind: .overview, isVisible: false), HomeWidgetPreference(kind: .streak, size: .compact), HomeWidgetPreference(kind: .calendar), HomeWidgetPreference(kind: .circles, isVisible: false), HomeWidgetPreference(kind: .experiments), HomeWidgetPreference(kind: .chapters, isVisible: false)]
+            let widgets = legacyOrder + dashboard
             try store.setWidgets(widgets)
-            try store.setSettings(AppSettings(theme: .dark, language: .ru))
+            try store.setSettings(AppSettings(theme: .dark, language: .ru, displayName: "Alex"))
+            XCTAssertThrowsError(try store.setSettings(AppSettings(displayName: "  ")))
             let restored = try LifeStore(repository: JSONStateRepository(url: url))
             XCTAssertEqual(restored.state, store.state)
             XCTAssertEqual(restored.state.widgets, widgets)
+            XCTAssertEqual(restored.state.settings.displayName, "Alex")
             XCTAssertThrowsError(try store.setWidgets([HomeWidgetPreference(kind: .mode)]))
+            XCTAssertThrowsError(try store.setWidgets(legacyOrder), "Every widget kind must keep exactly one preference")
         }
     }
 

@@ -1,10 +1,12 @@
 import PaceLifeCore
 
 enum CircleCopy {
-    case total, target, value, localDemo, demoNote, newCircle, noCircles, members, addMember, demo, member, moderator, includeDemo, challenge, newChallenge, own, simulated, contribution, share, privateValue, shared, revoke, remove, source, manual, habit, consent, finish, deleteChallenge, deleteWarning, memberInUse
+    case yourCircles, noChallenges, total, target, value, localDemo, demoNote, newCircle, noCircles, members, addMember, demo, member, moderator, includeDemo, challenge, newChallenge, own, simulated, contribution, share, privateValue, shared, revoke, remove, source, manual, habit, consent, finish, deleteChallenge, deleteWarning, memberInUse
     func text(_ language: AppLanguage) -> String {
         let v: (String, String, String)
         switch self {
+        case .yourCircles: v = ("Deine Circles", "Your circles", "Твои круги")
+        case .noChallenges: v = ("Noch keine Challenge. Lege ein gemeinsames Ziel mit Zeitraum an.", "No challenge yet. Create a shared goal with a period.", "Пока нет челленджей. Создай общую цель со сроком.")
         case .total: v = ("Gemeinsamer Fortschritt", "Shared progress", "Общий прогресс")
         case .target: v = ("Gruppenziel", "Group target", "Общая цель")
         case .value: v = ("Beitrag", "Contribution", "Вклад")

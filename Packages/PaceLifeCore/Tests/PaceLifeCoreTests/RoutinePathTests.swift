@@ -51,7 +51,7 @@ final class RoutinePathTests: XCTestCase {
             XCTAssertThrowsError(try store.savePath(LifePath(title: "Ambiguous", milestones: [PathMilestone(title: "Both", habitID: habit.id, routineID: routine.id)])))
         }
     }
-    func testSchemaSevenWithoutRoutineLinksKeepsHistoryAndWritesSchemaEight() async throws {
+    func testSchemaSevenWithoutRoutineLinksKeepsHistoryAndWritesCurrentSchema() async throws {
         try await MainActor.run {
             let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
             defer { try? FileManager.default.removeItem(at: folder) }
@@ -64,7 +64,7 @@ final class RoutinePathTests: XCTestCase {
             XCTAssertEqual(try repo.load(), original); XCTAssertEqual(try Data(contentsOf: url), data)
             try repo.save(original)
             let envelope = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any])
-            XCTAssertEqual(envelope["schemaVersion"] as? Int, 8)
+            XCTAssertEqual(envelope["schemaVersion"] as? Int, 9)
             XCTAssertEqual(try JSONStateRepository(url: url).load(), original)
         }
     }

@@ -35,7 +35,7 @@ public enum LifeError: Error, Equatable, Sendable {
         let version: Int
         do { version = try decoder.decode(Header.self, from: data).schemaVersion }
         catch { throw LifeError.corruptStore }
-        guard (1...8).contains(version) else { throw LifeError.unsupportedSchema(version) }
+        guard (1...9).contains(version) else { throw LifeError.unsupportedSchema(version) }
         do {
             let state: LifeState
             switch version {
@@ -45,7 +45,8 @@ public enum LifeError: Error, Equatable, Sendable {
             case 4: state = try decoder.decode(SchemaFourEnvelope.self, from: data).state.migrated()
             case 5: state = try decoder.decode(SchemaFiveEnvelope.self, from: data).state.migrated()
             case 6: state = try decoder.decode(SchemaSixEnvelope.self, from: data).state.migrated()
-            case 7: state = try decoder.decode(SchemaSevenEnvelope.self, from: data).state.migrated()
+            // Schema 8 only added an optional milestone field; its top-level shape equals schema 7.
+            case 7, 8: state = try decoder.decode(SchemaSevenEnvelope.self, from: data).state.migrated()
             default: state = try decoder.decode(Envelope.self, from: data).state
             }
             try state.validate()
@@ -62,7 +63,7 @@ public enum LifeError: Error, Equatable, Sendable {
         guard current == loadedData else { throw LifeError.concurrentModification }
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys]
-        let data = try encoder.encode(Envelope(schemaVersion: 8, state: state))
+        let data = try encoder.encode(Envelope(schemaVersion: 9, state: state))
         try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
         #if os(iOS)
         try data.write(to: url, options: [.atomic, .completeFileProtection])
@@ -122,6 +123,11 @@ extension LifeState {
             }
         }
         try Self.validateWidgets(widgets)
+        if let name = settings.displayName {
+            let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty, trimmed == name, name.count <= 40 else { throw LifeError.corruptStore }
+        }
+        try validateDayPlans()
         try validateRoutines()
         try validatePaths()
         try validateAdaptive()

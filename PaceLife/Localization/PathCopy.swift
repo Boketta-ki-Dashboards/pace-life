@@ -1,10 +1,12 @@
 import PaceLifeCore
 
 enum PathCopy {
-    case source, routineRule, paths, newPath, editPath, milestones, addMilestone, linkedHabit, manual, category, targetDate, noPaths, contributionRule, status, active, paused, completed, archived, finish, resume, todayValue, startDate, completedDate
+    case nextMilestone, milestonesDone, source, routineRule, paths, newPath, editPath, milestones, addMilestone, linkedHabit, manual, category, targetDate, noPaths, contributionRule, status, active, paused, completed, archived, finish, resume, todayValue, startDate, completedDate
     func text(_ language: AppLanguage) -> String {
         let v: (String, String, String)
         switch self {
+        case .nextMilestone: v = ("Nächster Meilenstein", "Next milestone", "Следующий этап")
+        case .milestonesDone: v = ("%@ von %@ Meilensteinen erreicht", "%@ of %@ milestones reached", "Достигнуто этапов: %@ из %@")
         case .source: v = ("Beitragsquelle", "Contribution source", "Источник вклада")
         case .routineRule: v = ("Routinen zählen vollständig erledigte gespeicherte Sessions ab dem Path-Start. Eine Session zählt einmal; Teilfortschritt und geplante Minuten werden nicht als erledigte Arbeit gebucht. Korrekturen aktualisieren den Beitrag auch nach Archivierung.", "Routines count fully completed stored sessions from the path start. Each session counts once; partial progress and planned minutes are not recorded as completed work. Corrections update the contribution even after archiving.", "Рутины учитывают полностью выполненные сохранённые сессии с начала пути. Каждая сессия считается один раз; частичный прогресс и запланированные минуты не считаются выполненной работой. Исправления обновляют вклад и после архивации.")
         case .paths: v = ("Life Paths", "Life Paths", "Life Paths")
@@ -34,6 +36,14 @@ enum PathCopy {
 }
 extension AppModel {
     func pathText(_ key: PathCopy) -> String { key.text(state.settings.language) }
+    func pathText(_ key: PathCopy, _ first: Int, _ second: Int) -> String {
+        var result = key.text(state.settings.language)
+        for value in [number(Double(first)), number(Double(second))] {
+            guard let range = result.range(of: "%@") else { break }
+            result.replaceSubrange(range, with: value)
+        }
+        return result
+    }
     func pathStatusName(_ status: PathStatus) -> String {
         switch status { case .active: pathText(.active); case .paused: pathText(.paused); case .completed: pathText(.completed); case .archived: pathText(.archived) }
     }

@@ -104,7 +104,9 @@ final class ChapterTests: XCTestCase {
             try data.write(to: url)
             let repo = JSONStateRepository(url: url)
             let migrated = try repo.load()
-            XCTAssertEqual(migrated, old.state)
+            // Schema 4 never stored day plans; every other field is preserved unchanged.
+            var expected = old.state; expected.dayPlans = []
+            XCTAssertEqual(migrated, expected)
             XCTAssertEqual(try Data(contentsOf: url), data)
             try repo.save(migrated)
             XCTAssertEqual(try JSONStateRepository(url: url).load(), migrated)
