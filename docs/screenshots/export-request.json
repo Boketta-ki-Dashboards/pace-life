@@ -4,10 +4,10 @@
   "artifact_name": "ios-evidence-macos-15",
   "screenshots": [
     "pace-dashboard-bottom-light",
-    "pace-profile-light",
-    "pace-circles-dark",
-    "pace-paths-light",
+    "pace-modes-light",
     "pace-adaptive-light",
-    "pace-modes-light"
+    "pace-paths-light",
+    "pace-profile-light",
+    "pace-circles-dark"
   ]
 }
