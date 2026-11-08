@@ -3,9 +3,11 @@
   "source_commit": "3344d226ece37e3931907a97e89d9513d22b44e8",
   "artifact_name": "ios-evidence-macos-15",
   "screenshots": [
-    "pace-dashboard-light",
-    "pace-dashboard-scrolled-light",
-    "pace-today-dark",
-    "pace-development-light"
+    "pace-dashboard-bottom-light",
+    "pace-profile-light",
+    "pace-circles-dark",
+    "pace-paths-light",
+    "pace-adaptive-light",
+    "pace-modes-light"
   ]
 }
