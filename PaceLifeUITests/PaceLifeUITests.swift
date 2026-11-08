@@ -700,7 +700,9 @@ final class PaceLifeUITests: XCTestCase {
         let selected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "enabled == true"), object: add)
         XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 10), .completed, app.debugDescription)
         add.tap()
-        XCTAssertTrue(photo.waitForExistence(timeout: 10), app.debugDescription)
+        // Decoding and re-encoding the picked image can take longer on Intel runners;
+        // the page stays disabled while importing. The photo itself is still required.
+        XCTAssertTrue(photo.waitForExistence(timeout: 30), app.debugDescription)
         XCTAssertTrue(remove.exists)
         app.terminate(); app.launch()
         app.buttons["tab.development"].tap(); app.buttons["manageChapters"].tap()
