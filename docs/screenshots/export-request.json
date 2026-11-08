@@ -1,13 +1,12 @@
 {
-  "run_id": 42523710736,
-  "source_commit": "3344d226ece37e3931907a97e89d9513d22b44e8",
+  "run_id": 42525971975,
+  "source_commit": "7522b4e7da381583cb23db70d2940cb6a05d69d9",
   "artifact_name": "ios-evidence-macos-15",
   "screenshots": [
-    "pace-dashboard-bottom-light",
-    "pace-modes-light",
-    "pace-adaptive-light",
-    "pace-paths-light",
-    "pace-profile-light",
-    "pace-circles-dark"
+    "pace-dashboard-edit-light",
+    "pace-statistics-light",
+    "pace-calendar-light",
+    "pace-path-detail-light",
+    "pace-dashboard-dark"
   ]
 }

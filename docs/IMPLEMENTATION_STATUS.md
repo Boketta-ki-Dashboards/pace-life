@@ -87,7 +87,7 @@ Displaygrößen und reale iPhones sind nicht verifiziert.
 
 ## Verbundene Daten und Persistenz
 
-Aktueller Writer: **Schema 8**. Explizite Leser für Schema 1 bis 7; unveränderte
+Aktueller Writer: **Schema 10** (seit 8. November; Details in MIGRATION_DESIGN). Explizite Leser für Schema 1 bis 9; unveränderte
 Alt-UUIDs, Erfüllungen/Ziel-Snapshots, Mode-Aktivierungen, Routine-Sessions, Widgets
 und Einstellungen. Neue Arrays bleiben leer; keine historischen Daten werden
 erfunden. Migration nur im Speicher, Dateiänderung erst beim erfolgreichen atomaren
@@ -148,18 +148,12 @@ im Repository. Die reine Lese-Exportpipeline benötigt keine CI-Schreibrechte.
 
 ## Nächste Arbeiten für Claude Code
 
-1. Den aktuellen Nachlauf der Datumskorrektur und die verbleibende Intel-UI-Prüfung
-   vollständig kontrollieren. Ein Build allein ist keine Designabnahme.
+1. Den finalen UI-Lauf beider Architekturen kontrollieren (siehe Neuaufbau-Tabelle oben).
 2. Auf kleinem/großem iPhone und physischem Gerät lange DE/EN/RU-Texte, VoiceOver,
-   Large Content Viewer sowie Kalender-/Chart-/Back-Gesten abnehmen. Die native
-   Fotoauswahl ist automatisiert getestet; weitere Fotoformate und große Bestände
-   brauchen noch gezielte Gerätetests.
-3. Automatische wiederkehrende Life Modes und historische Habit-Planrevisionen
-   umsetzen. Aktuelle Streaks verwenden weiterhin den heutigen Wochenplan; frühere
-   Planänderungen sind nicht rekonstruierbar und dürfen nicht erfunden werden.
-4. Tages-/Wochenroutinen vertiefen, Meilenstein-/Fortschrittsdiagramme ausbauen,
-   Adaptive-Neuplanung, Prioritäten/Zeitfenster, lokale Erinnerungen mit Zustimmung,
-   Export/Backup und weitere frei konfigurierbare Home-Widgets ergänzen.
+   Large Content Viewer, Widget-Drag-and-Drop sowie Kalender-/Chart-/Back-Gesten abnehmen.
+   Zustellung echter Erinnerungen und der Dateiexport/-import sind nur am Gerät prüfbar.
+3. Originales Wortmarken-Asset einsetzen, sobald geliefert (`PaceWordmark`).
+4. Mode-Duplikation/Archiv, Zeitfenster, Fotos im Backup, Titelbilder für Paths.
 5. Connect/echte Circles erst nach freigegebenem Backend-/Identitätsvertrag.
 
 Technische Einstiegspunkte: AppModel/Composition Root unter `PaceLife/App`, neue
@@ -175,9 +169,9 @@ Branch aktualisieren → `PaceLife.xcodeproj` öffnen → Scheme **PaceLife** �
 Team und ggf. eindeutige Bundle-ID unter Signing & Capabilities wählen → iPhone
 vertrauen/Entwicklermodus aktivieren → Gerät als Run Destination → **⌘R**.
 Ausführliche Testabläufe für alle lokalen Module stehen in [README.md](../README.md).
-Bei Migration ggf. verborgene neue Home-Widgets unter „Home anpassen“ aktivieren.
-Nach dem Schreiben von Schema 8 keine ältere Beta über denselben Datencontainer
-installieren: ältere Writer lehnen das neue Schema absichtlich ab.
+Nach dem Update erscheinen die neuen Dashboard-Widgets; weitere über **Anpassen →
+Widget hinzufügen**. Nach dem Schreiben von Schema 10 keine ältere Beta über denselben
+Datencontainer installieren: ältere Writer lehnen das neue Schema absichtlich ab.
 
 ## Datumseditoren: gregorianische Schlüssel erhalten
 

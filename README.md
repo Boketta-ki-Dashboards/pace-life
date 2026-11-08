@@ -69,6 +69,17 @@ einen Ring. Vergangene Tage nutzen ihren eingefrorenen Tagesplan (ab Schema 9); 
 ohne gespeicherten Plan gelten nicht als verpasst. Zukunftstage sind eine Vorschau.
 Das Statistik-Symbol zeigt Woche/Monat, Kennzahlen und Bestwerte.
 
+Erinnerungen testen: In einer Gewohnheit oder Routine unter **Erinnerungen** „+“
+tippen, Uhrzeit/Wochentage wählen und speichern; iOS fragt erst jetzt nach der
+Erlaubnis. Übersicht und Ein/Aus unter **Profil → Erinnerungen**. Backup: **Profil →
+Daten & Backup** exportiert eine JSON-Datei (ohne Fotos) und stellt sie nach
+Bestätigung wieder her; vorher wird automatisch eine Sicherheitskopie abgelegt.
+
+Wochenplan-Modes testen: Unter **Life Modes** einen Mode bearbeiten, Wochentage bei
+„Automatisch aktivieren“ wählen und bis zu drei Gewohnheiten mit dem Stern als
+Tagespriorität markieren. Am geplanten Tag ist der Mode automatisch aktiv; eine
+manuelle Wahl gilt für den restlichen Tag.
+
 Life Chapters testen: **Entwicklung → Life Chapters → +**. Titel, Zeitraum,
 Kategorie und optional verknüpfte Paths speichern. Im Kapitel Fotos über den nativen
 Picker auswählen, eine Erinnerung bzw. einen Meilenstein anlegen und die App neu
@@ -105,13 +116,15 @@ als tatsächliche Arbeitszeit verbucht.
 
 Zuerst [Implementierungs- und Prüfstand](docs/IMPLEMENTATION_STATUS.md), dann
 [Architektur/Migrationen](docs/ARCHITECTURE.md) und [Roadmap](docs/ROADMAP.md) lesen.
-Writer ist Schema 8; ältere Versionen 1–7 werden explizit übernommen. Kein Reset
-bei Lesefehlern, keine erfundene Historie. Nach Schema-8-Speicherung keine ältere
-Beta über denselben Datencontainer installieren. Neue Home-Widgets können bei
-Migration verborgen sein und unter „Home anpassen“ aktiviert werden.
+Writer ist Schema 10; ältere Versionen 1–9 werden explizit übernommen. Kein Reset
+bei Lesefehlern, keine erfundene Historie. Nach Schema-10-Speicherung keine ältere
+Beta über denselben Datencontainer installieren. Beim Update bleiben Reihenfolge,
+Sichtbarkeit und Größe vorhandener Home-Widgets erhalten; neue Dashboard-Widgets
+(Übersicht, Serie, Woche, Kalender) werden sichtbar ergänzt, Kreise/Experimente/
+Chapters lassen sich über **Anpassen → Widget hinzufügen** einblenden.
 
 Ausschließlich auf dem bestehenden Beta-Branch arbeiten; jeden getesteten Abschnitt
 committen, pushen und Remote-HEAD prüfen. CI-/Foto-/Screenshot-Anleitungen stehen
-in [TEST_AND_RELEASE.md](docs/TEST_AND_RELEASE.md). Vollständige Geräteabnahme,
-automatische Modes, historische Habit-Planrevisionen, flexible Neuplanung, lokale
-Erinnerungen und Export/Backup sind noch offen. Keine produktive Onlineanbindung.
+in [TEST_AND_RELEASE.md](docs/TEST_AND_RELEASE.md). Offen sind die vollständige
+Geräteabnahme auf dem iPhone, das originale Wortmarken-Asset, Mode-Duplikation/Archiv,
+Zeitfenster innerhalb eines Tages, Fotos im Backup und echte Online-Funktionen. Keine produktive Onlineanbindung.
