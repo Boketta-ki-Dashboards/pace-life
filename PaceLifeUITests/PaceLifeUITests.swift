@@ -32,7 +32,10 @@ final class PaceLifeUITests: XCTestCase {
         else if app.tables.firstMatch.exists && app.tables.firstMatch.isHittable { scroll = app.tables.firstMatch }
         else { scroll = app }
         for attempt in 0..<12 {
-            var viewport = scroll.frame.insetBy(dx: 0, dy: 12)
+            // Only the bottom keeps a margin (dock/keyboard are subtracted below). Header
+            // actions sit a few points below the top of the scroll view and are fully visible.
+            var viewport = scroll.frame
+            viewport.size.height = max(0, viewport.height - 12)
             let dock = app.buttons["tab.today"]
             if dock.exists && dock.isHittable {
                 viewport.size.height = max(0, min(viewport.maxY, dock.frame.minY - 12) - viewport.minY)
