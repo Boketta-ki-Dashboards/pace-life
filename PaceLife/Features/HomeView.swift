@@ -295,7 +295,7 @@ private struct OverviewTiles: View {
                     .frame(height: 28).accessibilityHidden(true)
                 Text(label).font(.caption).foregroundStyle(PaceColor.textSecondary).lineLimit(1).minimumScaleFactor(0.7)
                 Text(value).font(.headline.weight(.heavy)).foregroundStyle(PaceColor.textPrimary)
-                    .lineLimit(1).minimumScaleFactor(0.55)
+                    .lineLimit(2).minimumScaleFactor(0.6).multilineTextAlignment(.center)
                 Text(detail).font(.caption2).foregroundStyle(PaceColor.textSecondary).lineLimit(2).multilineTextAlignment(.center)
             }
             .padding(.horizontal, 6).padding(.vertical, PaceSpacing.s)

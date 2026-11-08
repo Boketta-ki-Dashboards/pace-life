@@ -278,7 +278,7 @@ extension AppModel {
     }
     func modeSummary(_ mode: LifeMode) -> String {
         let routines = state.routines.filter { $0.modeID == mode.id && !$0.isArchived }.count
-        return number(Double(mode.habitIDs.count)) + " " + text(.habits) + " · " + number(Double(routines)) + " " + text(.routines)
+        return text(.habits) + ": " + number(Double(mode.habitIDs.count)) + " · " + text(.routines) + ": " + number(Double(routines))
     }
     /// Sum of actual minutes recorded today on duration habits.
     var todayMinutes: Double { metricValue(.minutes, on: today) }

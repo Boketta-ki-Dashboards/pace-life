@@ -1,5 +1,35 @@
 # Echte Simulatoraufnahmen
 
+## Pace-Neuaufbau (8. November 2026)
+
+Zehn unveränderte PNGs aus `XCTAttachment(screenshot:)`, Code
+`3344d226ece37e3931907a97e89d9513d22b44e8`,
+[CI 42523710736](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/42523710736)
+(Apple Silicon, iPhone-Simulator, 1206 × 2622), über den bestehenden Lese-Export
+übertragen und per SHA-256 geprüft (`provenance.json`). Die Dashboard-Aufnahmen nutzen
+die ausdrücklich synthetischen DEBUG-Testdaten (`UITestSeed`, Name „Alex“); keine
+Nutzerdaten, keine Referenzvideos, keine Pace-Social-Inhalte.
+
+| Ansicht | PNG |
+|---|---|
+| Dashboard oben, hell (synthetische Daten) | [Dashboard](pace-dashboard-light-3344d22.png) |
+| Dashboard gescrollt: Gewohnheiten, Routinen, Woche | [Gescrollt](pace-dashboard-scrolled-light-3344d22.png) |
+| Dashboard unten: Mode, Paths, Adaptive, Kalender | [Unten](pace-dashboard-bottom-light-3344d22.png) |
+| Heute ohne Daten, dunkel | [Heute dunkel](pace-today-dark-3344d22.png) |
+| Entwicklung, hell | [Entwicklung](pace-development-light-3344d22.png) |
+| Life Modes (Unterseite mit Zurück-Link) | [Modes](pace-modes-light-3344d22.png) |
+| Pace Adaptive Planer | [Adaptive](pace-adaptive-light-3344d22.png) |
+| Life Paths, leer | [Paths](pace-paths-light-3344d22.png) |
+| Profil, hell | [Profil](pace-profile-light-3344d22.png) |
+| Kreise, dunkel | [Kreise](pace-circles-dark-3344d22.png) |
+
+Alle zehn Bilder wurden geöffnet und gegen die Referenzanalyse geprüft (Ergebnis:
+[DESIGN_REFERENCE_ANALYSIS.md](../DESIGN_REFERENCE_ANALYSIS.md#screenshot-vergleich-3344d22)).
+Sichtbar korrigiert danach: abgeschnittener Mode-Name in der Übersichtskachel und
+„1 Routinen“-Grammatik. Die älteren Aufnahmen unten zeigen den Stand vor dem Neuaufbau.
+
+## Stand vor dem Neuaufbau (4. November 2026)
+
 Elf unveränderte PNGs aus `XCTAttachment(screenshot: app.screenshot())`, aufgenommen
 am 4. November 2026 auf **iPhone 16 Pro, iOS 18.5, Xcode 16.4, Apple Silicon**.
 Nur isolierte Testdaten, keine Nutzerfotos, Mockups oder Originalreferenzvideos.

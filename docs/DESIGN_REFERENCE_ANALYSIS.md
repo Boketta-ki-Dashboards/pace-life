@@ -103,3 +103,28 @@ Das Referenzmaterial bestimmt Form und Interaktion, nicht den Inhalt. Pace Life
 - Abnahme auf dem physischen iPhone, kleinere/größere Displays, VoiceOver.
 - Pixelgenaue Übereinstimmung wird nicht behauptet: Videokompression und die
   fehlende Originalschrift der Wortmarke begrenzen die Genauigkeit.
+
+## Screenshot-Vergleich (3344d22)
+
+Echte Simulatoraufnahmen (siehe `docs/screenshots`) gegen die Messwerte oben.
+✓ = entspricht der Referenz, ≈ = bewusst angepasst/angenähert, ✗ = offene Abweichung.
+
+| Bereich | Referenz (Pace Social) | Pace Life (Simulator) | Bewertung |
+|---|---|---|---|
+| Kopfzeile | Wortmarke links, gefüllter „Anpassen“-Knopf rechts, darunter Begrüßung + Kalender/Glocke | identisch aufgebaut; rechts Kalender + Statistik statt Glocke | ✓ / ≈ (Wortmarke Systemschrift) |
+| Kachelreihe | 4 Positionskacheln mit Icon, Chevron, Label, `#1`, Ort | 4 Kacheln Mode/Serie/Routinen/Paths mit gleichem Aufbau | ✓ |
+| Hauptkarte | Titel + Akzentlink, große Zahl, „von …“, Balken, „Noch …“, Ring 21 %, Doppelkachel | gleicher Aufbau („Tag anpassen“, 1 von 3, 56 %, Routinen/Minuten) | ✓ |
+| Serienkarte | Flammenkreis, „0 Tage“, „Heute offen“ | gleich, zusätzlich „Rekord“ | ✓ |
+| Wochenkarte | Balken Mo–So, Y-Achse, Ziellinie, heute dunkel, zwei Kennzahlen, Fußzeile | gleich; erreichte Tage zusätzlich in `goalReachedFill` | ✓ / ≈ |
+| Kalenderkarte | Monatsraster, erreichte Tage grün gefüllt mit Wert | gleich (Wert „3/3“ statt Schrittzahl) | ✓ |
+| Dock | Mint-Fläche, gefülltes Icon, fette Beschriftung, feste Position | gleich, auch auf Unterseiten | ✓ |
+| Unterseiten | „‹ Home“, Wortmarke, großer Titel, Aktionen als Mint-Quadrate | gleich („‹ Heute“, „‹ Entwicklung“) | ✓ |
+| Profil-Darstellung | Segmente Automatisch/Hell/Dunkel, aktiv dunkelgrün | identisch | ✓ |
+| Stepper/Quick-Picks | große Zahl mit −/+ in Mint-Quadraten, Wertekacheln | Adaptive-Zeitbudget identisch aufgebaut | ✓ |
+| Dark Mode | sehr dunkle Petrol-Flächen, Mint-Akzente | gleiche Tokens | ✓ |
+| Leerzustände | Icon im Kreis, Titel, Text | gleich | ✓ |
+| Wortmarke | Originallogo | Systemschrift-Annäherung „pace life“ | ≈ (Asset ausstehend) |
+| Anpassen-Modus | ×, Größe, Griff an jeder Karte, Akzentrahmen | vorhanden; Screenshot folgt nach grünem Lauf | offen |
+
+Nicht geprüft: physisches iPhone, kleine/große Displays, VoiceOver-Abnahme, alle
+langen RU-Texte. Pixelgenaue Gleichheit wird nicht behauptet.
