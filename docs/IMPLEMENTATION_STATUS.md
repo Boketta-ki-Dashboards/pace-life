@@ -5,6 +5,22 @@ Branch `codex/pace-life-offline-beta`; Ausgangs-HEAD `74931679` remote verifizie
 Alle Entwicklungsabschnitte sind einzeln gepusht und per Remote-HEAD überprüft.
 Keine Merges nach main, kein Force-Push, keine anderen Repositories oder Backends.
 
+## Bestandsaufnahme 8. November 2026 (Claude Code, Design-Neuaufbau)
+
+Ausgangs-HEAD `1dfb424`. Lokal mit Swift 6.0.3/Linux: **54 Core-Tests, 0 Fehler**.
+Letzter macOS-Lauf (`c4547e8`, [CI 41851293004](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/41851293004)):
+Apple Silicon vollständig grün (Core, 15 UI, Debug/Release); Intel scheiterte in
+den UI-Tests.
+
+Die Funktionsbasis aller lokalen Module ist real (siehe Tabelle unten). Die
+Oberfläche war dagegen generisch: Jeder Bereich öffnete ein eigenes Sheet mit
+„Fertig“-Knopf, Startseite und Entwicklung bestanden aus gestapelten Buttons,
+Listen nutzten Standard-`List`/`Form`, die Kopfzeile zeigte „Pace Life“ plus
+sichtbares „Logo-Platzhalter“, die Startseite hatte keine Woche, keinen Kalender,
+keine Serie und keinen Bearbeitungsmodus. Die Pace-Social-Originalvideos wurden
+erstmals tatsächlich ausgewertet: [Referenzanalyse](DESIGN_REFERENCE_ANALYSIS.md).
+Ergebnis: Die Farbtokens stimmen, Layout, Navigation und Komponenten nicht.
+
 ## Tatsächlich implementierter Umfang aller sieben USPs
 
 | Modul | Implementierter Stand | Verbleibender Umfang |
