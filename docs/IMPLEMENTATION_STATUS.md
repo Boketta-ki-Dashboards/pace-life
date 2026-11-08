@@ -21,6 +21,26 @@ keine Serie und keinen Bearbeitungsmodus. Die Pace-Social-Originalvideos wurden
 erstmals tatsächlich ausgewertet: [Referenzanalyse](DESIGN_REFERENCE_ANALYSIS.md).
 Ergebnis: Die Farbtokens stimmen, Layout, Navigation und Komponenten nicht.
 
+## Neuaufbau 8. November 2026: Ergebnisse und Prüfstand
+
+Commits (alle gepusht, kein Force-Push): `36bee67` Referenzanalyse/Bestandsaufnahme,
+`b92f812` Navigation/Designsystem/Dashboard/Schema 9, `c0493f7` Swift-6-Fix und
+angepasste UI-Tests, `053fcd2` Schema 10 (Wochenplan-Modes, Prioritäten,
+Erinnerungen, Backup, Path-Verlauf, Adaptive-Neuplanung), `3344d22` robuster
+Fotopicker-Test, danach Editor-Feinschliff.
+
+| Prüfung | Ergebnis |
+|---|---|
+| Core-Tests lokal (Swift 6.0.3/Linux) | **69 bestanden, 0 Fehler** |
+| iOS-Simulator-Build Apple Silicon `c0493f7` | bestanden (Debug und Release), [CI 42522217136](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/42522217136) |
+| iOS-Simulator-Build Apple Silicon `053fcd2` (Schema 10) | bestanden, [CI 42522846066](https://github.com/Boketta-ki-Dashboards/pace-life/actions/runs/42522846066) |
+| Native Edge-Swipe-Zurück mit Push-Navigation (`testManualPathMilestoneSurvivesRelaunch`) | bestanden auf Apple Silicon (`c0493f7`) |
+| Fotopicker-Regression | in `c0493f7` fehlgeschlagen: Der Runner-Picker rendert Fotos als Bildraster statt Zellen; Test in `3344d22` angepasst, Nachlauf ausstehend |
+| Übrige UI-Tests (Dashboard-Anpassen, Größe/Reihenfolge, Wochenplan-Mode, Erinnerungen, Screenshots) | ausstehend – wurden wegen der Fotopicker-Regression übersprungen |
+
+Erst ein grüner vollständiger UI-Lauf mit visuell geprüften Screenshots gilt als
+Abnahme dieses Neuaufbaus. Physische iPhone-Tests wurden nicht durchgeführt.
+
 ## Tatsächlich implementierter Umfang aller sieben USPs
 
 | Modul | Implementierter Stand | Verbleibender Umfang |

@@ -476,7 +476,7 @@ final class PaceLifeUITests: XCTestCase {
         reveal(app.buttons["addHabit"], in: app); app.buttons["addHabit"].tap()
         let name = app.textFields["habitTitle"]
         XCTAssertTrue(name.waitForExistence(timeout: 5)); name.tap(); name.typeText("Study")
-        app.buttons["habitGoal"].tap(); app.buttons["Dauer"].tap()
+        app.buttons["Dauer"].tap()
         let target = app.textFields["habitTarget"]
         XCTAssertTrue(target.waitForExistence(timeout: 5)); target.tap()
         target.typeText(XCUIKeyboardKey.delete.rawValue + "60")

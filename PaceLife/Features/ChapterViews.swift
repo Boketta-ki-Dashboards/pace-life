@@ -113,21 +113,23 @@ struct ChapterDetail: View {
                     PaceCard { Text(model.text(.noHistory)).foregroundStyle(PaceColor.textSecondary) }
                 }
                 ForEach(chapter.memories.sorted { $0.day > $1.day }) { entry in
-                    Button { memory = entry } label: {
-                        PaceCard {
-                            VStack(alignment: .leading, spacing: PaceSpacing.xs) {
-                                HStack {
-                                    Label(entry.title, systemImage: entry.isMilestone ? "flag.checkered" : "text.book.closed")
-                                        .font(.headline).foregroundStyle(PaceColor.textPrimary)
-                                    Spacer()
-                                    Text(model.dayLabel(entry.day)).font(.caption).foregroundStyle(PaceColor.textSecondary)
+                    PaceCard {
+                        VStack(alignment: .leading, spacing: PaceSpacing.xs) {
+                            HStack(alignment: .firstTextBaseline) {
+                                Label(entry.title, systemImage: entry.isMilestone ? "flag.checkered" : "text.book.closed")
+                                    .font(.headline).foregroundStyle(PaceColor.textPrimary)
+                                Spacer()
+                                Text(model.dayLabel(entry.day)).font(.caption).foregroundStyle(PaceColor.textSecondary)
+                                Button { memory = entry } label: {
+                                    Image(systemName: "pencil").font(.footnote.weight(.semibold)).foregroundStyle(PaceColor.accentStrong)
+                                        .frame(width: 44, height: 44)
                                 }
-                                if !entry.notes.isEmpty { Text(entry.notes).font(.subheadline).foregroundStyle(PaceColor.textPrimary) }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel(model.text(.edit) + ": " + entry.title)
                             }
+                            if !entry.notes.isEmpty { Text(entry.notes).font(.subheadline).foregroundStyle(PaceColor.textPrimary) }
                         }
                     }
-                    .buttonStyle(.plain)
-                    .accessibilityHint(model.text(.edit))
                 }
                 VStack(spacing: PaceSpacing.xs) {
                     Button(model.chapterText(chapter.isArchived ? .restore : .archive)) {

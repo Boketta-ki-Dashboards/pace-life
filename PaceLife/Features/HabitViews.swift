@@ -31,9 +31,8 @@ struct HabitEditor: View {
                         .accessibilityIdentifier("habitTitle")
                 }
                 Section {
-                    Picker(model.text(.goal), selection: $kind) {
-                        ForEach(GoalType.allCases, id: \.self) { Text(model.goalName($0)).tag($0) }
-                    }.accessibilityIdentifier("habitGoal")
+                    PaceSegmentedControl(selection: $kind, options: GoalType.allCases.map { (value: $0, title: model.goalName($0)) })
+                        .accessibilityElement(children: .contain)
                     if kind != .binary {
                         TextField(model.text(.target), text: $targetText)
                             .keyboardType(kind == .count ? .numberPad : .decimalPad).accessibilityIdentifier("habitTarget")
@@ -42,11 +41,7 @@ struct HabitEditor: View {
                     }
                 } footer: { Text(model.text(.renameNote)) }
                 Section {
-                    ForEach(model.weekdays, id: \.self) { day in
-                        Toggle(model.weekday(day), isOn: Binding(get: { weekdays.contains(day) }, set: { enabled in
-                            if enabled { weekdays.insert(day) } else { weekdays.remove(day) }
-                        }))
-                    }
+                    PaceWeekdayPicker(selection: $weekdays, identifierPrefix: "habit.weekday")
                 } header: { Text(model.text(.frequency)) } footer: { Text(model.text(.habitScheduleNote)) }
             }
             .paceFormStyle()

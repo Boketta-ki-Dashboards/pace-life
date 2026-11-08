@@ -59,3 +59,32 @@ Zwei Originalvideos (Dark und Light) werden **direkt in der aktiven Codex-Chat-K
 Alle 23 Light-/Dark-Farbpaare sind unverändert in `PaceLife/DesignSystem/PaceColors.swift` umgesetzt. `PaceCard` (20 pt), `PaceTile` (14 pt), Buttons (mindestens 52 pt), Fortschrittsring (12 pt), Header und Statuskomponente liegen in `PaceComponents.swift`. Systemschrift, Dynamic Type, Reduce Motion und semantische VoiceOver-Texte bilden die Basis. Der Text „Pace Life“ ist ausdrücklich als Logo-Platzhalter beschriftet.
 
 Die vier Tabs erhalten einen mintfarbenen Auswahlzustand. Safe Areas werden über native SwiftUI-Container berücksichtigt. Die Originalvideos vom 30.10.2026 waren als Chat-Anhänge vorhanden, überschritten aber beide das 32-MiB-Übertragungslimit des Executors. Es wurden keine Frames oder Bewegungen daraus angesehen. **Visueller Videoabgleich ausstehend**; keine Behauptung einer exakten visuellen oder gestischen Übereinstimmung. Echte iOS-Läufe und ausgewählte geprüfte Simulatoraufnahmen liegen inzwischen vor (siehe `docs/screenshots`); Originalvideo-Abgleich und freigegebenes Wordmark bleiben offen.
+
+## Implementierungsstand Pace-Neuaufbau (8. November 2026)
+
+Die Originalvideos wurden diesmal tatsächlich ausgewertet ([Analyse](DESIGN_REFERENCE_ANALYSIS.md)).
+Die Farbtokens oben bleiben unverändert; neu sind die daraus abgeleiteten Bausteine in
+`PaceLife/DesignSystem/PaceComponents.swift` und `PaceLife/Features/DashboardComponents.swift`:
+
+- `PaceWordmark`: kleingeschriebenes „pace“ (SF Rounded Black, Markenfarbe) plus „life“
+  in Akzentfarbe. Systemschrift-Annäherung, kein Originalasset; Hinweis unter
+  Profil → Über Pace Life, VoiceOver liest „Pace Life“. Das Original kann zentral ersetzt werden.
+- `PaceRootHeader`: Wortmarke + Primäraktion (z. B. „Anpassen“), darunter großer Titel
+  (`.title.bold()`) mit 44-pt-Icon-Aktionen; beide Zeilen mindestens 44 pt.
+- `PaceSubpage`: native Leiste nur mit Zurück-Link, darunter Wortmarke und großer Titel,
+  optionale Aktionen als `PaceSquareIcon` (Mint-Quadrat).
+- `PaceCompactButtonStyle` (Header-/Inline-Aktion, 12 pt Radius), `PaceLinkButtonStyle`,
+  `PaceSegmentedControl` (aktiv `accentStrong`/`onAccent`, inaktiv `fieldBackground`),
+  `PaceChip`, `PaceSettingsRowLabel`, `PaceSectionTitle`, `PaceCardHeader`, `PaceStatTile`,
+  `PaceEmptyState`, `PaceToggleRow`, `PaceBadge`, `PaceWeekdayPicker`.
+- `PaceRing` (12 pt, `accentStrong`) und `PaceProgressBar` (8 pt, `accent`).
+- `PaceBarChart`: drei Y-Ticks, Ziellinie, heutiger Balken `accentStrong`, vergangene
+  `chartLow`, Zukunft gestrichelt, unbekannte Tage als Lücke („–“), nie als Null.
+- `PaceDayCell`/`PaceCalendarGrid`: erreichte Tage `goalReachedFill`, Teilfortschritt als
+  Ring, heute umrandet, Zukunft `fieldBackground`, Wert klein unter der Zahl.
+- Dock: `surface` mit feiner Oberkante, aktiv `selectionFill` + gefülltes SF-Symbol + fette
+  13-pt-Beschriftung; bleibt auf allen Unterseiten sichtbar.
+
+Pixelgenaue Übereinstimmung wird nicht behauptet. Simulator-Screenshots der neuen
+Oberfläche werden in `docs/screenshots` mit Herkunft abgelegt, sobald ein vollständiger
+UI-Lauf grün ist.
